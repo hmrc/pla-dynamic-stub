@@ -19,6 +19,7 @@ package uk.gov.hmrc.pla.stub.rules
 import java.util.Random
 
 import uk.gov.hmrc.pla.stub.model.Protection
+import uk.gov.hmrc.pla.stub.model.ProtectionAmendment
 import uk.gov.hmrc.pla.stub.model.Protection.Type._
 import uk.gov.hmrc.play.test.UnitSpec
 import java.util.Random
@@ -233,6 +234,171 @@ class FP2016ApplicationRulesSpec extends UnitSpec {
   "An application for an FP2016 when a rejected application, a dormant non-Primary protection plus an open FP2016 already exists for the individual" should {
     "return a notification ID of 21" in {
       FP2016ApplicationRules.check(List(rejected, dormantEnhanced, openFP2016)) shouldBe 21
+    }
+  }
+
+  "An application for an IP2016 when no protections already exist for the individual" should {
+    "return a notification ID of 12" in {
+      IP2016ApplicationRules.check(List()) shouldBe 12
+    }
+  }
+}
+
+class IP2016ApplicationRulesSpec extends UnitSpec {
+
+  import Protections._
+
+  "An application for an IP2016 when an open FP2016 already exists for the individual" should {
+    "return a notification ID of 16" in {
+      IP2016ApplicationRules.check(List(openFP2016)) shouldBe 16
+    }
+  }
+
+  "An application for an IP2016 when a rejected protection plus an open IP2014 already exists for the individual" should {
+    "return a notification ID of 10" in {
+      IP2016ApplicationRules.check(List(rejected, openIP2014)) shouldBe 10
+    }
+  }
+
+  "An application for an IP2016 when an open IP2016 already exists for the individual" should {
+    "return a notification ID of 11" in {
+      IP2016ApplicationRules.check(List(openIP2016)) shouldBe 11
+    }
+  }
+
+  "An application for an IP2016 when dormant primary protection already exists for the individual" should {
+    "return a notification ID of 9" in {
+      IP2016ApplicationRules.check(List(dormantPrimary)) shouldBe 9
+    }
+  }
+
+  "An application for an IP2016 when open primary protection already exists for the individual" should {
+    "return a notification ID of 9" in {
+      IP2016ApplicationRules.check(List(openPrimary)) shouldBe 9
+    }
+  }
+
+  "An application for an IP2016 when openEnhanced protection already exists for the individual" should {
+    "return a notification ID of 13" in {
+      IP2016ApplicationRules.check(List(openEnhanced)) shouldBe 13
+    }
+  }
+
+  "An application for an IP2016 when openFixed protection already exists for the individual" should {
+    "return a notification ID of 14" in {
+      IP2016ApplicationRules.check(List(openFixed)) shouldBe 14
+    }
+  }
+
+  "An application for an IP2016 when openFP2014 protection already exists for the individual" should {
+    "return a notification ID of 15" in {
+      IP2016ApplicationRules.check(List(openFP2014)) shouldBe 15
+    }
+  }
+}
+
+class IP2014ApplicationRulesSpec extends UnitSpec {
+
+  import Protections._
+
+  "An application for an IP2014 when no protections already exist for the individual" should {
+    "return a notification ID of 4" in {
+      IP2014ApplicationRules.check(List()) shouldBe 4
+    }
+  }
+
+  "An application for an IP2014 when an open FP2016 already exists for the individual" should {
+    "return a notification ID of 8" in {
+      IP2014ApplicationRules.check(List(openFP2016)) shouldBe 8
+    }
+  }
+
+  "An application for an IP2014 when a rejected protection plus an open IP2014 already exists for the individual" should {
+    "return a notification ID of 2" in {
+      IP2014ApplicationRules.check(List(rejected, openIP2014)) shouldBe 2
+    }
+  }
+
+  "An application for an IP2014 when an open IP2016 already exists for the individual" should {
+    "return a notification ID of 3" in {
+      IP2014ApplicationRules.check(List(openIP2016)) shouldBe 3
+    }
+  }
+
+  "An application for an IP2014 when dormant primary protection already exists for the individual" should {
+    "return a notification ID of 4" in {
+      IP2014ApplicationRules.check(List(dormantPrimary)) shouldBe 4
+    }
+  }
+
+  "An application for an IP2014 when open primary protection already exists for the individual" should {
+    "return a notification ID of 1" in {
+      IP2014ApplicationRules.check(List(openPrimary)) shouldBe 1
+    }
+  }
+
+  "An application for an IP2014 when openEnhanced protection already exists for the individual" should {
+    "return a notification ID of 5" in {
+      IP2014ApplicationRules.check(List(openEnhanced)) shouldBe 5
+    }
+  }
+
+  "An application for an IP2014 when openFixed protection already exists for the individual" should {
+    "return a notification ID of 6" in {
+      IP2014ApplicationRules.check(List(openFixed)) shouldBe 6
+    }
+  }
+
+  "An application for an IP2014 when openFP2014 protection already exists for the individual" should {
+    "return a notification ID of 7" in {
+      IP2014ApplicationRules.check(List(openFP2014)) shouldBe 7
+    }
+  }
+}
+
+class IP2014AmendmentRulesSpec extends UnitSpec {
+
+  import Protections._
+
+  "An amendment for an IP2014 when no protections already exist for the individual and relevantAmount=<1250000" should {
+    "return a notification ID of 25" in {
+      IP2014AmendmentRules.check(1250000, List()) shouldBe 25
+    }
+  }
+
+  "An amendment for an IP2014 when no protections already exist for the individual and relevantAmount>125000" should {
+    "return a notification ID of 34" in {
+      IP2014AmendmentRules.check(1250001, List()) shouldBe 34
+    }
+  }
+
+  "An amendment for an IP2014 when open FP2016 already exists for the individual" should {
+    "return a notification ID of 29" in {
+      IP2014AmendmentRules.check(1250000, List(openFP2016)) shouldBe 29
+    }
+  }
+
+}
+
+class IP2016AmendmentRulesSpec extends UnitSpec {
+
+  import Protections._
+
+  "An amendment for an IP2016 when no protections already exist for the individual and relevantAmount=<1000000" should {
+    "return a notification ID of 35" in {
+      IP2016AmendmentRules.check(1000000, List()) shouldBe 35
+    }
+  }
+
+  "An amendment for an IP2016 when no protections already exist for the individual and relevantAmount>1000000" should {
+    "return a notification ID of 44" in {
+      IP2016AmendmentRules.check(1000001, List()) shouldBe 44
+    }
+  }
+
+  "An amendment for an IP2014 when open FP2016 already exists for the individual" should {
+    "return a notification ID of 29" in {
+      IP2014AmendmentRules.check(1000000, List(openFP2016)) shouldBe 29
     }
   }
 

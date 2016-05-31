@@ -140,6 +140,18 @@ object ProtectionTestData {
     version = 1,
     certificateDate = Some(LocalDateTime.now))
 
+  val withdrawnPrimary=Protection(
+    nino=randomNino,
+    protectionID=randomProtectionID,
+    protectionType=Protection.extractedType(Protection.Type.Enhanced),
+    status=Protection.extractedStatus(Protection.Status.Withdrawn),
+    notificationId=None,
+    notificationMsg=None,
+    protectionReference=Some(randomOlderProtectionReference),
+    version=1,
+    certificateDate=Some(LocalDateTime.now)
+    )
+
   val rejected = Protection(
     nino=randomNino,
     protectionID=randomProtectionID,
@@ -202,4 +214,76 @@ class ProtectionsFormatSpec extends UnitSpec {
       parsedProtection.get shouldEqual dormantEnhanced
     }
   }
+}
+
+object ProtectionApplicationTestData {
+
+  import Generator._
+
+  val Fp2016 = ProtectionApplication(
+    protectionType=Protection.extractedType(Protection.Type.FP2016),
+    relevantAmount=Some(1250000),
+    preADayPensionInPayment=Some(0),
+    postADayBenefitCrystallisationEvents=Some(0),
+    uncrystallisedRights=Some(0),
+    pensionDebitAmount=Some(List()),
+    nonUKRights= Some(0))
+
+  val Ip2014 = ProtectionApplication(
+    protectionType=Protection.extractedType(Protection.Type.IP2014),
+    relevantAmount=Some(1250000),
+    preADayPensionInPayment=Some(0),
+    postADayBenefitCrystallisationEvents=Some(0),
+    uncrystallisedRights=Some(0),
+    pensionDebitAmount=Some(List()),
+    nonUKRights= Some(0))
+
+  val Ip2016 = ProtectionApplication(
+    protectionType=Protection.extractedType(Protection.Type.IP2016),
+    relevantAmount=Some(1250000),
+    preADayPensionInPayment=Some(0),
+    postADayBenefitCrystallisationEvents=Some(0),
+    uncrystallisedRights=Some(0),
+    pensionDebitAmount=Some(List()),
+    nonUKRights= Some(0))
+
+  val Fp2014 = ProtectionApplication(
+    protectionType=Protection.extractedType(Protection.Type.FP2014),
+    relevantAmount=Some(1250000),
+    preADayPensionInPayment=Some(0),
+    postADayBenefitCrystallisationEvents=Some(0),
+    uncrystallisedRights=Some(0),
+    pensionDebitAmount=Some(List()),
+    nonUKRights= Some(0))
+}
+
+class ProtectionApplicationMethodsSpec extends UnitSpec {
+
+  import ProtectionApplicationTestData._
+  import Protection.Type._
+
+  "Calling the requestedType method on Fp2016" should {
+    "return FP2016" in {
+      Fp2016.requestedType shouldBe Some(FP2016)
+    }
+  }
+
+  "Calling the requestedType method on Ip2014" should {
+    "return IP2014" in {
+      Ip2014.requestedType shouldBe Some(IP2014)
+    }
+  }
+
+  "Calling the requestedType method on Ip2016" should {
+    "return IP2016" in {
+      Ip2016.requestedType shouldBe Some(IP2016)
+    }
+  }
+
+  "Calling the requestedType method on Fp2014" should {
+    "return None" in {
+      Fp2014.requestedType shouldBe None
+    }
+  }
+
 }
