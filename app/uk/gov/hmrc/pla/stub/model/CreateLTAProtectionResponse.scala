@@ -18,24 +18,11 @@ package uk.gov.hmrc.pla.stub.model
 
 import play.api.libs.json.Json
 
-case class ProtectionApplication(
-  `type`: Int,
-  relevantAmount: Option[Double] = None,
-  preADayPensionInPayment: Option[Double] = None,
-  postADayBCE: Option[Double] = None,
-  uncrystallisedRights: Option[Double] = None,
-  pensionDebitAmount: Option[List[Double]] = None,
-  nonUKRights: Option[Double] = None) {
+case class CreateLTAProtectionResponse(
+    nino: String,
+    psaCheckReference: Option[String],
+    protection: Protection)
 
-  import Protection.Type._
-  def requestedType: Option[Protection.Type.Value] = `type` match {
-    case 1 => Some(FP2016)
-    case 2 => Some(IP2014)
-    case 3 => Some(IP2016)
-    case _ => None
-   }
-}
-
-object ProtectionApplication {
-  implicit val protectionApplicationFormat = Json.format[ProtectionApplication]
+object CreateLTAProtectionReponse {
+  implicit val createLTAReqormat = Json.format[CreateLTAProtectionResponse]
 }

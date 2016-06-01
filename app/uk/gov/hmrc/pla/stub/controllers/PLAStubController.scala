@@ -85,12 +85,12 @@ trait PLAStubController extends BaseController {
   }
 
   def createProtection(nino: String) = Action.async (BodyParsers.parse.json) { implicit request =>
-    val protectionApplicationJs = request.body.validate[ProtectionApplication]
+    val protectionApplicationJs = request.body.validate[CreateLTAProtectionRequest]
     protectionApplicationJs.fold(
       errors => Future.successful(BadRequest(Json.toJson(Error(message="body failed validation with errors: " + errors)))),
-      protectionApplication =>
-        protectionApplication.requestedType
-          .collect {
+      createProtectionRequest =>
+        createProtectionRequest.protection.requestedType
+            .collect {
             // gather the relevant rules
             case Protection.Type.FP2016 => FP2016ApplicationRules
             case Protection.Type.IP2014 => IP2014ApplicationRules
@@ -102,7 +102,7 @@ trait PLAStubController extends BaseController {
             val existingProtectionsFut = protectionRepository.findLatestVersionsOfAllProtectionsByNino(nino)
             existingProtectionsFut flatMap { existingProtections: List[Protection] =>
               val notificationId = appRules.check(existingProtections)
-              processApplication(nino, protectionApplication, notificationId, existingProtections)
+              processApplication(nino, createProtectionRequest.protection, notificationId, existingProtections)
             }
           }
           .getOrElse {
@@ -202,7 +202,7 @@ trait PLAStubController extends BaseController {
     *         error if unsuccessful.
     */
   private def processApplication(nino: String,
-                                 application: ProtectionApplication,
+                                 application: CreateLTAProtectionRequest.ProtectionDetails,
                                  notificationID: Short,
                                  existingProtections: List[Protection]): Future[Result] = {
 

@@ -220,7 +220,8 @@ object ProtectionApplicationTestData {
 
   import Generator._
 
-  val Fp2016 = ProtectionApplication(
+  import CreateLTAProtectionRequest.ProtectionDetails
+  val Fp2016 = ProtectionDetails(
     `type`=Protection.extractedType(Protection.Type.FP2016),
     relevantAmount=Some(1250000),
     preADayPensionInPayment=Some(0),
@@ -229,7 +230,7 @@ object ProtectionApplicationTestData {
     pensionDebitAmount=Some(List()),
     nonUKRights= Some(0))
 
-  val Ip2014 = ProtectionApplication(
+  val Ip2014 = ProtectionDetails(
     `type`=Protection.extractedType(Protection.Type.IP2014),
     relevantAmount=Some(1250000),
     preADayPensionInPayment=Some(0),
@@ -238,7 +239,7 @@ object ProtectionApplicationTestData {
     pensionDebitAmount=Some(List()),
     nonUKRights= Some(0))
 
-  val Ip2016 = ProtectionApplication(
+  val Ip2016 = ProtectionDetails(
     `type`=Protection.extractedType(Protection.Type.IP2016),
     relevantAmount=Some(1250000),
     preADayPensionInPayment=Some(0),
@@ -247,7 +248,7 @@ object ProtectionApplicationTestData {
     pensionDebitAmount=Some(List()),
     nonUKRights= Some(0))
 
-  val Fp2014 = ProtectionApplication(
+  val Fp2014 = ProtectionDetails(
     `type`=Protection.extractedType(Protection.Type.FP2014),
     relevantAmount=Some(1250000),
     preADayPensionInPayment=Some(0),
