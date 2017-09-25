@@ -19,14 +19,14 @@ package uk.gov.hmrc.pla.stub.model
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter._
 
-import akka.japi.Option.Some
 import cats.implicits._
 import org.scalacheck._
 import org.scalacheck.support.cats._
 import uk.gov.hmrc.smartstub.{AdvGen, _}
-
+import uk.gov.hmrc.smartstub.Enumerable.instances.utrEnum
 
 object Generator {
+
 
   /**
     * "^[1-9A][0-9]{6}[ABCDEFHXJKLMNYPQRSTZW]|(IP14|IP16|FP16)[0-9]{10}[ABCDEFGHJKLMNPRSTXYZ]$"
@@ -105,34 +105,34 @@ object Generator {
   }
 
   def genProtection(nino: String, id: Long, version: Int): Gen[Protection] = {
-    Gen.const(nino) |@| // nino
-      Gen.const(id) |@| // id
-      Gen.const(version) |@| // version
-      Gen.choose(1, 7) |@| // `type`
-      Gen.choose(1, 6) |@| // status
+    Gen.const(nino) |@|                                                    // nino
+      Gen.const(id) |@|                                                    // id
+      Gen.const(version) |@|                                               // version
+      Gen.choose(1, 7) |@|                                                 // `type`
+      Gen.choose(1, 6) |@|                                                 // status
       Gen.choose(1, 47).map(_.toShort).
-        sometimes |@| // notificationID
-      Gen.alphaStr.sometimes |@| // notificationMsg
-      refGen.almostAlways |@| // protectionReference
+        sometimes |@|                                                      // notificationID
+      Gen.alphaStr.sometimes |@|                                           // notificationMsg
+      refGen.almostAlways |@|                                              // protectionReference
       Gen.date(2014, 2017).map {
         _.format(ISO_LOCAL_DATE)
-      }.sometimes |@| // certificateDate
+      }.sometimes |@|                                                     // certificateDate
       genTime.map {
         _.format(ISO_LOCAL_TIME)
-      }.sometimes |@| // certificateTime
-      genMoney |@| // relevantAmount
-      genMoney |@| // protectedAmount
-      genMoney |@| // preADayPensionInPayment
-      genMoney |@| // postADayBCE
-      genMoney |@| // uncrystallisedRights
-      genMoney |@| // nonUKRights
-      genMoney |@| // pensionDebiitEnteredAmount
-      genMoney |@| // pensionDebitStartDate
-      genMoney |@| // pensionDebitTotalAmount
+      }.sometimes |@|                                                    // certificateTime
+      genMoney |@|                                                       // relevantAmount
+      genMoney |@|                                                       // protectedAmount
+      genMoney |@|                                                       // preADayPensionInPayment
+      genMoney |@|                                                       // postADayBCE
+      genMoney |@|                                                       // uncrystallisedRights
+      genMoney |@|                                                       // nonUKRights
+      genMoney |@|                                                       // pensionDebiitEnteredAmount
+      genMoney |@|                                                       // pensionDebitStartDate
+      genMoney |@|                                                       // pensionDebitTotalAmount
       Gen.listOf(pensionDebitGen).
-        sometimes |@| // pensionDebits
+        sometimes |@|                                                    // pensionDebits
       genVersions(nino, id, version - 1).
-        map {_.some} // previousVersions
+        map {_.some}                                                     // previousVersions
   }.map(Protection.apply)
 
   def genProtections(nino: String): Gen[Protections] = {
@@ -140,4 +140,7 @@ object Generator {
       pensionSchemeAdministratorCheckReferenceGen.sometimes |@|
       Gen.choose(2, 5).flatMap { n => Gen.listOfN(n, genProtection(nino)) }
   }.map(Protections.apply)
+
+  lazy val protectionsStore: PersistentGen[String, Protections]=  genProtections("").asMutable[String]
+
 }

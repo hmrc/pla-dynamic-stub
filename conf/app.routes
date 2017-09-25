@@ -1,10 +1,10 @@
 # microservice specific routes
 
 # individual (nino) routes
-PUT     /individual/:nino/protections/:pid          uk.gov.hmrc.pla.stub.controllers.PLAStubController.updateProtection(nino:String,pid:Long)
+#PUT     /individual/:nino/protections/:pid          uk.gov.hmrc.pla.stub.controllers.PLAStubController.updateProtection(nino:String,pid:Long)
 #GET     /individual/:nino/protections               uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtections(nino:String)
 #GET     /individual/:nino/protection/:pid           uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtection(nino:String,pid:Long,version: Option[Int])
-POST    /individual/:nino/protection                uk.gov.hmrc.pla.stub.controllers.PLAStubController.createProtection(nino: String)
+#POST    /individual/:nino/protection                uk.gov.hmrc.pla.stub.controllers.PLAStubController.createProtection(nino: String)
 
 # General PSA lookup route
 #GET     /psa/check-protection                       uk.gov.hmrc.pla.stub.controllers.PLAStubController.psaLookup(ref,psaref)
@@ -16,7 +16,11 @@ GET     /scheme-administrator/certificate-lookup    uk.gov.hmrc.pla.stub.control
 GET     /individual/:nino/protections              uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtectionsNew(nino:String)
 GET     /individual/:nino/protections/:pid         uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtectionNew(nino:String,pid:Long)
 GET     /individual/:nino/protections/:pid/version/:version         uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtectionVersionNew(nino:String,pid:Long,version: Int)
+POST    /individual/:nino/protection                uk.gov.hmrc.pla.stub.controllers.PLAStubController.createProtectionNew(nino: String)
+PUT     /individual/:nino/protections/:pid          uk.gov.hmrc.pla.stub.controllers.PLAStubController.updateProtectionNew(nino:String,pid:Long)
 
 # smartstub implementation of General PSA lookup route, probably redundant
 GET     /psa/check-protection                       uk.gov.hmrc.pla.stub.controllers.PLAStubController.psaLookupNew(ref,psaref)
+
+
 

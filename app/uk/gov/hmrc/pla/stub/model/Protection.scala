@@ -75,6 +75,7 @@ object Protection {
 
   object Status extends Enumeration {
     val Unknown, Open,Dormant,Withdrawn,Expired,Unsuccessful,Rejected =Value
+    implicit val statusFormat = EnumUtils.enumFormat(Status)
   }
 
   def extractedStatus(pStatus: Status.Value): Int = {
@@ -90,6 +91,7 @@ object Protection {
 
   object Type extends Enumeration {
     val Primary, Enhanced, Fixed, FP2014, FP2016, IP2014, IP2016 = Value
+    implicit val typeFormat = EnumUtils.enumFormat(Type)
   }
 
   def extractedType(pType: Type.Value): Int = {
