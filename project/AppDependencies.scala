@@ -4,12 +4,12 @@ object AppDependencies {
 import play.core.PlayVersion
   import play.sbt.PlayImport._
 
-  private val bootstrapPlayVersion = "3.2.0"
-  private val playReactiveMongoVersion = "7.31.0-play-27"
+  private val bootstrapPlayVersion = "5.3.0"
+  private val playReactiveMongoVersion = "8.0.0-play-27"
   private val pegdownVersion = "1.6.0"
   private val scalaTestVersion = "3.0.8"
   private val scalaTestPlusVersion = "3.1.3"
-  private val domainVersion = "5.10.0-play-27"
+  private val domainVersion = "5.11.0-play-27"
 
   val compile = Seq(
     ws,
