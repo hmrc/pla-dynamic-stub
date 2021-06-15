@@ -3,10 +3,7 @@ import sbt.Keys._
 import sbt._
 import uk.gov.hmrc._
 import DefaultBuildSettings._
-import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.versioning.SbtGitVersioning
-import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala)
 lazy val playSettings : Seq[Setting[_]] = Seq.empty
@@ -26,7 +23,7 @@ lazy val scoverageSettings = {
 }
 
 lazy val root = Project(appName, file("."))
-  .enablePlugins(Seq(play.sbt.PlayScala,SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin) ++ plugins : _*)
+  .enablePlugins(Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins : _*)
   .settings(playSettings ++ scoverageSettings : _*)
   .settings(scalaSettings: _*)
   .settings(SbtDistributablesPlugin.publishingSettings: _*)
@@ -50,5 +47,5 @@ lazy val root = Project(appName, file("."))
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
   .settings(integrationTestSettings())
-  .settings(resolvers += Resolver.bintrayRepo("hmrc", "releases"), resolvers += Resolver.jcenterRepo)
+  .settings(resolvers += Resolver.jcenterRepo)
   .settings(majorVersion := 0)
