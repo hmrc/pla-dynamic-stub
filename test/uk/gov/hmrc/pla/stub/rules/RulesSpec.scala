@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.pla.stub.rules
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatestplus.play.PlaySpec
-
 import java.time.LocalDateTime
 import java.util.Random
+
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.pla.stub.model.Protection
 
 object Generator {
@@ -146,7 +146,7 @@ object Protections {
     version = 1)
 }
 
-class FP2016ApplicationRulesSpec extends PlaySpec {
+class FP2016ApplicationRulesSpec extends AnyWordSpec with Matchers {
 
   import Protections._
 
@@ -244,7 +244,7 @@ class FP2016ApplicationRulesSpec extends PlaySpec {
   }
 }
 
-class IP2016ApplicationRulesSpec extends PlaySpec {
+class IP2016ApplicationRulesSpec extends AnyWordSpec with Matchers {
 
   import Protections._
 
@@ -297,7 +297,7 @@ class IP2016ApplicationRulesSpec extends PlaySpec {
   }
 }
 
-class IP2014ApplicationRulesSpec extends PlaySpec {
+class IP2014ApplicationRulesSpec extends AnyWordSpec with Matchers {
 
   import Protections._
 
@@ -356,7 +356,7 @@ class IP2014ApplicationRulesSpec extends PlaySpec {
   }
 }
 
-class IP2014AmendmentRulesSpec extends PlaySpec {
+class IP2014AmendmentRulesSpec extends AnyWordSpec with Matchers {
 
   import Protections._
 
@@ -380,7 +380,7 @@ class IP2014AmendmentRulesSpec extends PlaySpec {
 
 }
 
-class IP2016AmendmentRulesSpec extends PlaySpec {
+class IP2016AmendmentRulesSpec extends AnyWordSpec with Matchers {
 
   import Protections._
 

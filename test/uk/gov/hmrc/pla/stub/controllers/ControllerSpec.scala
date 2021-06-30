@@ -17,9 +17,9 @@
 package uk.gov.hmrc.pla.stub.controllers
 
 import org.mockito.Mockito.when
-import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json._
 import play.api.mvc.Results.Ok
@@ -51,7 +51,7 @@ object TestData {
   val notFoundResponse = "\"reason\":\"Resource not found\""
   val notFoundProtectionsForNinoResponse = "\"no protections found for nino\""
 }
-class PLAStubControllerSpec extends PlaySpec with MockitoSugar with GuiceOneServerPerSuite {
+class PLAStubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with GuiceOneServerPerSuite {
 
   def Action = cc.actionBuilder
 
