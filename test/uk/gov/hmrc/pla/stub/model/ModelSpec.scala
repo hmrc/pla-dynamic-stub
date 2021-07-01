@@ -18,11 +18,12 @@ package uk.gov.hmrc.pla.stub.model
 
 import java.time.LocalDateTime
 import java.util.Random
+
 import cats.implicits._
 import org.scalacheck._
 import org.scalacheck.support.cats._
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatestplus.play.PlaySpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.smartstub._
 import play.api.libs.json._
 
@@ -211,7 +212,7 @@ object ProtectionTestData {
     version = 1)
 }
 
-class ProtectionsFormatSpec extends PlaySpec {
+class ProtectionsFormatSpec extends AnyWordSpec with Matchers {
 
   import ProtectionTestData._
 
@@ -310,7 +311,7 @@ object ProtectionApplicationTestData {
     nonUKRights= Some(0))
 }
 
-class ProtectionApplicationMethodsSpec extends PlaySpec {
+class ProtectionApplicationMethodsSpec extends AnyWordSpec with Matchers {
 
   import Protection.Type._
   import ProtectionApplicationTestData._

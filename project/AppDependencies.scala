@@ -4,16 +4,15 @@ object AppDependencies {
 import play.core.PlayVersion
   import play.sbt.PlayImport._
 
-  private val bootstrapPlayVersion = "5.3.0"
-  private val playReactiveMongoVersion = "8.0.0-play-27"
+  private val bootstrapPlayVersion = "5.2.0"
+  private val playReactiveMongoVersion = "8.0.0-play-28"
   private val pegdownVersion = "1.6.0"
-  private val scalaTestVersion = "3.0.8"
-  private val scalaTestPlusVersion = "3.1.3"
-  private val domainVersion = "5.11.0-play-27"
+  private val scalaTestPlusVersion = "5.1.0"
+  private val domainVersion = "6.0.0-play-28"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % bootstrapPlayVersion,
+    "uk.gov.hmrc" %% "bootstrap-backend-play-28" % bootstrapPlayVersion,
     "uk.gov.hmrc" %% "simple-reactivemongo" % playReactiveMongoVersion,
     "uk.gov.hmrc" %% "stub-data-generator" % "0.5.3",
     "org.scalacheck" %% "scalacheck" % "1.14.3",
@@ -28,12 +27,13 @@ import play.core.PlayVersion
   object Test {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
-        "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.mockito" % "mockito-core" % "2.3.4" % scope,
         "uk.gov.hmrc" %% "domain" % domainVersion % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusVersion % scope
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusVersion % scope,
+        "org.scalatestplus"           %% "scalatestplus-mockito"      % "1.0.0-M2",
+        "org.scalatestplus"           %% "scalatestplus-scalacheck"   % "3.1.0.0-RC2",
+        "com.vladsch.flexmark"         %  "flexmark-all"              % "0.35.10"
       )
     }.test
   }
