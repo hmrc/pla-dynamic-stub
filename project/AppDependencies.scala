@@ -5,14 +5,14 @@ import play.core.PlayVersion
   import play.sbt.PlayImport._
 
   private val bootstrapPlayVersion = "5.24.0"
-  private val playReactiveMongoVersion = "8.1.0-play-28"
+  private val hmrcMongoVersion = "0.74.0"
   private val pegdownVersion = "1.6.0"
   private val domainVersion = "8.1.0-play-28"
 
   val compile = Seq(
     ws,
     "uk.gov.hmrc"         %% "bootstrap-backend-play-28" % bootstrapPlayVersion,
-    "uk.gov.hmrc"         %% "simple-reactivemongo"      % playReactiveMongoVersion,
+    "uk.gov.hmrc.mongo"   %% "hmrc-mongo-play-28"        % hmrcMongoVersion,
     "uk.gov.hmrc"         %% "stub-data-generator"       % "0.5.3",
     "org.scalacheck"      %% "scalacheck"                % "1.16.0",
     "io.github.amrhassan" %% "scalacheck-cats"           % "0.4.0"

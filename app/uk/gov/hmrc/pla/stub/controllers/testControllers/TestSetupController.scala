@@ -20,10 +20,9 @@ import uk.gov.hmrc.pla.stub.repository.MongoExceptionTriggerRepository
 import uk.gov.hmrc.pla.stub.model.{Error, ExceptionTrigger, Protection}
 import play.api.mvc._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
-
 import javax.inject.Inject
 import play.api.libs.json.{JsValue, Json}
-import play.modules.reactivemongo.ReactiveMongoComponent
+import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext
@@ -33,9 +32,9 @@ class TestSetupController @Inject()(val mcc: play.api.mvc.MessagesControllerComp
                                     val protectionService: PLAProtectionService,
                                     implicit val ec: ExecutionContext,
                                     playBodyParsers: PlayBodyParsers,
-                                    implicit val reactiveMongoComponent: ReactiveMongoComponent) extends BackendController(mcc) {
+                                    implicit val mongoComponent: MongoComponent) extends BackendController(mcc) {
 
-  val exceptionTriggerRepository = new MongoExceptionTriggerRepository()
+  val exceptionTriggerRepository = new MongoExceptionTriggerRepository(mongoComponent)
 
   /**
    * Stub-only convenience operation to add a protection to test data
@@ -117,7 +116,7 @@ class TestSetupController @Inject()(val mcc: play.api.mvc.MessagesControllerComp
     exceptionTriggerJs.fold(
       errors => Future.successful(BadRequest(Json.toJson(Error(message = "body failed validation with errors: " + errors)))),
       exceptionTrigger =>
-        exceptionTriggerRepository.insert(exceptionTrigger)
+        exceptionTriggerRepository.collection.insertOne(exceptionTrigger).toFuture()
           .map { _ => Ok }(ec)
           .recover { case exception => Results.InternalServerError(exception.toString) }
     )

@@ -17,9 +17,9 @@
 package uk.gov.hmrc.pla.stub.services
 
 import javax.inject.Inject
+import org.mongodb.scala.result.InsertOneResult
 import play.api.mvc.Result
 import play.api.mvc.Results.{NotFound, Ok}
-import reactivemongo.api.commands.WriteResult
 import uk.gov.hmrc.pla.stub.Generator.pensionSchemeAdministratorCheckReferenceGen
 import uk.gov.hmrc.pla.stub.guice.MongoProtectionRepositoryFactory
 import uk.gov.hmrc.pla.stub.model._
@@ -32,8 +32,8 @@ class PLAProtectionService @Inject()(implicit val mongoProtectionRepositoryFacto
 
   lazy val protectionsStore: MongoProtectionRepository = mongoProtectionRepositoryFactory.apply()
 
-  def saveProtections(protections: Protections): Future[WriteResult] = {
-    def save(deleted: Unit, data: Protections): Future[WriteResult] = protectionsStore.insertProtection(data)
+  def saveProtections(protections: Protections): Future[InsertOneResult] = {
+    def save(deleted: Unit, data: Protections): Future[InsertOneResult] = protectionsStore.insertProtection(data)
 
     protectionsStore.removeByNino(protections.nino).flatMap(remove => save(remove, protections))
   }
