@@ -20,15 +20,15 @@ package uk.gov.hmrc.pla.stub.actions
 import javax.inject.Inject
 import play.api.libs.json._
 import play.api.mvc._
-import play.modules.reactivemongo.ReactiveMongoComponent
+import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.pla.stub.model.ExceptionTrigger
 import uk.gov.hmrc.pla.stub.repository.MongoExceptionTriggerRepository
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 
-class ExceptionTriggersActions @Inject()(implicit reactiveMongoComponent: ReactiveMongoComponent) {
+class ExceptionTriggersActions @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext) {
 
-  lazy val exceptionTriggerRepository = new MongoExceptionTriggerRepository
+  lazy val exceptionTriggerRepository = new MongoExceptionTriggerRepository(mongoComponent)
 
   val noNotificationIdJson = Json.parse(
     s"""

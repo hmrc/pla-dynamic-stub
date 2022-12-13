@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.pla.stub.repository
 
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.WriteConcern
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONObjectID
-import uk.gov.hmrc.mongo.ReactiveRepository
+import javax.inject.Inject
+import org.mongodb.scala.model.{IndexModel, IndexOptions}
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.pla.stub.model.ExceptionTrigger
+import org.mongodb.scala.model.Indexes._
+import org.mongodb.scala.model.Filters._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -33,24 +34,25 @@ trait ExceptionTriggerRepository {
   def removeAllExceptionTriggers()(implicit ec: ExecutionContext): Future[Unit]
 }
 
-class MongoExceptionTriggerRepository()(implicit reactiveMongoComponent: ReactiveMongoComponent)
-  extends ReactiveRepository[ExceptionTrigger, BSONObjectID]("exceptionTriggers",
-  reactiveMongoComponent.mongoConnector.db,ExceptionTrigger.exceptionTriggerFormat)
+class MongoExceptionTriggerRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
+  extends PlayMongoRepository[ExceptionTrigger](
+    mongoComponent = mongoComponent,
+    collectionName = "exceptionTriggers",
+    domainFormat = ExceptionTrigger.exceptionTriggerFormat,
+    indexes = Seq(
+      IndexModel(ascending("nino"), IndexOptions()
+          .name("ninoIndex").unique(true).sparse(true)
+      )
+    )
+  )
 with ExceptionTriggerRepository {
 
-  override def indexes = Seq(
-    Index(Seq("nino" -> IndexType.Ascending),
-      name = Some("ninoIndex"),
-      unique = true, // this should ensure concurrent amendments can't create two objects with same version
-      sparse = true)
-  )
-
   override def findExceptionTriggerByNino(nino: String)(implicit ec: ExecutionContext): Future[Option[ExceptionTrigger]] = {
-    find("nino" -> nino).map {
+    collection.find(equal("nino", nino)).toFuture().map {
       triggerList => triggerList.headOption
     }
   }
 
   override def removeAllExceptionTriggers()(implicit ec: ExecutionContext): Future[Unit] =
-    removeAll(WriteConcern.Acknowledged).map {_ => }
+    collection.deleteMany(empty()).toFuture().map(_ => {})
 }

@@ -18,14 +18,14 @@ package uk.gov.hmrc.pla.stub.guice
 
 import com.google.inject.AbstractModule
 import javax.inject.Inject
-import play.modules.reactivemongo.ReactiveMongoComponent
+import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
+
 import scala.concurrent.ExecutionContext
 
-class MongoProtectionRepositoryFactory @Inject()(val reactiveMongoComponent: ReactiveMongoComponent,
+class MongoProtectionRepositoryFactory @Inject()(val mongoComponent: MongoComponent,
                                                  implicit val ec: ExecutionContext){
-  implicit val db = reactiveMongoComponent.mongoConnector.db
-  private lazy val repository = new MongoProtectionRepository()
+  private lazy val repository = new MongoProtectionRepository(mongoComponent)
   def apply(): MongoProtectionRepository = repository
 }
 
