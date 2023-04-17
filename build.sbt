@@ -1,4 +1,4 @@
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings, targetJvm}
+import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import sbt.Keys._
 import sbt._
 import uk.gov.hmrc._
@@ -26,10 +26,8 @@ lazy val root = Project(appName, file("."))
   .enablePlugins(Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins : _*)
   .settings(playSettings ++ scoverageSettings : _*)
   .settings(scalaSettings: _*)
-  .settings(SbtDistributablesPlugin.publishingSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(
-    targetJvm := "jvm-1.8",
     scalaVersion := "2.12.12",
     libraryDependencies ++= AppDependencies(),
     dependencyOverrides += "commons-codec" % "commons-codec" % "1.12",

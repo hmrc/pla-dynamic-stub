@@ -17,7 +17,7 @@
 package uk.gov.hmrc.pla.stub.controllers
 
 import java.time.LocalDateTime
-import play.api.{Logger, Logging}
+import play.api.Logging
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, _}
 import uk.gov.hmrc.pla.stub.Generator
@@ -131,7 +131,6 @@ class PLAStubController @Inject()(val mcc: ControllerComponents, val protectionS
 
   def updateProtection(nino: String, protectionId: Long): Action[JsValue] =
     WithExceptionTriggerCheckAction(nino)(ec, mcc, exceptionTriggersActions).async(playBodyParsers.json) { implicit request =>
-      System.err.println("Amendment request body ==> " + request.body.toString)
       val protectionUpdateJs = request.body.validate[UpdateLTAProtectionRequest]
       protectionUpdateJs.fold(
         errors => Future.successful(BadRequest(Json.toJson(Error(message = "failed validation with errors: " + errors)))),

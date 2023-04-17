@@ -23,6 +23,7 @@ import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.result.InsertOneResult
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import javax.inject.Singleton
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -35,6 +36,7 @@ trait ProtectionRepository {
   def removeProtectionsCollection(): Future[Boolean]
 }
 
+@Singleton
 class MongoProtectionRepository(mongoComponent: MongoComponent)(implicit val ec: ExecutionContext)
   extends PlayMongoRepository[Protections](
     mongoComponent = mongoComponent,

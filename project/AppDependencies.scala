@@ -1,21 +1,17 @@
 import sbt._
 
 object AppDependencies {
-import play.core.PlayVersion
   import play.sbt.PlayImport._
 
-  private val bootstrapPlayVersion = "5.24.0"
-  private val hmrcMongoVersion = "0.74.0"
-  private val pegdownVersion = "1.6.0"
-  private val domainVersion = "8.1.0-play-28"
+  private val bootstrapPlayVersion = "7.15.0"
+  private val hmrcMongoVersion = "1.1.0"
+  private val domainVersion = "8.2.0-play-28"
 
   val compile = Seq(
     ws,
     "uk.gov.hmrc"         %% "bootstrap-backend-play-28" % bootstrapPlayVersion,
     "uk.gov.hmrc.mongo"   %% "hmrc-mongo-play-28"        % hmrcMongoVersion,
-    "uk.gov.hmrc"         %% "stub-data-generator"       % "0.5.3",
-    "org.scalacheck"      %% "scalacheck"                % "1.16.0",
-    "io.github.amrhassan" %% "scalacheck-cats"           % "0.4.0"
+    "uk.gov.hmrc"         %% "stub-data-generator"       % "1.0.0"
   )
 
   trait TestDependencies {
@@ -26,12 +22,12 @@ import play.core.PlayVersion
   object Test {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
-        "uk.gov.hmrc"             %% "bootstrap-test-play-28"     % "5.25.0"            % scope,
-        "org.pegdown"              % "pegdown"                    % pegdownVersion      % scope,
-        "com.typesafe.play"       %% "play-test"                  % PlayVersion.current % scope,
+        "uk.gov.hmrc"             %% "bootstrap-test-play-28"     % bootstrapPlayVersion % scope,
         "uk.gov.hmrc"             %% "domain"                     % domainVersion       % scope,
-        "org.scalatestplus"       %% "scalatestplus-mockito"      % "1.0.0-M2",
-        "org.scalatestplus"       %% "scalatestplus-scalacheck"   % "3.1.0.0-RC2"
+        "org.scalatestplus"       %% "scalatestplus-mockito"      % "1.0.0-M2"          % scope,
+        "org.scalatestplus"       %% "scalatestplus-scalacheck"   % "3.1.0.0-RC2"       % scope,
+        "org.scalacheck"          %% "scalacheck"                 % "1.17.0"            % scope,
+        "io.github.amrhassan"     %% "scalacheck-cats"            % "0.4.0"             % scope
       )
     }.test
   }
