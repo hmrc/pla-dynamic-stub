@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.{Application, Configuration}
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json._
 import play.api.mvc.Results.Ok
 import play.api.mvc.{ControllerComponents, PlayBodyParsers}
@@ -57,7 +55,7 @@ class PLAStubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar 
 
   def Action = cc.actionBuilder
 
-  implicit val ec = ExecutionContext.global
+  implicit val ec = app.injector.instanceOf[ExecutionContext]
   implicit lazy val cc = app.injector.instanceOf[ControllerComponents]
   implicit lazy val playBodyParsers = app.injector.instanceOf[PlayBodyParsers]
   implicit lazy val exceptionTriggersActions = app.injector.instanceOf[ExceptionTriggersActions]
