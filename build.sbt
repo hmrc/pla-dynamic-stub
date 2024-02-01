@@ -5,11 +5,15 @@ import uk.gov.hmrc._
 import DefaultBuildSettings._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 
-lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala)
+import scala.collection.Seq
+
 lazy val playSettings : Seq[Setting[_]] = Seq.empty
 
 val appName = "pla-dynamic-stub"
-val silencerVersion = "1.7.1"
+ThisBuild / majorVersion := 0
+ThisBuild / scalaVersion := "2.13.12"
+
+lazy val plugins : Seq[Plugins] = Seq.empty
 
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
@@ -28,22 +32,16 @@ lazy val root = Project(appName, file("."))
   .settings(scalaSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(
-    scalaVersion := "2.12.12",
     libraryDependencies ++= AppDependencies(),
     dependencyOverrides += "commons-codec" % "commons-codec" % "1.12",
     parallelExecution in Test := false,
     fork in Test := false,
     retrieveManaged := true,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-    scalacOptions += "-P:silencer:pathFilters=routes",
-    scalacOptions += "-P:silencer:lineContentFilters=^\\w",
-    libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
-      "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
-    )
+    scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s"
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
   .settings(integrationTestSettings())
   .settings(resolvers += Resolver.jcenterRepo)
-  .settings(majorVersion := 0)
+

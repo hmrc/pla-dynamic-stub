@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package uk.gov.hmrc.pla.stub
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter._
 import cats.implicits._
-import org.scalacheck._
-import org.scalacheck.support.cats._
+import org.scalacheck.Gen
+import org.scalacheck.cats.implicits._
 import uk.gov.hmrc.pla.stub.model.{PensionDebit, Protection, Protections, Version}
 import uk.gov.hmrc.smartstub.{AdvGen, _}
 import uk.gov.hmrc.smartstub.Enumerable.instances.utrEnum
