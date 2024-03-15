@@ -282,6 +282,26 @@ class PLAStubController @Inject()(val mcc: ControllerComponents, val protectionS
         Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 2, 0, Some(BigDecimal.exact("39495.88"))))))
       case ("PSA12345678A", "IP141000000000A") =>
         Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 5, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678K", "A123456K") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 8, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678L", "A123456L") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 9, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678M", "A123456M") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 10, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678N", "A123456N") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 11, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678O", "A123456O") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 12, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678P", "A123456P") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 13, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678Q", "A123456Q") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 14, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678R", "A123456R") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 15, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678S", "A123456S") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 16, 1, Some(BigDecimal.exact("25000"))))))
+      case ("PSA12345678T", "A123456T") =>
+        Future.successful(Ok(Json.toJson(PSALookupUpdatedResult(psaRef, 17, 1, Some(BigDecimal.exact("25000"))))))
       case _ =>
         val response = PSALookupErrorResult("Resource not found")
         logger.error(response.reason)
