@@ -3,9 +3,8 @@ import sbt._
 object AppDependencies {
   import play.sbt.PlayImport._
 
-  private val bootstrapPlayVersion = "9.0.0"
-  private val hmrcMongoVersion = "1.6.0"
-  private val domainVersion = "9.0.0"
+  private val bootstrapPlayVersion = "9.6.0"
+  private val hmrcMongoVersion = "2.3.0"
 
   val compile = Seq(
     ws,
@@ -23,7 +22,7 @@ object AppDependencies {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
         "uk.gov.hmrc"             %% "bootstrap-test-play-30"     % bootstrapPlayVersion % scope,
-        "uk.gov.hmrc"             %% "domain-play-30"             % "9.0.0"             % scope,
+        "uk.gov.hmrc"             %% "domain-play-30"             % "10.0.0"             % scope,
         "org.scalatestplus"       %% "scalatestplus-mockito"      % "1.0.0-M2"          % scope,
         "org.scalatestplus"       %% "scalatestplus-scalacheck"   % "3.1.0.0-RC2"       % scope,
         "org.scalacheck"          %% "scalacheck"                 % "1.17.0"            % scope,
