@@ -26,8 +26,7 @@ object AppDependencies {
         "org.scalatestplus"       %% "scalatestplus-mockito"      % "1.0.0-M2"          % scope,
         "org.scalatestplus"       %% "scalatestplus-scalacheck"   % "3.1.0.0-RC2"       % scope,
         "org.scalacheck"          %% "scalacheck"                 % "1.17.0"            % scope,
-        "io.chrisdavenport"       %% "cats-scalacheck"            % "0.3.2"             % scope,
-       "uk.gov.hmrc"              %% "stub-data-generator"       % "1.4.0"               % scope
+        "io.chrisdavenport"       %% "cats-scalacheck"            % "0.3.2"             % scope
       )
     }.test
   }
