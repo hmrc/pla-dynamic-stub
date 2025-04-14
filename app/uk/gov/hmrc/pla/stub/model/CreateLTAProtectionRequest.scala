@@ -16,30 +16,31 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import play.api.libs.json.{Json, Format}
-
+import play.api.libs.json.{Format, Json}
 
 case class CreateLTAProtectionRequest(
-  nino: String,
-  protection: CreateLTAProtectionRequest.ProtectionDetails,
-  pensionDebits: Option[List[PensionDebit]] = None)
+    nino: String,
+    protection: CreateLTAProtectionRequest.ProtectionDetails,
+    pensionDebits: Option[List[PensionDebit]] = None
+)
 
 object CreateLTAProtectionRequest {
   implicit val createLTARequestFormat: Format[CreateLTAProtectionRequest] = Json.format[CreateLTAProtectionRequest]
-  implicit lazy val protectionDetailsFormat: Format[ProtectionDetails] = Json.format[ProtectionDetails]
+  implicit lazy val protectionDetailsFormat: Format[ProtectionDetails]    = Json.format[ProtectionDetails]
 
   case class ProtectionDetails(
-                                `type`: Int,
-                                relevantAmount: Option[Double] = None,
-                                preADayPensionInPayment: Option[Double] = None,
-                                postADayBCE: Option[Double] = None,
-                                uncrystallisedRights: Option[Double] = None,
-                                nonUKRights: Option[Double] = None,
-                                pensionDebitAmount: Option[Double] = None,
-                                pensionDebitEnteredAmount: Option[Double] = None,
-                                pensionDebitStartDate: Option[String] = None,
-                                pensionDebitTotalAmount: Option[Double]=None,
-                                protectedAmount: Option[Double] = None) {
+      `type`: Int,
+      relevantAmount: Option[Double] = None,
+      preADayPensionInPayment: Option[Double] = None,
+      postADayBCE: Option[Double] = None,
+      uncrystallisedRights: Option[Double] = None,
+      nonUKRights: Option[Double] = None,
+      pensionDebitAmount: Option[Double] = None,
+      pensionDebitEnteredAmount: Option[Double] = None,
+      pensionDebitStartDate: Option[String] = None,
+      pensionDebitTotalAmount: Option[Double] = None,
+      protectedAmount: Option[Double] = None
+  ) {
 
     import uk.gov.hmrc.pla.stub.model.Protection.Type._
 
@@ -49,6 +50,7 @@ object CreateLTAProtectionRequest {
       case 3 => Some(IP2016)
       case _ => None
     }
+
   }
 
 }

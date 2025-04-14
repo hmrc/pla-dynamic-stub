@@ -19,21 +19,24 @@ package uk.gov.hmrc.pla.stub.model
 import play.api.libs.json.Json
 
 case class ProtectionAmendment(
-  `type`: Int,
-  status: Int,
-  preADayPensionInPayment: Double,
-  postADayBCE: Double,
-  uncrystallisedRights: Double,
-  nonUKRights: Double,
-  relevantAmount: Double, // must be sum of the above four fields
-  pensionDebits: Option[List[PensionDebit]] = None) {
+    `type`: Int,
+    status: Int,
+    preADayPensionInPayment: Double,
+    postADayBCE: Double,
+    uncrystallisedRights: Double,
+    nonUKRights: Double,
+    relevantAmount: Double, // must be sum of the above four fields
+    pensionDebits: Option[List[PensionDebit]] = None
+) {
 
   import Protection.Type._
+
   def requestedType: Option[Protection.Type.Value] = `type` match {
     case 2 => Some(IP2014)
     case 3 => Some(IP2016)
     case _ => None
   }
+
 }
 
 object ProtectionAmendment {

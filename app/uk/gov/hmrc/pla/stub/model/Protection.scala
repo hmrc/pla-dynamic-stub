@@ -42,57 +42,60 @@ case class Protection(
     pensionDebitStartDate: Option[String] = None,
     pensionDebitTotalAmount: Option[Double] = None,
     pensionDebits: Option[List[PensionDebit]] = None,
-    previousVersions: Option[List[Version]] = None,   /* not stored on DB - dynamically generated and added to response */
-    withdrawnDate: Option[String] = None)  {
+    previousVersions: Option[List[Version]] = None, /* not stored on DB - dynamically generated and added to response */
+    withdrawnDate: Option[String] = None
+) {
 
-      import Protection.Type._
-      def requestedType: Option[Protection.Type.Value] = `type` match {
-        case 1 => Some(FP2016)
-        case 2 => Some(IP2014)
-        case 3 => Some(IP2016)
-        case 4 => Some(Primary)
-        case 5 => Some(Enhanced)
-        case 6 => Some(Fixed)
-        case 7 => Some(FP2014)
-        case _ => None
-       }
+  import Protection.Type._
 
-       import Protection.Status._
-       def requestedStatus: Option[Protection.Status.Value] = status match {
-        case 1 => Some(Open)
-        case 2 => Some(Dormant)
-        case 3 => Some(Withdrawn)
-        case 4 => Some(Expired)
-        case 5 => Some(Unsuccessful)
-        case 6 => Some(Rejected)
-        case _ => None
-       }
-    }
+  def requestedType: Option[Protection.Type.Value] = `type` match {
+    case 1 => Some(FP2016)
+    case 2 => Some(IP2014)
+    case 3 => Some(IP2016)
+    case 4 => Some(Primary)
+    case 5 => Some(Enhanced)
+    case 6 => Some(Fixed)
+    case 7 => Some(FP2014)
+    case _ => None
+  }
+
+  import Protection.Status._
+
+  def requestedStatus: Option[Protection.Status.Value] = status match {
+    case 1 => Some(Open)
+    case 2 => Some(Dormant)
+    case 3 => Some(Withdrawn)
+    case 4 => Some(Expired)
+    case 5 => Some(Unsuccessful)
+    case 6 => Some(Rejected)
+    case _ => None
+  }
+
+}
 
 object Protection {
 
   object Status extends Enumeration {
-    val Unknown, Open,Dormant,Withdrawn,Expired,Unsuccessful,Rejected =Value
-    implicit val statusFormat = EnumUtils.enumFormat(Status)
+    val Unknown, Open, Dormant, Withdrawn, Expired, Unsuccessful, Rejected = Value
+    implicit val statusFormat                                              = EnumUtils.enumFormat(Status)
   }
 
-  def extractedStatus(pStatus: Status.Value): Int = {
+  def extractedStatus(pStatus: Status.Value): Int =
     pStatus match {
-      case Status.Open          => 1
-      case Status.Dormant       => 2
-      case Status.Withdrawn     => 3
-      case Status.Expired       => 4
-      case Status.Unsuccessful  => 5
-      case Status.Rejected      => 6
+      case Status.Open         => 1
+      case Status.Dormant      => 2
+      case Status.Withdrawn    => 3
+      case Status.Expired      => 4
+      case Status.Unsuccessful => 5
+      case Status.Rejected     => 6
     }
-  }
 
   object Type extends Enumeration {
     val Primary, Enhanced, Fixed, FP2014, FP2016, IP2014, IP2016 = Value
-    implicit val typeFormat = EnumUtils.enumFormat(Type)
+    implicit val typeFormat                                      = EnumUtils.enumFormat(Type)
   }
 
-  def extractedType(pType: Type.Value): Int = {
+  def extractedType(pType: Type.Value): Int =
     pType match {
       case Type.FP2016   => 1
       case Type.IP2014   => 2
@@ -102,13 +105,10 @@ object Protection {
       case Type.Fixed    => 6
       case Type.FP2014   => 7
     }
-  }
 
-  implicit val localDateTimeReads = Reads[LocalDateTime](js =>
-    js.validate[String].map[LocalDateTime](dtString =>
-      LocalDateTime.parse(dtString)
-    )
-  )
+  implicit val localDateTimeReads =
+    Reads[LocalDateTime](js => js.validate[String].map[LocalDateTime](dtString => LocalDateTime.parse(dtString)))
+
   implicit val localDateTimeWrites = new Writes[LocalDateTime] {
     val formatter = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
 

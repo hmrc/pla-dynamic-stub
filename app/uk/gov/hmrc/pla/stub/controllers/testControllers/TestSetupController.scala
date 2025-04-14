@@ -28,99 +28,97 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class TestSetupController @Inject()(val mcc: play.api.mvc.MessagesControllerComponents,
-                                    val protectionService: PLAProtectionService,
-                                    implicit val ec: ExecutionContext,
-                                    playBodyParsers: PlayBodyParsers,
-                                    implicit val mongoComponent: MongoComponent) extends BackendController(mcc) {
+class TestSetupController @Inject() (
+    val mcc: play.api.mvc.MessagesControllerComponents,
+    val protectionService: PLAProtectionService,
+    implicit val ec: ExecutionContext,
+    playBodyParsers: PlayBodyParsers,
+    implicit val mongoComponent: MongoComponent
+) extends BackendController(mcc) {
 
   val exceptionTriggerRepository = new MongoExceptionTriggerRepository(mongoComponent)
 
-  /**
-   * Stub-only convenience operation to add a protection to test data
-   *
-   * @return
-   */
+  /** Stub-only convenience operation to add a protection to test data
+    *
+    * @return
+    */
   def insertProtection(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     val protectionJs = request.body.validate[Protection]
     protectionJs.fold(
-      errors => Future.successful(BadRequest(Json.toJson(Error(message = "body failed validation with errors: " + errors)))),
+      errors =>
+        Future.successful(BadRequest(Json.toJson(Error(message = "body failed validation with errors: " + errors)))),
       protection =>
-        protectionService.insertOrUpdateProtection(protection)
-          .map { _ => Ok }(ec)
+        protectionService
+          .insertOrUpdateProtection(protection)
+          .map(_ => Ok)(ec)
           .recover { case exception => Results.InternalServerError(exception.toString) }
     )
   }
 
-  /**
-   * Stub-only convenience operation to tear down test data
-   *
-   * @return
-   */
+  /** Stub-only convenience operation to tear down test data
+    *
+    * @return
+    */
   def removeAllProtections(): Action[AnyContent] = Action.async { _ =>
     protectionService.protectionsStore.removeProtectionsCollection()
     Future.successful(Ok)
   }
 
-  /**
-   * Stub-only convenience operation to tear down test data for a given NINO
-   *
-   * @param nino
-   * @return
-   */
+  /** Stub-only convenience operation to tear down test data for a given NINO
+    *
+    * @param nino
+    * @return
+    */
   def removeProtections(nino: String): Action[AnyContent] = Action.async { _ =>
     protectionService.protectionsStore.removeByNino(nino)
     Future.successful(Ok)
   }
 
-  /**
-   * Stub-only convenience operation to tear down test data for a specified protection
-   *
-   * @param nino
-   * @param protectionId
-   * @return
-   */
+  /** Stub-only convenience operation to tear down test data for a specified protection
+    *
+    * @param nino
+    * @param protectionId
+    * @return
+    */
   def removeProtection(nino: String, protectionId: Long): Action[AnyContent] = Action.async { _ =>
     protectionService.removeProtectionByNinoAndProtectionId(nino, protectionId)
     Future.successful(Ok)
   }
 
-  /**
-   * Stub-only convenience operation to tear down test data for a specified protection
-   *
-   * @return
-   */
+  /** Stub-only convenience operation to tear down test data for a specified protection
+    *
+    * @return
+    */
   def dropProtectionsCollection(): Action[AnyContent] = Action.async { _ =>
     protectionService.protectionsStore.removeProtectionsCollection()
     Future.successful(Ok)
   }
 
-
-  /**
-   * Stub-only convenience operation to remove all exception triggers from the database
-   *
-   * @return
-   */
-  def removeExceptionTriggers(): Action[AnyContent] = Action.async {_ =>
+  /** Stub-only convenience operation to remove all exception triggers from the database
+    *
+    * @return
+    */
+  def removeExceptionTriggers(): Action[AnyContent] = Action.async { _ =>
     exceptionTriggerRepository.removeAllExceptionTriggers()(ec)
     Future.successful(Ok)
   }
 
-  /**
-   * Stub-only convenience operation to add an exception trigger for a particular nino
-   *
-   * @return
-   */
+  /** Stub-only convenience operation to add an exception trigger for a particular nino
+    *
+    * @return
+    */
   def insertExceptionTrigger(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
     val exceptionTriggerJs = request.body.validate[ExceptionTrigger]
     exceptionTriggerJs.fold(
-      errors => Future.successful(BadRequest(Json.toJson(Error(message = "body failed validation with errors: " + errors)))),
+      errors =>
+        Future.successful(BadRequest(Json.toJson(Error(message = "body failed validation with errors: " + errors)))),
       exceptionTrigger =>
-        exceptionTriggerRepository.collection.insertOne(exceptionTrigger).toFuture()
-          .map { _ => Ok }(ec)
+        exceptionTriggerRepository.collection
+          .insertOne(exceptionTrigger)
+          .toFuture()
+          .map(_ => Ok)(ec)
           .recover { case exception => Results.InternalServerError(exception.toString) }
     )
   }
-
 
 }

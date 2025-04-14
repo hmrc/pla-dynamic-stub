@@ -27,34 +27,38 @@ import javax.inject.Singleton
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * Mongo repository for use by PLA dynamic stub to store/retrieve the types of exceptions to throw during downstream error testing
- */
+/** Mongo repository for use by PLA dynamic stub to store/retrieve the types of exceptions to throw during downstream
+  * error testing
+  */
 trait ExceptionTriggerRepository {
   def findExceptionTriggerByNino(nino: String)(implicit ec: ExecutionContext): Future[Option[ExceptionTrigger]]
   def removeAllExceptionTriggers()(implicit ec: ExecutionContext): Future[Unit]
 }
 
 @Singleton
-class MongoExceptionTriggerRepository @Inject()(mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
-  extends PlayMongoRepository[ExceptionTrigger](
-    mongoComponent = mongoComponent,
-    collectionName = "exceptionTriggers",
-    domainFormat = ExceptionTrigger.exceptionTriggerFormat,
-    indexes = Seq(
-      IndexModel(ascending("nino"), IndexOptions()
-          .name("ninoIndex").unique(true).sparse(true)
+class MongoExceptionTriggerRepository @Inject() (mongoComponent: MongoComponent)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[ExceptionTrigger](
+      mongoComponent = mongoComponent,
+      collectionName = "exceptionTriggers",
+      domainFormat = ExceptionTrigger.exceptionTriggerFormat,
+      indexes = Seq(
+        IndexModel(
+          ascending("nino"),
+          IndexOptions()
+            .name("ninoIndex")
+            .unique(true)
+            .sparse(true)
+        )
       )
     )
-  )
-with ExceptionTriggerRepository {
+    with ExceptionTriggerRepository {
 
-  override def findExceptionTriggerByNino(nino: String)(implicit ec: ExecutionContext): Future[Option[ExceptionTrigger]] = {
-    collection.find(equal("nino", nino)).toFuture().map {
-      triggerList => triggerList.headOption
-    }
-  }
+  override def findExceptionTriggerByNino(nino: String)(
+      implicit ec: ExecutionContext
+  ): Future[Option[ExceptionTrigger]] =
+    collection.find(equal("nino", nino)).toFuture().map(triggerList => triggerList.headOption)
 
   override def removeAllExceptionTriggers()(implicit ec: ExecutionContext): Future[Unit] =
-    collection.deleteMany(empty()).toFuture().map(_ => {})
+    collection.deleteMany(empty()).toFuture().map { _ => }
+
 }

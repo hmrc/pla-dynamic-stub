@@ -16,30 +16,34 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import play.api.libs.json.{Json, Format}
-
+import play.api.libs.json.{Format, Json}
 
 case class ExceptionTrigger(nino: String, exceptionType: String) {
 
   import ExceptionTrigger.ExceptionType._
+
   def extractedExceptionType = exceptionType match {
-    case "400" => BadRequest
-    case "404" => NotFound
-    case "500" => InternalServerError
-    case "502" => BadGateway
-    case "503" => ServiceUnavailable
+    case "400"      => BadRequest
+    case "404"      => NotFound
+    case "500"      => InternalServerError
+    case "502"      => BadGateway
+    case "503"      => ServiceUnavailable
     case "uncaught" => UncaughtException
-    case "timeout" => Timeout
-    case "noid" => NoNotificationId
+    case "timeout"  => Timeout
+    case "noid"     => NoNotificationId
   }
+
 }
 
 object ExceptionTrigger {
 
   implicit lazy val exceptionTriggerFormat: Format[ExceptionTrigger] = Json.format[ExceptionTrigger]
 
-
   object ExceptionType extends Enumeration {
-    val BadRequest, NotFound, InternalServerError, BadGateway, ServiceUnavailable, UncaughtException, Timeout, NoNotificationId = Value
+
+    val BadRequest, NotFound, InternalServerError, BadGateway, ServiceUnavailable, UncaughtException, Timeout,
+        NoNotificationId = Value
+
   }
+
 }

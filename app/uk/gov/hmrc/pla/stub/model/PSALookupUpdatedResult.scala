@@ -18,10 +18,12 @@ package uk.gov.hmrc.pla.stub.model
 
 import play.api.libs.json.Json
 
-case class PSALookupUpdatedResult(pensionSchemeAdministratorCheckReference: String,
-                                  ltaType: Int,
-                                  psaCheckResult: Int,
-                                  protectedAmount: Option[BigDecimal])
+case class PSALookupUpdatedResult(
+    pensionSchemeAdministratorCheckReference: String,
+    ltaType: Int,
+    psaCheckResult: Int,
+    protectedAmount: Option[BigDecimal]
+)
 
 object PSALookupUpdatedResult {
   implicit val psaLookupUpdatedResultFormat = Json.format[PSALookupUpdatedResult]

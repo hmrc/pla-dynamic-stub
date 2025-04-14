@@ -19,9 +19,10 @@ package uk.gov.hmrc.pla.stub.model
 import play.api.libs.json.Json
 
 case class UpdateLTAProtectionResponse(
-  nino: String,
-  pensionSchemeAdministratorCheckReference: Option[String],
-  protection: Protection)
+    nino: String,
+    pensionSchemeAdministratorCheckReference: Option[String],
+    protection: Protection
+)
 
 object UpdateLTAProtectionResponse {
   implicit val updateLTARespFormat = Json.format[UpdateLTAProtectionResponse]

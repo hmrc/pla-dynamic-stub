@@ -21,7 +21,7 @@ object CertificateStatus extends Enumeration {
 }
 
 object ProtectionType extends Enumeration {
-  val UnknownType,FP2016,IP2014,IP2016,Primary,Enhanced,Fixed,FP2014,StatusChange = Value
+  val UnknownType, FP2016, IP2014, IP2016, Primary, Enhanced, Fixed, FP2014, StatusChange = Value
 }
 
 object Notifications {
@@ -31,21 +31,22 @@ object Notifications {
 
   // A notification entry contains the relevant details for a specific notification
   case class Entry(
-    protectionType: ProtectionType.Value = UnknownType,
-    status: CertificateStatus.Value=UnknownStatus,
-    message: String = "Invalid notification")
+      protectionType: ProtectionType.Value = UnknownType,
+      status: CertificateStatus.Value = UnknownStatus,
+      message: String = "Invalid notification"
+  )
 
   import CertificateStatus._
-  def extractedStatus(pStatus: CertificateStatus.Value): Int = {
+
+  def extractedStatus(pStatus: CertificateStatus.Value): Int =
     pStatus match {
-      case Open          => 1
-      case Dormant       => 2
-      case Withdrawn     => 3
-      case Expired       => 4
-      case Unsuccessful  => 5
-      case Rejected      => 6
+      case Open         => 1
+      case Dormant      => 2
+      case Withdrawn    => 3
+      case Expired      => 4
+      case Unsuccessful => 5
+      case Rejected     => 6
     }
-  }
 
   // This table provides the notification entries for each notification ID in sequence -
   // simply use the notification ID as the index into the list to get the relevant entry
@@ -53,57 +54,242 @@ object Notifications {
   val table: List[Entry] = List(
     Entry(), // dummy entry for index 0 of list - as notification IDs start at 1
     // Application Notifications:
-    Entry(IP2014,Unsuccessful,"Your application for Individual Protection 2014 has been unsuccessful as you already hold an open or dormant Primary Protection existing rights certificate\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Rejected,"Your application for Individual Protection 2014 has been rejected as you already hold open Individual Protection 2014\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Open, "Your application for Individual Protection 2014 has been successful. Your reference number is #{reference}.\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Open,"Your application for Individual Protection 2014 has been successful. Your reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\nPlease retain a copy of this notification and reference for your records"),
-    Entry(IP2014,Dormant,"Your application for Individual Protection 2014 for your lifetime allowance of #{amount} has been successful.\n\nHowever as you already hold an open Enhanced Protection certificate, no reference number has been generated. If Enhanced Protection is given up your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nTo give up Enhanced Protection you must contact HMRC (Pension Schemes Services)\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Dormant,"Your application for Individual Protection 2014 for your lifetime allowance of #{amount} has been successful.\n\nHowever, as you already hold an open Fixed Protection certificate, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Fixed Protection was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services}.\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Dormant,"Your application for Individual Protection 2014 for your lifetime allowance of #{amount} has been successful.\n\nHowever, as you already hold an open Fixed Protection 2014 certificate, no reference number has been generated. If Fixed Protection 2014 is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2014 was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services). \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Open,"Your application for Individual Protection 2014 for your lifetime allowance of #{amount} has been successful. - \n\nYour reference number is #{reference}. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Unsuccessful,"Your application for Individual Protection 2016 has been unsuccessful as you already hold an open or dormant Primary Protection existing rights certificate\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Unsuccessful, "Your application for Individual Protection 2016 has been unsuccessful as you already hold open Individual Protection 2014.\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Rejected,"Your application for Individual Protection 2016 has been rejected as you already hold an open Individual Protection 2016.\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Open,"Your application for Individual Protection 2016 has been successful. Your reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\nPlease retain a copy of this notification and your reference number for your records."),
-    Entry(IP2016,Dormant,"Your application for Individual Protection 2016 for your lifetime allowance of #{amount} has been successful.\n\nHowever as you already hold an open Enhanced Protection certificate, no reference number has been generated. If Enhanced Protection is given up your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nTo give up Enhanced Protection you must contact HMRC (Pension Schemes Services)\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Dormant,"Your application for Individual Protection 2016 for your lifetime allowance of #{amount} has been successful.\n\nHowever, as you already hold an open Fixed Protection certificate, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services}.\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Dormant,"Your application for Individual Protection 2016 for your lifetime allowance of #{amount} has been successful.\n\nHowever, as you already hold an open Fixed Protection 2014 certificate, no reference number has been generated. If Fixed Protection 2014 is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2014 was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services)'. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Dormant,"Your application for Individual Protection 2016 for your lifetime allowance of #{amount} has been successful. - \n\nHowever, as you already hold open Fixed Protection 2016, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number.\n\nIf Fixed Protection 2016 is lost you must notify HMRC (Pension Schemes Services).\n\nPlease retain a copy of this notification for your records."),
-    Entry(FP2016,Unsuccessful,"Your application for Fixed Protection 2016 has been unsuccessful as you already hold an open Enhanced Protection certificate. If Enhanced Protection is given up you can re-apply for Fixed Protection 2016 when this event takes place. To give up Enhanced Protection you must contact HMRC (Pension Schemes Services).\n\nPlease retain a copy of this notification for your records."),
-    Entry(FP2016,Unsuccessful,"Your application for Fixed Protection 2016 has been unsuccessful as you already hold an open or dormant Primary Protection existing rights certificate\n\nPlease retain a copy of this notification for your records."),
-    Entry(FP2016,Unsuccessful,"Your application for Fixed Protection 2016 has been unsuccessful as you already hold an open Fixed Protection certificate. If Fixed Protection was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services). You will then be eligible to re-apply for Fixed Protection 2016’\n\nPlease retain a copy of this notification for your records."),
-    Entry(FP2016,Unsuccessful,"Your application for Fixed Protection 2016 has been unsuccessful as you already hold an open Fixed Protection 2014 certificate. If Fixed Protection 2014 was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services). You will then be eligible to re-apply for Fixed Protection 2016\n\nPlease retain a copy of this notification for your records."),
-    Entry(FP2016,Rejected,"Your application for Fixed Protection 2016 has been rejected as you already hold an open Fixed Protection 2016 certificate.\n\nPlease retain a copy of this notification for your records."),
-    Entry(FP2016,Open,"Your application for Fixed Protection 2016 has been successful. Your reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\nPlease retain a copy of this notification and your reference number for your records."),
-    Entry(FP2016,Open,"Your application for Fixed Protection 2016 has been successful. Your reference number is is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\n As you already held open Individual Protection 2014, the status of this protection has moved to dormant.  This protection will remain dormant until Fixed Protection 2016 is lost. You must notify HMRC (Pension Schemes Services) within 3 months of this change occurring.\n\nPlease retain a copy of this notification and your reference number for your records."),
-    Entry(FP2016,Dormant,"Your application for Fixed Protection 2016 has been successful. Your reference number is is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\nAs you already held open Individual Protection 2016, the status of this protection has moved to dormant.  This protection will remain dormant until Fixed Protection 2016 is lost. You must notify HMRC (Pension Schemes Services) within 3 months of this change occurring. -\n\nPlease retain a copy of this notification and your reference number for your records."),
+    Entry(
+      IP2014,
+      Unsuccessful,
+      "Your application for Individual Protection 2014 has been unsuccessful as you already hold an open or dormant Primary Protection existing rights certificate\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Rejected,
+      "Your application for Individual Protection 2014 has been rejected as you already hold open Individual Protection 2014\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Open,
+      "Your application for Individual Protection 2014 has been successful. Your reference number is #{reference}.\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Open,
+      "Your application for Individual Protection 2014 has been successful. Your reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\nPlease retain a copy of this notification and reference for your records"
+    ),
+    Entry(
+      IP2014,
+      Dormant,
+      "Your application for Individual Protection 2014 for your lifetime allowance of #{amount} has been successful.\n\nHowever as you already hold an open Enhanced Protection certificate, no reference number has been generated. If Enhanced Protection is given up your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nTo give up Enhanced Protection you must contact HMRC (Pension Schemes Services)\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Dormant,
+      "Your application for Individual Protection 2014 for your lifetime allowance of #{amount} has been successful.\n\nHowever, as you already hold an open Fixed Protection certificate, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Fixed Protection was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services}.\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Dormant,
+      "Your application for Individual Protection 2014 for your lifetime allowance of #{amount} has been successful.\n\nHowever, as you already hold an open Fixed Protection 2014 certificate, no reference number has been generated. If Fixed Protection 2014 is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2014 was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services). \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Open,
+      "Your application for Individual Protection 2014 for your lifetime allowance of #{amount} has been successful. - \n\nYour reference number is #{reference}. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Unsuccessful,
+      "Your application for Individual Protection 2016 has been unsuccessful as you already hold an open or dormant Primary Protection existing rights certificate\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Unsuccessful,
+      "Your application for Individual Protection 2016 has been unsuccessful as you already hold open Individual Protection 2014.\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Rejected,
+      "Your application for Individual Protection 2016 has been rejected as you already hold an open Individual Protection 2016.\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Open,
+      "Your application for Individual Protection 2016 has been successful. Your reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\nPlease retain a copy of this notification and your reference number for your records."
+    ),
+    Entry(
+      IP2016,
+      Dormant,
+      "Your application for Individual Protection 2016 for your lifetime allowance of #{amount} has been successful.\n\nHowever as you already hold an open Enhanced Protection certificate, no reference number has been generated. If Enhanced Protection is given up your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nTo give up Enhanced Protection you must contact HMRC (Pension Schemes Services)\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Dormant,
+      "Your application for Individual Protection 2016 for your lifetime allowance of #{amount} has been successful.\n\nHowever, as you already hold an open Fixed Protection certificate, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services}.\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Dormant,
+      "Your application for Individual Protection 2016 for your lifetime allowance of #{amount} has been successful.\n\nHowever, as you already hold an open Fixed Protection 2014 certificate, no reference number has been generated. If Fixed Protection 2014 is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2014 was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services)'. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Dormant,
+      "Your application for Individual Protection 2016 for your lifetime allowance of #{amount} has been successful. - \n\nHowever, as you already hold open Fixed Protection 2016, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number.\n\nIf Fixed Protection 2016 is lost you must notify HMRC (Pension Schemes Services).\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      FP2016,
+      Unsuccessful,
+      "Your application for Fixed Protection 2016 has been unsuccessful as you already hold an open Enhanced Protection certificate. If Enhanced Protection is given up you can re-apply for Fixed Protection 2016 when this event takes place. To give up Enhanced Protection you must contact HMRC (Pension Schemes Services).\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      FP2016,
+      Unsuccessful,
+      "Your application for Fixed Protection 2016 has been unsuccessful as you already hold an open or dormant Primary Protection existing rights certificate\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      FP2016,
+      Unsuccessful,
+      "Your application for Fixed Protection 2016 has been unsuccessful as you already hold an open Fixed Protection certificate. If Fixed Protection was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services). You will then be eligible to re-apply for Fixed Protection 2016’\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      FP2016,
+      Unsuccessful,
+      "Your application for Fixed Protection 2016 has been unsuccessful as you already hold an open Fixed Protection 2014 certificate. If Fixed Protection 2014 was lost before 6 April 2016 you must notify HMRC (Pension Schemes Services). You will then be eligible to re-apply for Fixed Protection 2016\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      FP2016,
+      Rejected,
+      "Your application for Fixed Protection 2016 has been rejected as you already hold an open Fixed Protection 2016 certificate.\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      FP2016,
+      Open,
+      "Your application for Fixed Protection 2016 has been successful. Your reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\nPlease retain a copy of this notification and your reference number for your records."
+    ),
+    Entry(
+      FP2016,
+      Open,
+      "Your application for Fixed Protection 2016 has been successful. Your reference number is is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\n As you already held open Individual Protection 2014, the status of this protection has moved to dormant.  This protection will remain dormant until Fixed Protection 2016 is lost. You must notify HMRC (Pension Schemes Services) within 3 months of this change occurring.\n\nPlease retain a copy of this notification and your reference number for your records."
+    ),
+    Entry(
+      FP2016,
+      Dormant,
+      "Your application for Fixed Protection 2016 has been successful. Your reference number is is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nYour Pension Scheme Administrator Reference is #{psa_reference}\n\nAs you already held open Individual Protection 2016, the status of this protection has moved to dormant.  This protection will remain dormant until Fixed Protection 2016 is lost. You must notify HMRC (Pension Schemes Services) within 3 months of this change occurring. -\n\nPlease retain a copy of this notification and your reference number for your records."
+    ),
     // Amendment Notifications
-    Entry(IP2014,Withdrawn,"You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection\n\nIf you have already started taking benefits you must contact your pension scheme administrator.’\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Withdrawn,"You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection\n\nHowever, as you already hold an open Enhanced Protection certificate which will remain in place, If Enhanced Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Withdrawn,"You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection \n\nHowever, as you already hold an open Fixed Protection certificate which will remain in place, If Fixed Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records.'"),
-    Entry(IP2014,Withdrawn,"You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed 2014 Protection certificate which will remain in place, If Fixed 2014 Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Withdrawn,"You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed 2016 Protection certificate which will remain in place, If Fixed 2016 Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Dormant,"You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Enhanced Protection certificate, no reference number has been generated. If Enhanced Protection is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Enhanced Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Dormant,"You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\n\nPlease retain a copy of this notification for your records.'\nIf Fixed Protection is lost you must notify HMRC Pension Schemes Services. "),
-    Entry(IP2014,Dormant,"You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection 2014, no reference number has been generated. If Fixed Protection 2014 Protection is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2014 is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Dormant,"You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection 2016 certificate, no reference number has been generated. If Fixed Protection 2016 is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2016 is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2014,Open,"You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount} \n\nYour new reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits. \n\nPlease retain a copy of this notification and your reference number for your records."),
-    Entry(IP2016,Withdrawn,"You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nIf you have already started taking benefits you must contact your pension scheme administrator.’\n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Withdrawn,"You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nHowever, as you already hold an open Enhanced Protection certificate which will remain in place, If Enhanced Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Withdrawn,"You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed Protection certificate which will remain in place, If Fixed Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Withdrawn,"You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed 2014 Protection certificate which will remain in place, If Fixed 2014 Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Withdrawn,"You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed 2016 Protection certificate which will remain in place, If Fixed 2016 Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Dormant,"You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Enhanced Protection certificate, no reference number has been generated. If Enhanced Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Enhanced Protection is lost you must notify HMRC Pension Schemes Services."),
-    Entry(IP2016,Dormant,"You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection is lost you must notify HMRC Pension Schemes Services."),
-    Entry(IP2016,Dormant,"You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection 2014, no reference number has been generated. If Fixed Protection 2014 Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2014 is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Dormant,"You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection 2016 certificate, no reference number has been generated. If Fixed Protection 2016 is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2016 is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."),
-    Entry(IP2016,Open,"You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nYour new reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nPlease retain a copy of this notification and your reference number for your records."),
-    Entry(StatusChange,Open,"Your Individual Protection 2014 for your lifetime allowance of #{amount} has now become active\n\nYour reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nPlease retain a copy of this notification and your reference number for your records."),
-    Entry(StatusChange,Open,"Your Individual Protection 2016 for your lifetime allowance of #{amount} has now become active\n\nYour reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nPlease retain a copy of this notification and your reference number for your records."))
+    Entry(
+      IP2014,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection\n\nIf you have already started taking benefits you must contact your pension scheme administrator.’\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection\n\nHowever, as you already hold an open Enhanced Protection certificate which will remain in place, If Enhanced Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection \n\nHowever, as you already hold an open Fixed Protection certificate which will remain in place, If Fixed Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records.'"
+    ),
+    Entry(
+      IP2014,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed 2014 Protection certificate which will remain in place, If Fixed 2014 Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2014 details which means you are no longer entitled to Individual Protection 2014 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed 2016 Protection certificate which will remain in place, If Fixed 2016 Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Dormant,
+      "You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Enhanced Protection certificate, no reference number has been generated. If Enhanced Protection is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Enhanced Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Dormant,
+      "You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\n\nPlease retain a copy of this notification for your records.'\nIf Fixed Protection is lost you must notify HMRC Pension Schemes Services. "
+    ),
+    Entry(
+      IP2014,
+      Dormant,
+      "You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection 2014, no reference number has been generated. If Fixed Protection 2014 Protection is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2014 is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Dormant,
+      "You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection 2016 certificate, no reference number has been generated. If Fixed Protection 2016 is lost your Individual Protection 2014 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2016 is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2014,
+      Open,
+      "You have successfully amended your Individual Protection 2014 details. Your new relevant amount for Individual Protection 2014 lifetime allowance is #{amount} \n\nYour new reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits. \n\nPlease retain a copy of this notification and your reference number for your records."
+    ),
+    Entry(
+      IP2016,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nIf you have already started taking benefits you must contact your pension scheme administrator.’\n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nHowever, as you already hold an open Enhanced Protection certificate which will remain in place, If Enhanced Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed Protection certificate which will remain in place, If Fixed Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed 2014 Protection certificate which will remain in place, If Fixed 2014 Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Withdrawn,
+      "You have successfully amended your Individual Protection 2016 details which means you are no longer entitled to Individual Protection 2016 Life Time Allowance Protection\n\nHowever, as you already hold an open Fixed 2016 Protection certificate which will remain in place, If Fixed 2016 Protection is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Dormant,
+      "You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Enhanced Protection certificate, no reference number has been generated. If Enhanced Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Enhanced Protection is lost you must notify HMRC Pension Schemes Services."
+    ),
+    Entry(
+      IP2016,
+      Dormant,
+      "You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection, no reference number has been generated. If Fixed Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection is lost you must notify HMRC Pension Schemes Services."
+    ),
+    Entry(
+      IP2016,
+      Dormant,
+      "You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection 2014, no reference number has been generated. If Fixed Protection 2014 Protection is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2014 is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Dormant,
+      "You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nHowever, as you already hold an open Fixed Protection 2016 certificate, no reference number has been generated. If Fixed Protection 2016 is lost your Individual Protection 2016 will become active and you will be issued with a reference number. \n\nIf Fixed Protection 2016 is lost you must notify HMRC Pension Schemes Services. \n\nPlease retain a copy of this notification for your records."
+    ),
+    Entry(
+      IP2016,
+      Open,
+      "You have successfully amended your Individual Protection 2016 details. Your new relevant amount for Individual Protection 2016 lifetime allowance is #{amount}\n\nYour new reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nPlease retain a copy of this notification and your reference number for your records."
+    ),
+    Entry(
+      StatusChange,
+      Open,
+      "Your Individual Protection 2014 for your lifetime allowance of #{amount} has now become active\n\nYour reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nPlease retain a copy of this notification and your reference number for your records."
+    ),
+    Entry(
+      StatusChange,
+      Open,
+      "Your Individual Protection 2016 for your lifetime allowance of #{amount} has now become active\n\nYour reference number is #{reference}. You will need to provide this number to your pension scheme administrator when you start to take your benefits.\n\nPlease retain a copy of this notification and your reference number for your records."
+    )
+  )
 
-    def isFailedApplication(id: Int) = table(id).status match {
-      case Unsuccessful | Rejected => true
-      case _ => false
-    }
+  def isFailedApplication(id: Int) = table(id).status match {
+    case Unsuccessful | Rejected => true
+    case _                       => false
+  }
 
 }

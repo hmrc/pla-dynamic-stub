@@ -20,7 +20,7 @@ import play.api.libs.json.{JsValue, Json}
 
 package object controllers {
 
-  val successfulProtectionsRetrieveOutput : JsValue = Json.parse(
+  val successfulProtectionsRetrieveOutput: JsValue = Json.parse(
     """
       |{
       |    "nino": "RC966967C",
@@ -92,20 +92,18 @@ package object controllers {
       |    ]
       |}
     """.stripMargin
-
   )
 
-  val successfulEmptyProtectionsRetrieveOutput : JsValue = Json.parse(
+  val successfulEmptyProtectionsRetrieveOutput: JsValue = Json.parse(
     """
       |{
       |    "nino": "AA000000A",
       |    "protections":[]
       |}
     """.stripMargin
-
   )
 
-  val successfulProtectionRetrieveOutput : JsValue = Json.parse(
+  val successfulProtectionRetrieveOutput: JsValue = Json.parse(
     """
       |{
       |    "nino": "RC966967C",
@@ -140,11 +138,7 @@ package object controllers {
       |    ]
       |}
     """.stripMargin
-
   )
-
-
-
 
   val validCreateProtectionRequestInput: JsValue = Json.parse(
     """{
@@ -294,7 +288,5 @@ package object controllers {
       |}
     """.stripMargin
   )
-
-
 
 }
