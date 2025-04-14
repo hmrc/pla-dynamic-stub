@@ -27,8 +27,10 @@ import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PLAProtectionService @Inject()(implicit val mongoProtectionRepositoryFactory: MongoProtectionRepositoryFactory,
-                                     val ec: ExecutionContext) {
+class PLAProtectionService @Inject() (
+    implicit val mongoProtectionRepositoryFactory: MongoProtectionRepositoryFactory,
+    val ec: ExecutionContext
+) {
 
   lazy val protectionsStore: MongoProtectionRepository = mongoProtectionRepositoryFactory.apply()
 
@@ -38,44 +40,45 @@ class PLAProtectionService @Inject()(implicit val mongoProtectionRepositoryFacto
     protectionsStore.removeByNino(protections.nino).flatMap(remove => save(remove, protections))
   }
 
-  def updateDormantProtectionStatusAsOpen(nino: String): Future[Unit] = {
+  def updateDormantProtectionStatusAsOpen(nino: String): Future[Unit] =
     retrieveProtections(nino).map { optProtections =>
       val protections = optProtections.get
       protections.protections.find(_.status == 2) match {
         case Some(existingDormantProtection) =>
-          val ltaProtections: List[Protection] = existingDormantProtection.copy(status = 1) :: protections.protections.filter(_.status != 2)
+          val ltaProtections: List[Protection] =
+            existingDormantProtection.copy(status = 1) :: protections.protections.filter(_.status != 2)
           saveProtections(protections.copy(protections = ltaProtections))
         case None => ()
       }
     }
-  }
 
-  def retrieveProtections(nino: String): Future[Option[Protections]] = {
+  def retrieveProtections(nino: String): Future[Option[Protections]] =
     protectionsStore.findProtectionsByNino(nino)
-  }
 
   def insertOrUpdateProtection(protection: Protection): Future[Result] = {
-    val protections = protectionsStore.findProtectionsByNino(protection.nino)
+    val protections                              = protectionsStore.findProtectionsByNino(protection.nino)
     val pensionSchemeAdministratorCheckReference = pensionSchemeAdministratorCheckReferenceGen.sample
 
     def ltaProtections(optProtections: Option[Protections]): Future[List[Protection]] = Future {
       optProtections match {
         case Some(value) => protection :: value.protections.filter(_.id != protection.id)
-        case None => List(protection)
+        case None        => List(protection)
       }
     }
 
-    def listToProtections(list: List[Protection]): Future[Protections] = Future(Protections(protection.nino, pensionSchemeAdministratorCheckReference, list))
+    def listToProtections(list: List[Protection]): Future[Protections] = Future(
+      Protections(protection.nino, pensionSchemeAdministratorCheckReference, list)
+    )
 
     for {
-      optProtections <- protections
+      optProtections     <- protections
       updatedProtections <- ltaProtections(optProtections)
-      result <- listToProtections(updatedProtections)
-      save <- saveProtections(result)
+      result             <- listToProtections(updatedProtections)
+      save               <- saveProtections(result)
     } yield Ok
   }
 
-  def removeProtectionByNinoAndProtectionId(nino: String, protectionId: Long): Future[Result] = {
+  def removeProtectionByNinoAndProtectionId(nino: String, protectionId: Long): Future[Result] =
     retrieveProtections(nino).map { optProtections =>
       val protections = optProtections.get
       protections.protections.find(_.id == protectionId) match {
@@ -86,14 +89,12 @@ class PLAProtectionService @Inject()(implicit val mongoProtectionRepositoryFacto
         case None => NotFound
       }
     }
-  }
 
-  def findAllProtectionsByNino(nino: String): Future[Option[List[Protection]]] = {
+  def findAllProtectionsByNino(nino: String): Future[Option[List[Protection]]] =
     retrieveProtections(nino).map {
       case Some(protections) => Some(protections.protections)
-      case _ => None
+      case _                 => None
     }
-  }
 
   def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] = {
     val protections: Future[Option[Protections]] = retrieveProtections(nino)
@@ -101,4 +102,5 @@ class PLAProtectionService @Inject()(implicit val mongoProtectionRepositoryFacto
       _.get.protections.find(p => p.id == protectionId)
     }
   }
+
 }

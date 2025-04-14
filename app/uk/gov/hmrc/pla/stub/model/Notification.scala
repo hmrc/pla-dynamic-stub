@@ -19,8 +19,8 @@ package uk.gov.hmrc.pla.stub.model
 import play.api.libs.json.Json
 
 case class Notification(
-  id: Short,
-  message: Option[String] = None
+    id: Short,
+    message: Option[String] = None
 )
 
 object Notification {

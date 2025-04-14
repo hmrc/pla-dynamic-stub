@@ -23,15 +23,19 @@ import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
 import scala.concurrent.ExecutionContext
 
-class MongoProtectionRepositoryFactory @Inject()(val mongoComponent: MongoComponent,
-                                                 implicit val ec: ExecutionContext){
-  private lazy val repository = new MongoProtectionRepository(mongoComponent)
+class MongoProtectionRepositoryFactory @Inject() (
+    val mongoComponent: MongoComponent,
+    implicit val ec: ExecutionContext
+) {
+  private lazy val repository            = new MongoProtectionRepository(mongoComponent)
   def apply(): MongoProtectionRepository = repository
 }
 
 class GuiceModuleLoader extends AbstractModule {
-    override def configure(): Unit = {
-      // Sample bind config (if needed in the future)
-      //bind(classOf[TraitToImplement]).to(classOf[ClassToImplement]).asEagerSingleton()
-    }
+
+  override def configure(): Unit = {
+    // Sample bind config (if needed in the future)
+    // bind(classOf[TraitToImplement]).to(classOf[ClassToImplement]).asEagerSingleton()
+  }
+
 }

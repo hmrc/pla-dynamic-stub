@@ -18,17 +18,15 @@ package uk.gov.hmrc.pla.stub.model
 
 import play.api.libs.json._
 
-
-/**
-  * Details of all protections for an individual, including a check reference for the PSA
+/** Details of all protections for an individual, including a check reference for the PSA
   */
 case class Protections(
     nino: String,
     pensionSchemeAdministratorCheckReference: Option[String] = None,
-    protections: List[Protection])
+    protections: List[Protection]
+)
 
 object Protections {
   implicit val protectionsFormat = Json.format[Protections]
-
 
 }

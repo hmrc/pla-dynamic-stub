@@ -21,7 +21,8 @@ import play.api.libs.json.Json
 case class CreateLTAProtectionResponse(
     nino: String,
     pensionSchemeAdministratorCheckReference: Option[String],
-    protection: Protection)
+    protection: Protection
+)
 
 object CreateLTAProtectionResponse {
   implicit val createLTAReqormat = Json.format[CreateLTAProtectionResponse]

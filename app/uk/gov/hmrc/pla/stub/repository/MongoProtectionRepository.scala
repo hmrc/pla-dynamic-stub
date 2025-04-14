@@ -38,30 +38,32 @@ trait ProtectionRepository {
 
 @Singleton
 class MongoProtectionRepository(mongoComponent: MongoComponent)(implicit val ec: ExecutionContext)
-  extends PlayMongoRepository[Protections](
-    mongoComponent = mongoComponent,
-    collectionName ="protections",
-    domainFormat = Protections.protectionsFormat,
-    indexes = Seq(
-      IndexModel(ascending("nino", "id", "version"), IndexOptions()
-      .name("ninoIdAndVersionIdx").unique(true).sparse(true))
+    extends PlayMongoRepository[Protections](
+      mongoComponent = mongoComponent,
+      collectionName = "protections",
+      domainFormat = Protections.protectionsFormat,
+      indexes = Seq(
+        IndexModel(
+          ascending("nino", "id", "version"),
+          IndexOptions()
+            .name("ninoIdAndVersionIdx")
+            .unique(true)
+            .sparse(true)
+        )
+      )
     )
-  )
-  with ProtectionRepository {
+    with ProtectionRepository {
 
-  override def findAllProtectionsByNino(nino: String): Future[List[Protections]] = {
+  override def findAllProtectionsByNino(nino: String): Future[List[Protections]] =
     collection.find(equal("nino", nino)).toFuture().map(_.toList)
-  }
 
-  override def findProtectionsByNino(nino: String): Future[Option[Protections]] = {
+  override def findProtectionsByNino(nino: String): Future[Option[Protections]] =
     findAllProtectionsByNino(nino).map {
       _.headOption
     }
-  }
 
   override def removeByNino(nino: String): Future[Unit] =
     collection.deleteOne(equal("nino", nino)).toFuture().map { _ => }
-
 
   override def removeAllProtections(): Future[Unit] =
     collection.deleteMany(empty()).toFuture().map { _ => }
@@ -71,4 +73,5 @@ class MongoProtectionRepository(mongoComponent: MongoComponent)(implicit val ec:
 
   override def insertProtection(protections: Protections): Future[InsertOneResult] =
     collection.insertOne(protections).toFuture()
+
 }

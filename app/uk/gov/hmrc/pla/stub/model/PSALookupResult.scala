@@ -18,10 +18,7 @@ package uk.gov.hmrc.pla.stub.model
 
 import play.api.libs.json.Json
 
-case class PSALookupResult(
-  protectionType: Int,
-  validResult: Boolean,
-  relevantAmount: Option[Double] = None)
+case class PSALookupResult(protectionType: Int, validResult: Boolean, relevantAmount: Option[Double] = None)
 
 object PSALookupResult {
   implicit val psaLookupResultFormat = Json.format[PSALookupResult]

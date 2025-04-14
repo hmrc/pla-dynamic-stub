@@ -18,28 +18,28 @@ package uk.gov.hmrc.pla.stub.model
 
 import play.api.libs.json.{Format, Json}
 
-
 case class UpdateLTAProtectionRequest(
-  nino: String,
-  protection: UpdateLTAProtectionRequest.ProtectionDetails,
-  pensionDebits: Option[List[PensionDebit]] = None)
-
+    nino: String,
+    protection: UpdateLTAProtectionRequest.ProtectionDetails,
+    pensionDebits: Option[List[PensionDebit]] = None
+)
 
 object UpdateLTAProtectionRequest {
   implicit val updateLTARequestFormat: Format[UpdateLTAProtectionRequest] = Json.format[UpdateLTAProtectionRequest]
-  implicit lazy val protectionDetailsFormat: Format[ProtectionDetails] = Json.format[ProtectionDetails]
+  implicit lazy val protectionDetailsFormat: Format[ProtectionDetails]    = Json.format[ProtectionDetails]
 
   case class ProtectionDetails(
-    `type`: Int,
-    status: Int,
-    version: Int,
-    relevantAmount: Double,
-    preADayPensionInPayment: Double,
-    postADayBCE: Double,
-    uncrystallisedRights: Double,
-    pensionDebitTotalAmount: Option[Double] = None,
-    nonUKRights: Double,
-    withdrawnDate: Option[String] = None) {
+      `type`: Int,
+      status: Int,
+      version: Int,
+      relevantAmount: Double,
+      preADayPensionInPayment: Double,
+      postADayBCE: Double,
+      uncrystallisedRights: Double,
+      pensionDebitTotalAmount: Option[Double] = None,
+      nonUKRights: Double,
+      withdrawnDate: Option[String] = None
+  ) {
 
     import uk.gov.hmrc.pla.stub.model.Protection.Type._
 
@@ -48,6 +48,7 @@ object UpdateLTAProtectionRequest {
       case 3 => Some(IP2016)
       case _ => None
     }
+
   }
 
 }
