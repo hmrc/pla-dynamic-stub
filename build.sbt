@@ -33,13 +33,10 @@ lazy val root = Project(appName, file("."))
   .settings(defaultSettings(): _*)
   .settings(
     libraryDependencies ++= AppDependencies(),
-    dependencyOverrides += "commons-codec" % "commons-codec" % "1.12",
+    dependencyOverrides += "commons-codec" % "commons-codec" % "1.19.0",
     parallelExecution in Test             := false,
     fork in Test                          := false,
     retrieveManaged                       := true,
     evictionWarningOptions in update      := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s"
   )
-  .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
-  .settings(integrationTestSettings())

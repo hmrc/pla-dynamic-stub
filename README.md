@@ -12,7 +12,11 @@ The stub supports these PLA service API operations:
 - `GET /pensions-lifetime-allowance/individual/{nino}/protections/{protectionId}` - get a specific protection by NINO and protection ID
 - `POST /pension-lifetime-allowance/individual/{nino}/protection` - apply for a new protection for the individual with the specified NINO
 - `PUT /pensions-lifetime-allowance/individual/{nino}/protection/{protectionId}` - amend the specified existing protection
-- `GET  pensions-lifetime-allowance/scheme-administrator/certificate-lookup?pensionSchemeAdministratorCheckReference={psaRef}&lifetimeAllowanceReference={ltaRef}` - verify that the provided LTA Reference is valid for that individual and return protection details
+- `GET  /pensions-lifetime-allowance/scheme-administrator/certificate-lookup?pensionSchemeAdministratorCheckReference={psaRef}&lifetimeAllowanceReference={ltaRef}` - verify that the provided LTA Reference is valid for that individual and return protection details
+
+HIP end points supported:
+
+- `POST /paye/lifetime-allowance/person/{nino}/reference/{id}/sequence-number/{sequence}` - amend a protection
 
 The stub attempts to apply the same business rules as the full production service to protection application and amendment requests, which can return various outcomes based partly on whether and what type of protections are already in place for the individual. A notification ID returned with the response identifies the specific outcome.
 

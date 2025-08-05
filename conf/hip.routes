@@ -1,0 +1,1 @@
+POST    /person/:nino/reference/:protectionId/sequence-number/:sequence @uk.gov.hmrc.pla.stub.controllers.HIPStubController.amendProtection(nino:String, protectionId: Int, sequence: Int)
