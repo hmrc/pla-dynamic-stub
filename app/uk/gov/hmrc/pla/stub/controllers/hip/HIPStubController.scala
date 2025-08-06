@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pla.stub.controllers
+package uk.gov.hmrc.pla.stub.controllers.hip
 
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents, PlayBodyParsers, Result}
+import uk.gov.hmrc.pla.stub.model.Error
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionRequestLifetimeAllowanceType._
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.model.Error
-import uk.gov.hmrc.pla.stub.rules.{
-  HipAmendmentRules,
-  IndividualProtection2014LtaAmendmentRules,
-  IndividualProtection2014AmendmentRules,
-  IndividualProtection2016LtaAmendmentRules,
-  IndividualProtection2016AmendmentRules
-}
+import uk.gov.hmrc.pla.stub.rules._
 import uk.gov.hmrc.pla.stub.services.HipProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.smartstub.{Generator => _}
@@ -75,7 +69,7 @@ class HIPStubController @Inject() (
           }
 
           val calculatedRelevantAmountMinusPSO =
-            calculatedRelevantAmount - amendProtectionRequest.pensionDebitEnteredAmount
+            calculatedRelevantAmount - amendProtectionRequest.pensionDebitEnteredAmount.getOrElse(0)
 
           // val amendmentTargetFutureOption = protectionRepository.findLatestVersionOfProtectionByNinoAndId(nino, protectionId)
           val amendmentTargetOption = protectionService.findProtectionByNinoAndId(nino, protectionId)
@@ -200,7 +194,7 @@ class HIPStubController @Inject() (
       notificationIdentifier = Some(notification),
       protectedAmount = amendedProtection.protectedAmount,
       pensionDebitStartDate = amendedProtection.pensionDebitStartDate,
-      pensionDebitTotalAmount = amendedProtection.pensionDebitTotalAmount
+      pensionDebitTotalAmount = amendedProtection.pensionDebitTotalAmount,
     )
     val okResponseBody = Json.toJson(okResponse)
     val result         = Ok(okResponseBody)

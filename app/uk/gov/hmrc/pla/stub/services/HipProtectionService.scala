@@ -21,7 +21,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{NotFound, Ok}
 import uk.gov.hmrc.pla.stub.Generator.pensionSchemeAdministratorCheckReferenceGen
 import uk.gov.hmrc.pla.stub.guice.MongoHipProtectionRepositoryFactory
-import uk.gov.hmrc.pla.stub.model.hip.{AmendProtectionResponseStatus, HipProtection, HipProtections}
+import uk.gov.hmrc.pla.stub.model.hip.{HipProtection, HipProtections, ProtectionStatus}
 import uk.gov.hmrc.pla.stub.repository.MongoHipProtectionRepository
 
 import javax.inject.Inject
@@ -43,12 +43,12 @@ class HipProtectionService @Inject() (
   def updateDormantProtectionStatusAsOpen(nino: String): Future[Unit] =
     retrieveProtections(nino).map { optProtections =>
       val protections = optProtections.get
-      protections.protections.find(_.status == AmendProtectionResponseStatus.Dormant) match {
+      protections.protections.find(_.status == ProtectionStatus.Dormant) match {
         case Some(existingDormantProtection) =>
           val ltaProtections: List[HipProtection] =
-            existingDormantProtection.copy(status = AmendProtectionResponseStatus.Open) :: protections.protections
+            existingDormantProtection.copy(status = ProtectionStatus.Open) :: protections.protections
               .filter(
-                _.status != AmendProtectionResponseStatus.Dormant
+                _.status != ProtectionStatus.Dormant
               )
           saveProtections(protections.copy(protections = ltaProtections))
         case None => ()
@@ -102,7 +102,7 @@ class HipProtectionService @Inject() (
   def findProtectionByNinoAndId(nino: String, protectionId: Int): Future[Option[HipProtection]] = {
     val protections: Future[Option[HipProtections]] = retrieveProtections(nino)
     protections.map {
-      _.get.protections.find(p => p.id == protectionId)
+      _.flatMap(_.protections.find(p => p.id == protectionId))
     }
   }
 

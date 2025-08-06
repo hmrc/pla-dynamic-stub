@@ -16,20 +16,45 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import play.api.libs.json.{JsNumber, Writes}
+import play.api.libs.json.{Format, JsError, JsNumber, JsSuccess, Reads, Writes}
 import uk.gov.hmrc.pla.stub.model.hip.LifetimeAllowanceType.{IndividualProtection2014, IndividualProtection2016}
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionResponseStatus.{Dormant, Open, Withdrawn}
 
-sealed abstract class Notification(id: Int, `_type`: LifetimeAllowanceType, _status: AmendProtectionResponseStatus) {
+sealed abstract class Notification(_id: Int, `_type`: LifetimeAllowanceType, _status: AmendProtectionResponseStatus) {
 
-  implicit val writes: Writes[Notification] = Writes(_ => JsNumber(id))
-
+  val id: Int                               = _id
   val `type`: LifetimeAllowanceType         = `_type`
   val status: AmendProtectionResponseStatus = _status
 
 }
 
 object Notification {
+
+  implicit val writes: Writes[Notification] = Writes(notification => JsNumber(notification.id))
+
+  implicit val reads: Reads[Notification] = Reads {
+    case JsNumber(num) =>
+      num.toInt match {
+        case 1  => JsSuccess(Notification1)
+        case 2  => JsSuccess(Notification2)
+        case 3  => JsSuccess(Notification3)
+        case 4  => JsSuccess(Notification4)
+        case 5  => JsSuccess(Notification5)
+        case 6  => JsSuccess(Notification6)
+        case 7  => JsSuccess(Notification7)
+        case 8  => JsSuccess(Notification8)
+        case 9  => JsSuccess(Notification9)
+        case 10 => JsSuccess(Notification10)
+        case 11 => JsSuccess(Notification11)
+        case 12 => JsSuccess(Notification12)
+        case 13 => JsSuccess(Notification13)
+        case 14 => JsSuccess(Notification14)
+        case n  => JsError(s"Unknown notification id '$n'. Expected number in range 1-14 inclusive.'")
+      }
+    case v => JsError(s"Unknown notification id '$v'. Expected number in range 1-14 inclusive.'")
+  }
+
+  implicit val format: Format[Notification] = Format(Notification.reads, Notification.writes)
 
   case object Notification1 extends Notification(1, IndividualProtection2014, Open)
   case object Notification2 extends Notification(1, IndividualProtection2014, Dormant)
@@ -46,23 +71,5 @@ object Notification {
   case object Notification12 extends Notification(12, IndividualProtection2016, Dormant)
   case object Notification13 extends Notification(13, IndividualProtection2016, Withdrawn)
   case object Notification14 extends Notification(14, IndividualProtection2016, Withdrawn)
-
-  private val allValues: Seq[Notification] =
-    Seq(
-      Notification1,
-      Notification2,
-      Notification3,
-      Notification4,
-      Notification5,
-      Notification6,
-      Notification7,
-      Notification8,
-      Notification9,
-      Notification10,
-      Notification11,
-      Notification12,
-      Notification13,
-      Notification14
-    )
 
 }
