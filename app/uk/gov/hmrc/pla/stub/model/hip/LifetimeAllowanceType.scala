@@ -27,6 +27,7 @@ object LifetimeAllowanceType extends Enumerable.Implicits {
   case object FixedProtection              extends LifetimeAllowanceType("FIXED PROTECTION")
   case object FixedProtection2014          extends LifetimeAllowanceType("FIXED PROTECTION 2014")
   case object FixedProtection2014Lta       extends LifetimeAllowanceType("FIXED PROTECTION 2014 LTA")
+  case object FixedProtection2016          extends LifetimeAllowanceType("FIXED PROTECTION 2016")
   case object FixedProtection2016Lta       extends LifetimeAllowanceType("FIXED PROTECTION 2016 LTA")
   case object FixedProtectionLta           extends LifetimeAllowanceType("FIXED PROTECTION LTA")
   case object IndividualProtection2014     extends LifetimeAllowanceType("INDIVIDUAL PROTECTION 2014")
