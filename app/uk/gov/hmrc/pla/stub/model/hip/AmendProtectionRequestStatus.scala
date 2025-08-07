@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
+import uk.gov.hmrc.pla.stub.model.Protection
 import util.{Enumerable, EnumerableInstance}
 
-sealed abstract class AmendProtectionRequestStatus(value: String) extends EnumerableInstance(value)
+sealed abstract class AmendProtectionRequestStatus(value: String) extends EnumerableInstance(value) {}
 
 object AmendProtectionRequestStatus extends Enumerable.Implicits {
 
-  case object Open    extends AmendProtectionRequestStatus("OPEN")
+  case object Open extends AmendProtectionRequestStatus("OPEN")
+
   case object Dormant extends AmendProtectionRequestStatus("DORMANT")
 
   private val allValues: Seq[AmendProtectionRequestStatus] =

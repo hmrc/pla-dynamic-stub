@@ -19,7 +19,7 @@ package uk.gov.hmrc.pla.stub.model.hip
 import play.api.libs.json._
 
 case class AmendProtectionRequest(
-    `type`: AmendProtectionRequestLifetimeAllowanceType,
+    `type`: AmendProtectionRequestType,
     certificateDate: Option[String],
     certificateTime: Option[String],
     status: AmendProtectionRequestStatus,

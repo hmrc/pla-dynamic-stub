@@ -18,7 +18,7 @@ package uk.gov.hmrc.pla.stub.rules
 
 import uk.gov.hmrc.pla.stub.model.hip.Notification._
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.model.hip.LifetimeAllowanceType._
+import uk.gov.hmrc.pla.stub.model.hip.ProtectionType._
 
 sealed trait HipAmendmentRules {
 

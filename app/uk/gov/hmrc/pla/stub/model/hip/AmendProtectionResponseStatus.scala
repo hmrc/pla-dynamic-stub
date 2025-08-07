@@ -35,4 +35,11 @@ object AmendProtectionResponseStatus extends Enumerable.Implicits {
   implicit val toEnumerable: Enumerable[AmendProtectionResponseStatus] =
     Enumerable(allValues.map(v => v.toString -> v): _*)
 
+  def fromPlaId(id: Int): Option[AmendProtectionResponseStatus] = id match {
+    case 1 => Some(Open)
+    case 2 => Some(Dormant)
+    case 3 => Some(Withdrawn)
+    case _ => None
+  }
+
 }

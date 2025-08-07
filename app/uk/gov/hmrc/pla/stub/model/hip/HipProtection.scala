@@ -17,6 +17,7 @@
 package uk.gov.hmrc.pla.stub.model.hip
 
 import play.api.libs.json._
+import uk.gov.hmrc.pla.stub.model.Protection
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -26,7 +27,7 @@ case class HipProtection(
     id: Int,
     sequence: Int,
     status: ProtectionStatus,
-    `type`: LifetimeAllowanceType,
+    `type`: ProtectionType,
     relevantAmount: Int,
     preADayPensionInPaymentAmount: Int,
     postADayBenefitCrystallisationEventAmount: Int,
@@ -40,7 +41,35 @@ case class HipProtection(
     protectedAmount: Option[Int] = None,
     pensionDebitStartDate: Option[String] = None,
     pensionDebitTotalAmount: Option[Int] = None
-) {}
+) {
+
+  def toProtection: Protection =
+    Protection(
+      nino = nino,
+      id = id.toLong,
+      version = sequence,
+      `type` = `type`.toId,
+      status = status.toId,
+      notificationID = None,
+      notificationMsg = None,
+      protectionReference = protectionReference,
+      certificateDate = certificateDate,
+      certificateTime = certificateTime,
+      relevantAmount = Some(relevantAmount.toDouble),
+      protectedAmount = protectedAmount.map(_.toDouble),
+      preADayPensionInPayment = Some(preADayPensionInPaymentAmount.toDouble),
+      postADayBCE = Some(postADayBenefitCrystallisationEventAmount.toDouble),
+      uncrystallisedRights = Some(uncrystallisedRightsAmount.toDouble),
+      nonUKRights = Some(nonUKRightsAmount.toDouble),
+      pensionDebiitEnteredAmount = pensionDebitEnteredAmount.map(_.toDouble),
+      pensionDebitStartDate = pensionDebitStartDate,
+      pensionDebitTotalAmount = pensionDebitTotalAmount.map(_.toDouble),
+      pensionDebits = None,
+      previousVersions = None,
+      withdrawnDate = None
+    )
+
+}
 
 object HipProtection {
 
@@ -56,5 +85,30 @@ object HipProtection {
   implicit val localDateTimeFormat: Format[LocalDateTime] = Format(localDateTimeReads, localDateTimeWrites)
 
   implicit lazy val protectionFormat: Format[HipProtection] = Json.format[HipProtection]
+
+  def fromProtection(protection: Protection): Option[HipProtection] =
+    for {
+      protectionType <- ProtectionType.fromPlaId(protection.`type`)
+      status         <- ProtectionStatus.fromPlaId(protection.status)
+    } yield HipProtection(
+      nino = protection.nino,
+      id = protection.id.toInt,
+      sequence = protection.version,
+      status = status,
+      `type` = protectionType,
+      preADayPensionInPaymentAmount = protection.preADayPensionInPayment.map(_.toInt).getOrElse(0),
+      postADayBenefitCrystallisationEventAmount = protection.postADayBCE.map(_.toInt).getOrElse(0),
+      uncrystallisedRightsAmount = protection.uncrystallisedRights.map(_.toInt).getOrElse(0),
+      nonUKRightsAmount = protection.nonUKRights.map(_.toInt).getOrElse(0),
+      certificateDate = protection.certificateDate,
+      certificateTime = protection.certificateTime,
+      protectionReference = protection.protectionReference,
+      pensionDebitAmount = None,
+      pensionDebitEnteredAmount = protection.pensionDebiitEnteredAmount.map(_.toInt),
+      protectedAmount = protection.protectedAmount.map(_.toInt),
+      pensionDebitStartDate = protection.pensionDebitStartDate,
+      pensionDebitTotalAmount = protection.pensionDebitTotalAmount.map(_.toInt),
+      relevantAmount = protection.relevantAmount.map(_.toInt).getOrElse(0)
+    )
 
 }

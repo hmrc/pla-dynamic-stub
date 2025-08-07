@@ -17,13 +17,13 @@
 package uk.gov.hmrc.pla.stub.model.hip
 
 import play.api.libs.json.{Format, JsError, JsNumber, JsSuccess, Reads, Writes}
-import uk.gov.hmrc.pla.stub.model.hip.LifetimeAllowanceType.{IndividualProtection2014, IndividualProtection2016}
+import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{IndividualProtection2014, IndividualProtection2016}
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionResponseStatus.{Dormant, Open, Withdrawn}
 
-sealed abstract class Notification(_id: Int, `_type`: LifetimeAllowanceType, _status: AmendProtectionResponseStatus) {
+sealed abstract class Notification(_id: Int, `_type`: ProtectionType, _status: AmendProtectionResponseStatus) {
 
   val id: Int                               = _id
-  val `type`: LifetimeAllowanceType         = `_type`
+  val `type`: ProtectionType         = `_type`
   val status: AmendProtectionResponseStatus = _status
 
 }

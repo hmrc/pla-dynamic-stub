@@ -21,7 +21,7 @@ import play.api.libs.json._
 case class AmendProtectionResponse(
     identifier: Int,
     sequenceNumber: Int,
-    `type`: LifetimeAllowanceType,
+    `type`: ProtectionType,
     certificateDate: Option[String],
     certificateTime: Option[String],
     status: AmendProtectionResponseStatus,

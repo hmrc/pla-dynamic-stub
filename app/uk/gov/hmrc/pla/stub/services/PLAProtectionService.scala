@@ -23,6 +23,7 @@ import play.api.mvc.Results.{NotFound, Ok}
 import uk.gov.hmrc.pla.stub.Generator.pensionSchemeAdministratorCheckReferenceGen
 import uk.gov.hmrc.pla.stub.guice.MongoProtectionRepositoryFactory
 import uk.gov.hmrc.pla.stub.model._
+import uk.gov.hmrc.pla.stub.model.hip.HipProtection
 import uk.gov.hmrc.pla.stub.model.hip.HIPProtectionsModel
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
@@ -60,6 +61,9 @@ class PLAProtectionService @Inject() (
     retrieveProtections(nino).map {
       _.map(HIPProtectionsModel(_))
     }
+
+  def insertOrUpdateHipProtection(protection: HipProtection): Future[Result] =
+    insertOrUpdateProtection(protection.toProtection)
 
   def insertOrUpdateProtection(protection: Protection): Future[Result] = {
     val protections                              = protectionsStore.findProtectionsByNino(protection.nino)
@@ -102,11 +106,20 @@ class PLAProtectionService @Inject() (
       case _                 => None
     }
 
+  def findAllHipProtectionsByNino(nino: String): Future[Option[List[HipProtection]]] =
+    findAllProtectionsByNino(nino).map {
+      case Some(protections) => Some(protections.map(HipProtection.fromProtection))
+      case _                 => None
+    }
+
   def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] = {
     val protections: Future[Option[Protections]] = retrieveProtections(nino)
     protections.map {
       _.get.protections.find(p => p.id == protectionId)
     }
   }
+
+  def findHipProtectionByNinoAndId(nino: String, protectionId: Int): Future[Option[HipProtection]] =
+    findProtectionByNinoAndId(nino, protectionId).map(_.map(HipProtection.fromProtection))
 
 }
