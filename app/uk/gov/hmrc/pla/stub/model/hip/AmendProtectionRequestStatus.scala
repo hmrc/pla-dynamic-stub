@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import uk.gov.hmrc.pla.stub.model.Protection
 import util.{Enumerable, EnumerableInstance}
 
 sealed abstract class AmendProtectionRequestStatus(value: String) extends EnumerableInstance(value) {}

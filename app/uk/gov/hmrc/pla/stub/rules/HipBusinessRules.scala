@@ -52,7 +52,7 @@ object IndividualProtection2014AmendmentRules extends HipAmendmentRules {
           case (false, FixedProtection2014) => Notification4
           case (false, FixedProtection2016) => Notification5
           case (true, FixedProtection2016)  => Notification7
-          case _ => defaultOutcome
+          case _                            => defaultOutcome
         }
       }
       .getOrElse(defaultOutcome)
@@ -80,7 +80,7 @@ object IndividualProtection2016AmendmentRules extends HipAmendmentRules {
           case (false, FixedProtection2014) => Notification11
           case (false, FixedProtection2016) => Notification12
           case (true, FixedProtection2016)  => Notification14
-          case _ => defaultOutcome
+          case _                            => defaultOutcome
         }
       }
       .getOrElse(defaultOutcome)

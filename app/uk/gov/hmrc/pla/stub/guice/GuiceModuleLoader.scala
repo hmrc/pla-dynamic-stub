@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule
 
 import javax.inject.Inject
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.pla.stub.repository.{MongoHipProtectionRepository, MongoProtectionRepository}
+import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
 import scala.concurrent.ExecutionContext
 
@@ -30,14 +30,6 @@ class MongoProtectionRepositoryFactory @Inject() (
 ) {
   private lazy val repository            = new MongoProtectionRepository(mongoComponent)
   def apply(): MongoProtectionRepository = repository
-}
-
-class MongoHipProtectionRepositoryFactory @Inject() (
-    val mongoComponent: MongoComponent,
-    implicit val ec: ExecutionContext
-) {
-  private lazy val repository               = new MongoHipProtectionRepository(mongoComponent)
-  def apply(): MongoHipProtectionRepository = repository
 }
 
 class GuiceModuleLoader extends AbstractModule {
