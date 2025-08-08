@@ -28,10 +28,10 @@ object AmendProtectionResponseStatus extends Enumerable.Implicits {
 
   def fromProtectionStatus(protectionStatus: ProtectionStatus): Option[AmendProtectionResponseStatus] =
     protectionStatus match {
-      case ProtectionStatus.Open => Some(Open)
-      case ProtectionStatus.Dormant => Some(Dormant)
+      case ProtectionStatus.Open      => Some(Open)
+      case ProtectionStatus.Dormant   => Some(Dormant)
       case ProtectionStatus.Withdrawn => Some(Withdrawn)
-      case _ => None
+      case _                          => None
     }
 
   private val allValues: Seq[AmendProtectionResponseStatus] =
@@ -39,6 +39,5 @@ object AmendProtectionResponseStatus extends Enumerable.Implicits {
 
   implicit val toEnumerable: Enumerable[AmendProtectionResponseStatus] =
     Enumerable(allValues.map(v => v.toString -> v): _*)
-
 
 }

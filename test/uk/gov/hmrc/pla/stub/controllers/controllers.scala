@@ -289,4 +289,34 @@ package object controllers {
     """.stripMargin
   )
 
+  val validAmendProtectionRequestInput: JsValue = Json.parse(
+    """{
+      |  "type": "INDIVIDUAL PROTECTION 2014",
+      |  "relevantAmount": 1250001,
+      |  "status": "OPEN",
+      |  "preADayPensionInPaymentAmount": 1000000,
+      |  "postADayBenefitCrystallisationEventAmount": 1000000,
+      |  "uncrystallisedRightsAmount": 1000000,
+      |  "nonUKRightsAmount": 1000000
+      |}
+    """.stripMargin)
+
+  val validAmendProtectionResponseOutput: JsValue = Json.parse(
+    """{
+      |  "identifier":1,
+      |  "sequenceNumber":2,
+      |  "type":"INDIVIDUAL PROTECTION 2014",
+      |  "status":"OPEN",
+      |  "relevantAmount":1250001,
+      |  "preADayPensionInPaymentAmount":1000000,
+      |  "postADayBenefitCrystallisationEventAmount":1000000,
+      |  "uncrystallisedRightsAmount":1000000,
+      |  "nonUKRightsAmount":1000000,
+      |  "notificationIdentifier":34,
+      |  "protectedAmount":1250001,
+      |  "pensionDebitTotalAmount":0
+      |}
+    """.stripMargin
+  )
+
 }

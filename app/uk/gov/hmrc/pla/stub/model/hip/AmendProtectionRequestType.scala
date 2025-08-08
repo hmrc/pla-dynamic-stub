@@ -35,10 +35,10 @@ object AmendProtectionRequestType extends Enumerable.Implicits {
       )
 
   case object IndividualProtection2014Lta
-    extends AmendProtectionRequestType(
-      "INDIVIDUAL PROTECTION 2014 LTA",
-      ProtectionType.IndividualProtection2014Lta
-    )
+      extends AmendProtectionRequestType(
+        "INDIVIDUAL PROTECTION 2014 LTA",
+        ProtectionType.IndividualProtection2014Lta
+      )
 
   case object IndividualProtection2016
       extends AmendProtectionRequestType(
@@ -47,10 +47,10 @@ object AmendProtectionRequestType extends Enumerable.Implicits {
       )
 
   case object IndividualProtection2016Lta
-    extends AmendProtectionRequestType(
-      "INDIVIDUAL PROTECTION 2016 LTA",
-      ProtectionType.IndividualProtection2016Lta
-    )
+      extends AmendProtectionRequestType(
+        "INDIVIDUAL PROTECTION 2016 LTA",
+        ProtectionType.IndividualProtection2016Lta
+      )
 
   private val allValues: Seq[AmendProtectionRequestType] = Seq(
     IndividualProtection2014,

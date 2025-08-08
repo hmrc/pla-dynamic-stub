@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pla.stub.controllers.hip
+package uk.gov.hmrc.pla.stub.controllers
 
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}

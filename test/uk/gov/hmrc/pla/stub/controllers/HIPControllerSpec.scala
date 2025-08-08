@@ -17,6 +17,7 @@
 package uk.gov.hmrc.pla.stub.controllers
 
 import org.mockito.ArgumentMatchers.{eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
@@ -27,12 +28,17 @@ import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
+import play.api.libs.json.JsObject
+import play.api.mvc.Results.Ok
+import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
+import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.domain.Generator
 import uk.gov.hmrc.pla.stub.model.Protections
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Open
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.IndividualProtection2016
 import uk.gov.hmrc.pla.stub.model.hip.{HIPProtectionsModel, ProtectionRecord, ProtectionRecordsList}
+import uk.gov.hmrc.pla.stub.model.hip.{HipProtection, ProtectionStatus, ProtectionType}
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 
 import java.util.Random
@@ -51,6 +57,7 @@ class HIPControllerSpec
   lazy val controller: HIPController = new HIPController(
     inject[MessagesControllerComponents],
     mockPLAProtectionService,
+    inject[PlayBodyParsers],
     inject[ExecutionContext]
   )
 
@@ -130,7 +137,63 @@ class HIPControllerSpec
           )
         }
       }
+
     }
+
+    "amendProtections is called" must {
+
+      "return 200 with correct response body" in {
+        val nino         = randomNino
+        val protectionId = 1
+        val sequence     = 1
+
+        val protection = HipProtection(
+          nino = nino,
+          id = protectionId,
+          sequence = sequence,
+          status = ProtectionStatus.Open,
+          `type` = ProtectionType.IndividualProtection2014,
+          relevantAmount = 1_254_000,
+          preADayPensionInPaymentAmount = 0,
+          postADayBenefitCrystallisationEventAmount = 0,
+          uncrystallisedRightsAmount = 0,
+          nonUKRightsAmount = 0,
+          certificateDate = None,
+          certificateTime = None,
+          protectionReference = None,
+          pensionDebitAmount = None,
+          pensionDebitEnteredAmount = None,
+          protectedAmount = None,
+          pensionDebitStartDate = None,
+          pensionDebitTotalAmount = None
+        )
+
+        when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
+          .thenReturn(Future.successful(Some(protection)))
+
+        when(mockPLAProtectionService.findAllProtectionsByNino(eqTo(nino)))
+          .thenReturn(Future.successful(Some(List(protection.toProtection))))
+
+        when(mockPLAProtectionService.insertOrUpdateHipProtection(any())).thenReturn(Future.successful(Ok))
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(validAmendProtectionRequestInput)
+          )
+
+        status(result) shouldBe OK
+        val resultBody = contentAsJson(result).asInstanceOf[JsObject] - "certificateDate" - "certificateTime"
+
+        resultBody.shouldBe(validAmendProtectionResponseOutput)
+
+      }
+
+    }
+
   }
 
 }

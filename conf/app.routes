@@ -1,20 +1,20 @@
 # microservice specific routes
 
 # Updated PSA lookup route
-GET     /scheme-administrator/certificate-lookup    @uk.gov.hmrc.pla.stub.controllers.PLAStubController.updatedPSALookup(pensionSchemeAdministratorCheckReference,lifetimeAllowanceReference)
+GET     /pensions-lifetime-allowance/scheme-administrator/certificate-lookup    @uk.gov.hmrc.pla.stub.controllers.PLAStubController.updatedPSALookup(pensionSchemeAdministratorCheckReference,lifetimeAllowanceReference)
 
 # smartstub implementation nino routes
-GET     /individual/:nino/protections              @uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtections(nino:String)
-GET     /individual/:nino/protections/:pid         @uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtection(nino:String,pid:Long)
-GET     /individual/:nino/protections/:pid/version/:version         @uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtectionVersion(nino:String,pid:Long,version: Int)
-POST    /individual/:nino/protection                @uk.gov.hmrc.pla.stub.controllers.PLAStubController.createProtection(nino: String)
-PUT     /individual/:nino/protections/:pid          @uk.gov.hmrc.pla.stub.controllers.PLAStubController.updateProtection(nino:String,pid:Long)
+GET     /pensions-lifetime-allowance/individual/:nino/protections              @uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtections(nino:String)
+GET     /pensions-lifetime-allowance/individual/:nino/protections/:pid         @uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtection(nino:String,pid:Long)
+GET     /pensions-lifetime-allowance/individual/:nino/protections/:pid/version/:version         @uk.gov.hmrc.pla.stub.controllers.PLAStubController.readProtectionVersion(nino:String,pid:Long,version: Int)
+POST    /pensions-lifetime-allowance/individual/:nino/protection                @uk.gov.hmrc.pla.stub.controllers.PLAStubController.createProtection(nino: String)
+PUT     /pensions-lifetime-allowance/individual/:nino/protections/:pid          @uk.gov.hmrc.pla.stub.controllers.PLAStubController.updateProtection(nino:String,pid:Long)
 
 # HIP endpoints
 GET     /lifetime-allowance/person/:nino            @uk.gov.hmrc.pla.stub.controllers.HIPController.readProtections(nino:String)
 
 # smartstub implementation of General PSA lookup route, probably redundant
-GET     /psa/check-protection                       @uk.gov.hmrc.pla.stub.controllers.PLAStubController.psaLookupNew(ref,psaref)
+GET     /pensions-lifetime-allowance/psa/check-protection                       @uk.gov.hmrc.pla.stub.controllers.PLAStubController.psaLookupNew(ref,psaref)
 
-
-
+# HIP Routes
+POST    /paye/lifetime-allowance/person/:nino/reference/:protectionId/sequence-number/:sequence @uk.gov.hmrc.pla.stub.controllers.HIPStubController.amendProtection(nino:String, protectionId: Int, sequence: Int)
