@@ -16,6 +16,7 @@ The stub supports these PLA service API operations:
 
 HIP end points supported:
 
+- `GET /paye/lifetime-allowance/person/{nino}` - get all protections for a nino
 - `POST /paye/lifetime-allowance/person/{nino}/reference/{id}/sequence-number/{sequence}` - amend a protection
 
 The stub attempts to apply the same business rules as the full production service to protection application and amendment requests, which can return various outcomes based partly on whether and what type of protections are already in place for the individual. A notification ID returned with the response identifies the specific outcome.

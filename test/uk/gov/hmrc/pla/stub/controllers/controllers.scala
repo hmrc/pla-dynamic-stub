@@ -289,16 +289,15 @@ package object controllers {
     """.stripMargin
   )
 
-  val validAmendProtectionRequestInput: JsValue = Json.parse(
-    """{
-      |  "type": "INDIVIDUAL PROTECTION 2014",
-      |  "relevantAmount": 1250001,
-      |  "status": "OPEN",
-      |  "preADayPensionInPaymentAmount": 1000000,
-      |  "postADayBenefitCrystallisationEventAmount": 1000000,
-      |  "uncrystallisedRightsAmount": 1000000,
-      |  "nonUKRightsAmount": 1000000
-      |}
+  val validAmendProtectionRequestInput: JsValue = Json.parse("""{
+                                                               |  "type": "INDIVIDUAL PROTECTION 2014",
+                                                               |  "relevantAmount": 1250001,
+                                                               |  "status": "OPEN",
+                                                               |  "preADayPensionInPaymentAmount": 1000000,
+                                                               |  "postADayBenefitCrystallisationEventAmount": 1000000,
+                                                               |  "uncrystallisedRightsAmount": 1000000,
+                                                               |  "nonUKRightsAmount": 1000000
+                                                               |}
     """.stripMargin)
 
   val validAmendProtectionResponseOutput: JsValue = Json.parse(
