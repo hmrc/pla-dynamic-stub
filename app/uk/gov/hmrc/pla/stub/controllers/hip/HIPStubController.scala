@@ -22,6 +22,7 @@ import play.api.mvc.{Action, ControllerComponents, PlayBodyParsers, Result}
 import uk.gov.hmrc.pla.stub.model.Error
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionRequestType._
 import uk.gov.hmrc.pla.stub.model.hip._
+import uk.gov.hmrc.pla.stub.notifications.Notifications
 import uk.gov.hmrc.pla.stub.rules._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -75,29 +76,35 @@ class HIPStubController @Inject() (
           amendmentTargetOption.flatMap[Result] {
             case None =>
               Future(NotFound(Json.toJson(Error(message = "protection to amend not found"))))
-            case Some(amendmentTarget)
-                if amendmentTarget.`type` != amendProtectionRequest.`type`.toLifetimeAllowanceType =>
+            case Some(amendmentTarget) if amendmentTarget.`type` != amendProtectionRequest.`type`.toProtectionType =>
               val error = Error("specified protection type does not match that of the protection to be amended")
               Future(BadRequest(Json.toJson(error)))
             case Some(amendmentTarget) if amendmentTarget.sequence != sequence =>
               val error = Error("specified protection sequence does not match that of the protection to be amended")
               Future(BadRequest(Json.toJson(error)))
             case Some(amendmentTarget) =>
-              val existingProtections = protectionService.findAllHipProtectionsByNino(nino).map {
+              val existingProtections = protectionService.findAllProtectionsByNino(nino).map {
                 case Some(protections) => protections
                 case _                 => List()
               }
-              val rules: HipAmendmentRules = amendProtectionRequest.`type` match {
-//                case IndividualProtection2014Lta => IndividualProtection2014LtaAmendmentRules
-//                case IndividualProtection2016Lta => IndividualProtection2016LtaAmendmentRules
-                case IndividualProtection2014 => IndividualProtection2014AmendmentRules
-                case IndividualProtection2016 => IndividualProtection2016AmendmentRules
+              val rules: Option[AmendmentRules] = amendProtectionRequest.`type` match {
+                case AmendProtectionRequestType.IndividualProtection2014 => Some(IP2014AmendmentRules)
+                case AmendProtectionRequestType.IndividualProtection2016 => Some(IP2016AmendmentRules)
+                case _                                                   => None
               }
-              existingProtections.flatMap { protections =>
-                val notificationId =
-                  rules.calculateNotificationId(calculatedRelevantAmountMinusPSO, protections)
-                processAmendment(nino, amendmentTarget, amendProtectionRequest, notificationId)
-              }
+              rules
+                .map { rules: AmendmentRules =>
+                  existingProtections.flatMap { protections =>
+                    val notificationId = rules.check(calculatedRelevantAmountMinusPSO, protections)
+                    processAmendment(nino, amendmentTarget, amendProtectionRequest, notificationId.toInt)
+                  }
+                }
+                .getOrElse {
+                  val error = Error(
+                    "invalid protection type specified, expected IndividualProtection2014 or IndividualProtection2016"
+                  )
+                  Future.successful(BadRequest(Json.toJson(error)))
+                }
           }
         }
       )
@@ -114,8 +121,8 @@ class HIPStubController @Inject() (
     *   The current version of the protection to be amended
     * @param amendmentRequest
     *   Details of the requested amendment, as parsed from the request body.
-    * @param notification
-    *   The notification resulting from the business rule checks
+    * @param notificationId
+    *   The notification id resulting from the business rule checks
     * @return
     *   Updated protection result
     */
@@ -123,12 +130,43 @@ class HIPStubController @Inject() (
       nino: String,
       current: HipProtection,
       amendmentRequest: AmendProtectionRequest,
-      notification: Notification
+      notificationId: Int
+  ): Future[Result] = {
+    val notification = Notifications.table(notificationId)
+    ProtectionStatus
+      .fromCertificateStatus(notification.status)
+      .map { status =>
+        AmendProtectionResponseStatus
+          .fromProtectionStatus(status)
+          .map { responseStatus =>
+            processAmendment(nino, current, amendmentRequest, notificationId, status, responseStatus)
+          }
+          .getOrElse {
+            val error =
+              Error(
+                s"Rules yielded a status of $status for notification ID $notificationId, but this is not a valid response status for the HIP API"
+              )
+            Future.successful(BadRequest(Json.toJson(error)))
+          }
+      }
+      .getOrElse {
+        val error = Error("Rules yielded an unknown status value.")
+        Future.successful(BadRequest(Json.toJson(error)))
+      }
+
+  }
+
+  private def processAmendment(
+      nino: String,
+      current: HipProtection,
+      amendmentRequest: AmendProtectionRequest,
+      notificationId: Int,
+      status: ProtectionStatus,
+      responseStatus: AmendProtectionResponseStatus
   ): Future[Result] = {
 
-    val amendedProtection = notification.status match {
-
-      case AmendProtectionResponseStatus.Withdrawn =>
+    val amendedProtection = status match {
+      case ProtectionStatus.Withdrawn =>
         protectionService.updateDormantProtectionStatusAsOpen(nino)
         current.copy(
           sequence = current.sequence + 1,
@@ -156,7 +194,7 @@ class HIPStubController @Inject() (
           id = current.id,
           `type` = current.`type`,
           protectionReference = current.protectionReference,
-          status = notification.status.toProtectionStatus,
+          status = status,
           certificateDate = Some(currDate),
           certificateTime = Some(currTime),
           relevantAmount = relevantAmountMinusPSO,
@@ -175,7 +213,7 @@ class HIPStubController @Inject() (
       `type` = amendedProtection.`type`,
       certificateDate = amendedProtection.certificateDate,
       certificateTime = amendedProtection.certificateTime,
-      status = notification.status,
+      status = responseStatus,
       protectionReference = amendedProtection.protectionReference,
       relevantAmount = amendedProtection.relevantAmount,
       preADayPensionInPaymentAmount = amendedProtection.preADayPensionInPaymentAmount,
@@ -184,7 +222,7 @@ class HIPStubController @Inject() (
       nonUKRightsAmount = amendedProtection.nonUKRightsAmount,
       pensionDebitAmount = amendedProtection.pensionDebitAmount,
       pensionDebitEnteredAmount = amendedProtection.pensionDebitEnteredAmount,
-      notificationIdentifier = Some(notification),
+      notificationIdentifier = Some(notificationId),
       protectedAmount = amendedProtection.protectedAmount,
       pensionDebitStartDate = amendedProtection.pensionDebitStartDate,
       pensionDebitTotalAmount = amendedProtection.pensionDebitTotalAmount

@@ -21,7 +21,7 @@ import uk.gov.hmrc.pla.stub.model.Protection
 import uk.gov.hmrc.pla.stub.model.Protection.Type
 
 sealed abstract class ProtectionType(value: String, protectionType: Type.Value) extends EnumerableInstance(value) {
-  def toId: Int = Protection.extractedType(protectionType)
+  def toPlaId: Int = Protection.extractedType(protectionType)
 }
 
 object ProtectionType extends Enumerable.Implicits {

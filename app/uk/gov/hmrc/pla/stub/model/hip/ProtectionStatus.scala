@@ -18,11 +18,12 @@ package uk.gov.hmrc.pla.stub.model.hip
 
 import uk.gov.hmrc.pla.stub.model.Protection
 import uk.gov.hmrc.pla.stub.model.Protection.Status
+import uk.gov.hmrc.pla.stub.notifications.{CertificateStatus, Notifications}
 import util.{Enumerable, EnumerableInstance}
 import uk.gov.hmrc.pla.stub.utils.{Enumerable, EnumerableInstance}
 
 sealed abstract class ProtectionStatus(value: String, status: Status.Value) extends EnumerableInstance(value) {
-  def toId: Int = Protection.extractedStatus(status)
+  def toPlaId: Int = Protection.extractedStatus(status)
 }
 
 object ProtectionStatus extends Enumerable.Implicits {
@@ -45,6 +46,10 @@ object ProtectionStatus extends Enumerable.Implicits {
 
   implicit val enumerable: Enumerable[ProtectionStatus] =
     Enumerable(values.map(v => v.toString -> v): _*)
+
+  def fromCertificateStatus(certificateStatus: CertificateStatus.Value): Option[ProtectionStatus] = fromPlaId(
+    Notifications.extractedStatus(certificateStatus)
+  )
 
   def fromPlaId(id: Int): Option[ProtectionStatus] = id match {
     case 1 => Some(Open)

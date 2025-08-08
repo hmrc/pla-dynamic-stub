@@ -23,7 +23,7 @@ sealed abstract class AmendProtectionRequestType(
     lifetimeAllowanceType: ProtectionType
 ) extends EnumerableInstance(value) {
 
-  def toLifetimeAllowanceType: ProtectionType = lifetimeAllowanceType
+  def toProtectionType: ProtectionType = lifetimeAllowanceType
 }
 
 object AmendProtectionRequestType extends Enumerable.Implicits {
@@ -34,29 +34,29 @@ object AmendProtectionRequestType extends Enumerable.Implicits {
         ProtectionType.IndividualProtection2014
       )
 
+  case object IndividualProtection2014Lta
+    extends AmendProtectionRequestType(
+      "INDIVIDUAL PROTECTION 2014 LTA",
+      ProtectionType.IndividualProtection2014Lta
+    )
+
   case object IndividualProtection2016
       extends AmendProtectionRequestType(
         "INDIVIDUAL PROTECTION 2016",
         ProtectionType.IndividualProtection2016
       )
 
-//  case object IndividualProtection2014Lta
-//      extends AmendProtectionRequestType(
-//        "INDIVIDUAL PROTECTION 2014 LTA",
-//        LifetimeAllowanceType.IndividualProtection2014Lta,
-//      )
-//
-//  case object IndividualProtection2016Lta
-//      extends AmendProtectionRequestType(
-//        "INDIVIDUAL PROTECTION 2016 LTA",
-//        LifetimeAllowanceType.IndividualProtection2016Lta,
-//      )
+  case object IndividualProtection2016Lta
+    extends AmendProtectionRequestType(
+      "INDIVIDUAL PROTECTION 2016 LTA",
+      ProtectionType.IndividualProtection2016Lta
+    )
 
   private val allValues: Seq[AmendProtectionRequestType] = Seq(
     IndividualProtection2014,
-    IndividualProtection2016
-//    IndividualProtection2014Lta,
-//    IndividualProtection2016Lta,
+    IndividualProtection2016,
+    IndividualProtection2014Lta,
+    IndividualProtection2016Lta
   )
 
   implicit val toEnumerable: Enumerable[AmendProtectionRequestType] =

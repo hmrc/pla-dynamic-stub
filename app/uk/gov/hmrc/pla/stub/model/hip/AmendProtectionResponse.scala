@@ -33,7 +33,7 @@ case class AmendProtectionResponse(
     nonUKRightsAmount: Int,
     pensionDebitAmount: Option[Int],
     pensionDebitEnteredAmount: Option[Int],
-    notificationIdentifier: Option[Notification],
+    notificationIdentifier: Option[Int],
     protectedAmount: Option[Int],
     pensionDebitStartDate: Option[String],
     pensionDebitTotalAmount: Option[Int]

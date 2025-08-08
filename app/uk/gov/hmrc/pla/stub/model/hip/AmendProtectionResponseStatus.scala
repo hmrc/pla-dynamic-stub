@@ -18,16 +18,21 @@ package uk.gov.hmrc.pla.stub.model.hip
 
 import util.{Enumerable, EnumerableInstance}
 
-sealed abstract class AmendProtectionResponseStatus(value: String, status: ProtectionStatus)
-    extends EnumerableInstance(value) {
-  def toProtectionStatus: ProtectionStatus = status
-}
+sealed abstract class AmendProtectionResponseStatus(value: String) extends EnumerableInstance(value)
 
 object AmendProtectionResponseStatus extends Enumerable.Implicits {
 
-  case object Open      extends AmendProtectionResponseStatus("OPEN", ProtectionStatus.Open)
-  case object Dormant   extends AmendProtectionResponseStatus("DORMANT", ProtectionStatus.Dormant)
-  case object Withdrawn extends AmendProtectionResponseStatus("WITHDRAWN", ProtectionStatus.Withdrawn)
+  case object Open      extends AmendProtectionResponseStatus("OPEN")
+  case object Dormant   extends AmendProtectionResponseStatus("DORMANT")
+  case object Withdrawn extends AmendProtectionResponseStatus("WITHDRAWN")
+
+  def fromProtectionStatus(protectionStatus: ProtectionStatus): Option[AmendProtectionResponseStatus] =
+    protectionStatus match {
+      case ProtectionStatus.Open => Some(Open)
+      case ProtectionStatus.Dormant => Some(Dormant)
+      case ProtectionStatus.Withdrawn => Some(Withdrawn)
+      case _ => None
+    }
 
   private val allValues: Seq[AmendProtectionResponseStatus] =
     Seq(Open, Dormant, Withdrawn)
@@ -35,11 +40,5 @@ object AmendProtectionResponseStatus extends Enumerable.Implicits {
   implicit val toEnumerable: Enumerable[AmendProtectionResponseStatus] =
     Enumerable(allValues.map(v => v.toString -> v): _*)
 
-  def fromPlaId(id: Int): Option[AmendProtectionResponseStatus] = id match {
-    case 1 => Some(Open)
-    case 2 => Some(Dormant)
-    case 3 => Some(Withdrawn)
-    case _ => None
-  }
 
 }
