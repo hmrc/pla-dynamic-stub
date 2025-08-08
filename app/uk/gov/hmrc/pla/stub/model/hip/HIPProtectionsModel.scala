@@ -20,9 +20,9 @@ import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.pla.stub.model.{Protection, Protections}
 
 case class HIPProtectionsModel(
-                                pensionSchemeAdministratorCheckReference: String,
-                                protectionRecordsList: Seq[ProtectionRecordsList]
-                              )
+    pensionSchemeAdministratorCheckReference: String,
+    protectionRecordsList: Seq[ProtectionRecordsList]
+)
 
 object HIPProtectionsModel {
 
@@ -31,9 +31,8 @@ object HIPProtectionsModel {
     val psaCheckReference: String = protectionsObj.pensionSchemeAdministratorCheckReference
       .getOrElse(throw new IllegalArgumentException("PSA Check Reference required for HIP model transformation"))
 
-    val protectionRecordsList: Seq[ProtectionRecordsList] = protectionsObj.protections map { x =>
-      ProtectionRecordsList(ProtectionRecord(x), None)
-    }
+    val protectionRecordsList: Seq[ProtectionRecordsList] =
+      protectionsObj.protections.map(x => ProtectionRecordsList(ProtectionRecord(x), None))
 
     HIPProtectionsModel(
       psaCheckReference,
@@ -45,46 +44,46 @@ object HIPProtectionsModel {
 }
 
 case class ProtectionRecordsList(
-                                  protectionRecord: ProtectionRecord,
-                                  historicaldetailsList: Option[Seq[ProtectionRecord]]
-                                )
+    protectionRecord: ProtectionRecord,
+    historicaldetailsList: Option[Seq[ProtectionRecord]]
+)
 
 object ProtectionRecordsList {
   implicit val format: Format[ProtectionRecordsList] = Json.format[ProtectionRecordsList]
 }
 
 case class ProtectionRecord(
-                             identifier: Int,
-                             sequenceNumber: Int,
-                             `type`: ProtectionType,
-                             certificateDate: String,
-                             certificateTime: String,
-                             status: ProtectionStatus,
-                             protectionReference: Option[String],
-                             relevantAmount: Option[Int],
-                             preADayPensionInPaymentAmount: Option[Int],
-                             postADayBenefitCrystallisationEventAmount: Option[Int],
-                             uncrystallisedRightsAmount: Option[Int],
-                             nonUKRightsAmount: Option[Int],
-                             pensionDebitAmount: Option[Int],
-                             pensionDebitEnteredAmount: Option[Int],
-                             protectedAmount: Option[Int],
-                             pensionDebitStartDate: Option[String],
-                             pensionDebitTotalAmount: Option[Int],
-                             lumpSumAmount: Option[Int],
-                             lumpSumPercentage: Option[Int],
-                             enhancementFactor: Option[Double]
-                           )
+    identifier: Int,
+    sequenceNumber: Int,
+    `type`: ProtectionType,
+    certificateDate: String,
+    certificateTime: String,
+    status: ProtectionStatus,
+    protectionReference: Option[String],
+    relevantAmount: Option[Int],
+    preADayPensionInPaymentAmount: Option[Int],
+    postADayBenefitCrystallisationEventAmount: Option[Int],
+    uncrystallisedRightsAmount: Option[Int],
+    nonUKRightsAmount: Option[Int],
+    pensionDebitAmount: Option[Int],
+    pensionDebitEnteredAmount: Option[Int],
+    protectedAmount: Option[Int],
+    pensionDebitStartDate: Option[String],
+    pensionDebitTotalAmount: Option[Int],
+    lumpSumAmount: Option[Int],
+    lumpSumPercentage: Option[Int],
+    enhancementFactor: Option[Double]
+)
 
 object ProtectionRecord {
 
-  def apply(protection: Protection): ProtectionRecord = {
+  def apply(protection: Protection): ProtectionRecord =
     ProtectionRecord(
       protection.id.toInt,
       protection.version,
       toRecordType(protection),
-      protection.certificateDate.getOrElse("2000-01-01"), //TODO: defaults for date and time?
-      protection.certificateTime.getOrElse("000000"), //TODO: defaults for date and time?
+      protection.certificateDate.getOrElse("2000-01-01"), // TODO: defaults for date and time?
+      protection.certificateTime.getOrElse("000000"),     // TODO: defaults for date and time?
       toRecordStatus(protection),
       protection.protectionReference,
       protection.relevantAmount.map(_.toInt),
@@ -92,7 +91,7 @@ object ProtectionRecord {
       protection.postADayBCE.map(_.toInt),
       protection.uncrystallisedRights.map(_.toInt),
       protection.nonUKRights.map(_.toInt),
-      None, //TODO: Check pensionDebitAmount
+      None, // TODO: Check pensionDebitAmount
       protection.pensionDebiitEnteredAmount.map(_.toInt),
       protection.protectedAmount.map(_.toInt),
       protection.pensionDebitStartDate,
@@ -101,7 +100,6 @@ object ProtectionRecord {
       None,
       None
     )
-  }
 
   private def toRecordType(protection: Protection): ProtectionType = protection.`type` match {
     case 1 => ProtectionType.FixedProtection2016
@@ -111,7 +109,7 @@ object ProtectionRecord {
     case 5 => ProtectionType.EnhancedProtection
     case 6 => ProtectionType.FixedProtection
     case 7 => ProtectionType.FixedProtection2014
-    case _ => ProtectionType.FixedProtection2014 //TODO: Change this match to accommodate other protection types
+    case _ => ProtectionType.FixedProtection2014 // TODO: Change this match to accommodate other protection types
   }
 
   private def toRecordStatus(protection: Protection): ProtectionStatus = protection.status match {
@@ -121,7 +119,7 @@ object ProtectionRecord {
     case 4 => ProtectionStatus.Expired
     case 5 => ProtectionStatus.Unsuccessful
     case 6 => ProtectionStatus.Rejected
-    case _ => ProtectionStatus.Rejected //TODO: Change this match to accommodate other protection statuses
+    case _ => ProtectionStatus.Rejected // TODO: Change this match to accommodate other protection statuses
   }
 
   implicit val format: Format[ProtectionRecord] = Json.format[ProtectionRecord]

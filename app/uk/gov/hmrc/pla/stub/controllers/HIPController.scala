@@ -27,20 +27,21 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class HIPController @Inject()(
-                               val mcc: ControllerComponents,
-                               val protectionService: PLAProtectionService,
-                               implicit val ec: ExecutionContext,
-                             ) extends BackendController(mcc)
-  with Logging {
+class HIPController @Inject() (
+    val mcc: ControllerComponents,
+    val protectionService: PLAProtectionService,
+    implicit val ec: ExecutionContext
+) extends BackendController(mcc)
+    with Logging {
 
   def readProtections(nino: String): Action[AnyContent] = Action.async { _ =>
-    protectionService.retrieveHIPProtections(nino) map {
+    protectionService.retrieveHIPProtections(nino).map {
       case Some(protections) =>
         Ok(Json.toJson(protections))
-      case None              =>
+      case None =>
         logger.info("No protections set for given Nino, returning empty protections list")
         Ok(Json.toJson(HIPProtectionsModel(Protections(nino, Some("stubPSACheckRef"), List.empty))))
     }
   }
+
 }

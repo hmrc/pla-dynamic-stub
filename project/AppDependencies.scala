@@ -3,14 +3,14 @@ import sbt._
 object AppDependencies {
   import play.sbt.PlayImport._
 
-  private val bootstrapPlayVersion = "9.11.0"
-  private val hmrcMongoVersion     = "2.6.0"
+  private val bootstrapPlayVersion = "9.19.0"
+  private val hmrcMongoVersion     = "2.7.0"
 
   val compile = Seq(
     ws,
     "uk.gov.hmrc"       %% "bootstrap-backend-play-30" % bootstrapPlayVersion,
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"        % hmrcMongoVersion,
-    "uk.gov.hmrc"       %% "stub-data-generator"       % "1.4.0"
+    "uk.gov.hmrc"       %% "stub-data-generator"       % "1.5.0"
   )
 
   trait TestDependencies {
