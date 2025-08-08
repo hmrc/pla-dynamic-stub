@@ -38,7 +38,13 @@ import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 import java.util.Random
 import scala.concurrent.{ExecutionContext, Future}
 
-class HIPControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with GuiceOneServerPerSuite with BeforeAndAfterEach with Injecting {
+class HIPControllerSpec
+    extends AnyWordSpec
+    with Matchers
+    with MockitoSugar
+    with GuiceOneServerPerSuite
+    with BeforeAndAfterEach
+    with Injecting {
 
   val mockPLAProtectionService: PLAProtectionService = mock[PLAProtectionService]
 
@@ -48,9 +54,9 @@ class HIPControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with
     inject[ExecutionContext]
   )
 
-  val rand: Random = new Random()
+  val rand: Random             = new Random()
   val ninoGenerator: Generator = new Generator(rand)
-  def randomNino: String = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
+  def randomNino: String       = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
 
   override def beforeEach(): Unit = {
     reset(mockPLAProtectionService)
@@ -126,4 +132,5 @@ class HIPControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with
       }
     }
   }
+
 }
