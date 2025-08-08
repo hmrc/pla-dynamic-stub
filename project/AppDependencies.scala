@@ -10,7 +10,7 @@ object AppDependencies {
     ws,
     "uk.gov.hmrc"       %% "bootstrap-backend-play-30" % bootstrapPlayVersion,
     "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"        % hmrcMongoVersion,
-    "uk.gov.hmrc"       %% "stub-data-generator"       % "1.5.0"
+    "uk.gov.hmrc"       %% "stub-data-generator"       % "1.4.0"
   )
 
   trait TestDependencies {
