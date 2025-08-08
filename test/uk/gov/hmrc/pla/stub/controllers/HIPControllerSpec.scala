@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.pla.stub.controllers
 
-import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
@@ -25,20 +24,16 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status.OK
-import play.api.libs.json.Json
-import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
-import play.api.libs.json.JsObject
-import play.api.mvc.Results.Ok
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
-import play.api.test.Helpers._
+import play.api.mvc.Results.Ok
+import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.domain.Generator
 import uk.gov.hmrc.pla.stub.model.Protections
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Open
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.IndividualProtection2016
-import uk.gov.hmrc.pla.stub.model.hip.{HIPProtectionsModel, ProtectionRecord, ProtectionRecordsList}
-import uk.gov.hmrc.pla.stub.model.hip.{HipProtection, ProtectionStatus, ProtectionType}
+import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 
 import java.util.Random

@@ -26,23 +26,23 @@ sealed abstract class ProtectionType(value: String, protectionType: Type.Value) 
 
 object ProtectionType extends Enumerable.Implicits {
 
-  case object EnhancedProtection           extends ProtectionType("ENHANCED PROTECTION", Type.Enhanced)
-  case object EnhancedProtectionLta        extends ProtectionType("ENHANCED PROTECTION LTA", Type.Enhanced)
-  case object FixedProtection              extends ProtectionType("FIXED PROTECTION", Type.Fixed)
-  case object FixedProtection2014          extends ProtectionType("FIXED PROTECTION 2014", Type.FP2014)
-  case object FixedProtection2014Lta       extends ProtectionType("FIXED PROTECTION 2014 LTA", Type.FP2014)
-  case object FixedProtection2016          extends ProtectionType("FIXED PROTECTION 2016", Type.FP2016)
-  case object FixedProtection2016Lta       extends ProtectionType("FIXED PROTECTION 2016 LTA", Type.FP2016)
-  case object FixedProtectionLta           extends ProtectionType("FIXED PROTECTION LTA", Type.Fixed)
-  case object IndividualProtection2014     extends ProtectionType("INDIVIDUAL PROTECTION 2014", Type.IP2014)
-  case object IndividualProtection2014Lta  extends ProtectionType("INDIVIDUAL PROTECTION 2014 LTA", Type.IP2014)
-  case object IndividualProtection2016     extends ProtectionType("INDIVIDUAL PROTECTION 2016", Type.IP2016)
-  case object IndividualProtection2016Lta  extends ProtectionType("INDIVIDUAL PROTECTION 2016 LTA", Type.IP2016)
+  case object EnhancedProtection          extends ProtectionType("ENHANCED PROTECTION", Type.Enhanced)
+  case object EnhancedProtectionLta       extends ProtectionType("ENHANCED PROTECTION LTA", Type.Enhanced)
+  case object FixedProtection             extends ProtectionType("FIXED PROTECTION", Type.Fixed)
+  case object FixedProtection2014         extends ProtectionType("FIXED PROTECTION 2014", Type.FP2014)
+  case object FixedProtection2014Lta      extends ProtectionType("FIXED PROTECTION 2014 LTA", Type.FP2014)
+  case object FixedProtection2016         extends ProtectionType("FIXED PROTECTION 2016", Type.FP2016)
+  case object FixedProtection2016Lta      extends ProtectionType("FIXED PROTECTION 2016 LTA", Type.FP2016)
+  case object FixedProtectionLta          extends ProtectionType("FIXED PROTECTION LTA", Type.Fixed)
+  case object IndividualProtection2014    extends ProtectionType("INDIVIDUAL PROTECTION 2014", Type.IP2014)
+  case object IndividualProtection2014Lta extends ProtectionType("INDIVIDUAL PROTECTION 2014 LTA", Type.IP2014)
+  case object IndividualProtection2016    extends ProtectionType("INDIVIDUAL PROTECTION 2016", Type.IP2016)
+  case object IndividualProtection2016Lta extends ProtectionType("INDIVIDUAL PROTECTION 2016 LTA", Type.IP2016)
   case object InternationalEnhancementS221 extends ProtectionType("INTERNATIONAL ENHANCEMENT (S221)", Type.Enhanced) // placeholder
   case object InternationalEnhancementS224 extends ProtectionType("INTERNATIONAL ENHANCEMENT (S224)", Type.Enhanced) // placeholder
-  case object PensionCreditRights          extends ProtectionType("PENSION CREDIT RIGHTS", Type.Enhanced) // placeholder
-  case object PrimaryProtection            extends ProtectionType("PRIMARY PROTECTION", Type.Primary)
-  case object PrimaryProtectionLta         extends ProtectionType("PRIMARY PROTECTION LTA", Type.Primary)
+  case object PensionCreditRights  extends ProtectionType("PENSION CREDIT RIGHTS", Type.Enhanced) // placeholder
+  case object PrimaryProtection    extends ProtectionType("PRIMARY PROTECTION", Type.Primary)
+  case object PrimaryProtectionLta extends ProtectionType("PRIMARY PROTECTION LTA", Type.Primary)
 
   val values: Seq[ProtectionType] = Seq(
     FixedProtection2016,
@@ -55,13 +55,13 @@ object ProtectionType extends Enumerable.Implicits {
     PensionCreditRights,
     InternationalEnhancementS221,
     InternationalEnhancementS224,
-    FixedProtection2016LTA,
-    IndividualProtection2014LTA,
-    IndividualProtection2016LTA,
-    PrimaryProtectionLTA,
-    EnhancedProtectionLTA,
-    FixedProtectionLTA,
-    FixedProtection2014LTA
+    FixedProtection2016Lta,
+    IndividualProtection2014Lta,
+    IndividualProtection2016Lta,
+    PrimaryProtectionLta,
+    EnhancedProtectionLta,
+    FixedProtectionLta,
+    FixedProtection2014Lta
   )
 
   implicit val enumerable: Enumerable[ProtectionType] =
