@@ -23,6 +23,7 @@ import play.api.mvc.Results.{NotFound, Ok}
 import uk.gov.hmrc.pla.stub.Generator.pensionSchemeAdministratorCheckReferenceGen
 import uk.gov.hmrc.pla.stub.guice.MongoProtectionRepositoryFactory
 import uk.gov.hmrc.pla.stub.model._
+import uk.gov.hmrc.pla.stub.model.hip.HIPProtectionsModel
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -54,6 +55,11 @@ class PLAProtectionService @Inject() (
 
   def retrieveProtections(nino: String): Future[Option[Protections]] =
     protectionsStore.findProtectionsByNino(nino)
+
+  def retrieveHIPProtections(nino: String): Future[Option[HIPProtectionsModel]] =
+    retrieveProtections(nino).map {
+      _.map(HIPProtectionsModel(_))
+    }
 
   def insertOrUpdateProtection(protection: Protection): Future[Result] = {
     val protections                              = protectionsStore.findProtectionsByNino(protection.nino)

@@ -10,6 +10,9 @@ GET     /individual/:nino/protections/:pid/version/:version         @uk.gov.hmrc
 POST    /individual/:nino/protection                @uk.gov.hmrc.pla.stub.controllers.PLAStubController.createProtection(nino: String)
 PUT     /individual/:nino/protections/:pid          @uk.gov.hmrc.pla.stub.controllers.PLAStubController.updateProtection(nino:String,pid:Long)
 
+# HIP endpoints
+GET     /lifetime-allowance/person/:nino            @uk.gov.hmrc.pla.stub.controllers.HIPController.readProtections(nino:String)
+
 # smartstub implementation of General PSA lookup route, probably redundant
 GET     /psa/check-protection                       @uk.gov.hmrc.pla.stub.controllers.PLAStubController.psaLookupNew(ref,psaref)
 
