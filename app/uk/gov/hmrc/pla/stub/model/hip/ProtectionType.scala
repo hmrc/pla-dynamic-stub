@@ -17,28 +17,32 @@
 package uk.gov.hmrc.pla.stub.model.hip
 
 import uk.gov.hmrc.pla.stub.utils.{Enumerable, EnumerableInstance}
+import uk.gov.hmrc.pla.stub.model.Protection
+import uk.gov.hmrc.pla.stub.model.Protection.Type
 
-sealed abstract class ProtectionType(value: String) extends EnumerableInstance(value)
+sealed abstract class ProtectionType(value: String, protectionType: Type.Value) extends EnumerableInstance(value) {
+  def toPlaId: Int = Protection.extractedType(protectionType)
+}
 
 object ProtectionType extends Enumerable.Implicits {
 
-  case object FixedProtection2016          extends ProtectionType("FIXED PROTECTION 2016")
-  case object IndividualProtection2014     extends ProtectionType("INDIVIDUAL PROTECTION 2014")
-  case object IndividualProtection2016     extends ProtectionType("INDIVIDUAL PROTECTION 2016")
-  case object PrimaryProtection            extends ProtectionType("PRIMARY PROTECTION")
-  case object EnhancedProtection           extends ProtectionType("ENHANCED PROTECTION")
-  case object FixedProtection              extends ProtectionType("FIXED PROTECTION")
-  case object FixedProtection2014          extends ProtectionType("FIXED PROTECTION 2014")
-  case object PensionCreditRights          extends ProtectionType("PENSION CREDIT RIGHTS")
-  case object InternationalEnhancementS221 extends ProtectionType("INTERNATIONAL ENHANCEMENT (S221)")
-  case object InternationalEnhancementS224 extends ProtectionType("INTERNATIONAL ENHANCEMENT (S224)")
-  case object FixedProtection2016LTA       extends ProtectionType("FIXED PROTECTION 2016 LTA")
-  case object IndividualProtection2014LTA  extends ProtectionType("INDIVIDUAL PROTECTION 2014 LTA")
-  case object IndividualProtection2016LTA  extends ProtectionType("INDIVIDUAL PROTECTION 2016 LTA")
-  case object PrimaryProtectionLTA         extends ProtectionType("PRIMARY PROTECTION LTA")
-  case object EnhancedProtectionLTA        extends ProtectionType("ENHANCED PROTECTION LTA")
-  case object FixedProtectionLTA           extends ProtectionType("FIXED PROTECTION LTA")
-  case object FixedProtection2014LTA       extends ProtectionType("FIXED PROTECTION 2014 LTA")
+  case object EnhancedProtection          extends ProtectionType("ENHANCED PROTECTION", Type.Enhanced)
+  case object EnhancedProtectionLta       extends ProtectionType("ENHANCED PROTECTION LTA", Type.Enhanced)
+  case object FixedProtection             extends ProtectionType("FIXED PROTECTION", Type.Fixed)
+  case object FixedProtection2014         extends ProtectionType("FIXED PROTECTION 2014", Type.FP2014)
+  case object FixedProtection2014Lta      extends ProtectionType("FIXED PROTECTION 2014 LTA", Type.FP2014)
+  case object FixedProtection2016         extends ProtectionType("FIXED PROTECTION 2016", Type.FP2016)
+  case object FixedProtection2016Lta      extends ProtectionType("FIXED PROTECTION 2016 LTA", Type.FP2016)
+  case object FixedProtectionLta          extends ProtectionType("FIXED PROTECTION LTA", Type.Fixed)
+  case object IndividualProtection2014    extends ProtectionType("INDIVIDUAL PROTECTION 2014", Type.IP2014)
+  case object IndividualProtection2014Lta extends ProtectionType("INDIVIDUAL PROTECTION 2014 LTA", Type.IP2014)
+  case object IndividualProtection2016    extends ProtectionType("INDIVIDUAL PROTECTION 2016", Type.IP2016)
+  case object IndividualProtection2016Lta extends ProtectionType("INDIVIDUAL PROTECTION 2016 LTA", Type.IP2016)
+  case object InternationalEnhancementS221 extends ProtectionType("INTERNATIONAL ENHANCEMENT (S221)", Type.Enhanced) // placeholder
+  case object InternationalEnhancementS224 extends ProtectionType("INTERNATIONAL ENHANCEMENT (S224)", Type.Enhanced) // placeholder
+  case object PensionCreditRights  extends ProtectionType("PENSION CREDIT RIGHTS", Type.Enhanced) // placeholder
+  case object PrimaryProtection    extends ProtectionType("PRIMARY PROTECTION", Type.Primary)
+  case object PrimaryProtectionLta extends ProtectionType("PRIMARY PROTECTION LTA", Type.Primary)
 
   val values: Seq[ProtectionType] = Seq(
     FixedProtection2016,
@@ -51,16 +55,28 @@ object ProtectionType extends Enumerable.Implicits {
     PensionCreditRights,
     InternationalEnhancementS221,
     InternationalEnhancementS224,
-    FixedProtection2016LTA,
-    IndividualProtection2014LTA,
-    IndividualProtection2016LTA,
-    PrimaryProtectionLTA,
-    EnhancedProtectionLTA,
-    FixedProtectionLTA,
-    FixedProtection2014LTA
+    FixedProtection2016Lta,
+    IndividualProtection2014Lta,
+    IndividualProtection2016Lta,
+    PrimaryProtectionLta,
+    EnhancedProtectionLta,
+    FixedProtectionLta,
+    FixedProtection2014Lta
   )
 
   implicit val enumerable: Enumerable[ProtectionType] =
     Enumerable(values.map(v => v.toString -> v): _*)
+
+  def fromPlaId(id: Int): Option[ProtectionType] = id match {
+    case 1 => Some(FixedProtection2016)
+    case 2 => Some(IndividualProtection2014)
+    case 3 => Some(IndividualProtection2016)
+    case 4 => Some(PrimaryProtection)
+    case 5 => Some(EnhancedProtection)
+    case 6 => Some(FixedProtection)
+    case 7 => Some(FixedProtection2014)
+    case _ => None
+
+  }
 
 }

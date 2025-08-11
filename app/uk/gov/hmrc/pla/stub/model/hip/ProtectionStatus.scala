@@ -16,18 +16,23 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
+import uk.gov.hmrc.pla.stub.model.Protection
+import uk.gov.hmrc.pla.stub.model.Protection.Status
+import uk.gov.hmrc.pla.stub.notifications.{CertificateStatus, Notifications}
 import uk.gov.hmrc.pla.stub.utils.{Enumerable, EnumerableInstance}
 
-sealed abstract class ProtectionStatus(value: String) extends EnumerableInstance(value)
+sealed abstract class ProtectionStatus(value: String, status: Status.Value) extends EnumerableInstance(value) {
+  def toPlaId: Int = Protection.extractedStatus(status)
+}
 
 object ProtectionStatus extends Enumerable.Implicits {
 
-  case object Open         extends ProtectionStatus("OPEN")
-  case object Dormant      extends ProtectionStatus("DORMANT")
-  case object Withdrawn    extends ProtectionStatus("WITHDRAWN")
-  case object Expired      extends ProtectionStatus("EXPIRED")
-  case object Unsuccessful extends ProtectionStatus("UNSUCCESSFUL")
-  case object Rejected     extends ProtectionStatus("REJECTED")
+  case object Open         extends ProtectionStatus("OPEN", Status.Open)
+  case object Dormant      extends ProtectionStatus("DORMANT", Status.Dormant)
+  case object Withdrawn    extends ProtectionStatus("WITHDRAWN", Status.Withdrawn)
+  case object Expired      extends ProtectionStatus("EXPIRED", Status.Expired)
+  case object Unsuccessful extends ProtectionStatus("UNSUCCESSFUL", Status.Unsuccessful)
+  case object Rejected     extends ProtectionStatus("REJECTED", Status.Rejected)
 
   val values: Seq[ProtectionStatus] = Seq(
     Open,
@@ -40,5 +45,19 @@ object ProtectionStatus extends Enumerable.Implicits {
 
   implicit val enumerable: Enumerable[ProtectionStatus] =
     Enumerable(values.map(v => v.toString -> v): _*)
+
+  def fromCertificateStatus(certificateStatus: CertificateStatus.Value): Option[ProtectionStatus] = fromPlaId(
+    Notifications.extractedStatus(certificateStatus)
+  )
+
+  def fromPlaId(id: Int): Option[ProtectionStatus] = id match {
+    case 1 => Some(Open)
+    case 2 => Some(Dormant)
+    case 3 => Some(Withdrawn)
+    case 4 => Some(Expired)
+    case 5 => Some(Unsuccessful)
+    case 6 => Some(Rejected)
+    case _ => None
+  }
 
 }

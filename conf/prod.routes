@@ -1,4 +1,4 @@
 # Add all the application routes to the app.routes file
-->         /pensions-lifetime-allowance               app.Routes
-->         /                                          health.Routes
+->         /               app.Routes
+->         /               health.Routes
 

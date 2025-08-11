@@ -23,6 +23,7 @@ import play.api.mvc.Results.{NotFound, Ok}
 import uk.gov.hmrc.pla.stub.Generator.pensionSchemeAdministratorCheckReferenceGen
 import uk.gov.hmrc.pla.stub.guice.MongoProtectionRepositoryFactory
 import uk.gov.hmrc.pla.stub.model._
+import uk.gov.hmrc.pla.stub.model.hip.HipProtection
 import uk.gov.hmrc.pla.stub.model.hip.HIPProtectionsModel
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
@@ -60,6 +61,9 @@ class PLAProtectionService @Inject() (
     retrieveProtections(nino).map {
       _.map(HIPProtectionsModel(_))
     }
+
+  def insertOrUpdateHipProtection(protection: HipProtection): Future[Result] =
+    insertOrUpdateProtection(protection.toProtection)
 
   def insertOrUpdateProtection(protection: Protection): Future[Result] = {
     val protections                              = protectionsStore.findProtectionsByNino(protection.nino)
@@ -105,8 +109,11 @@ class PLAProtectionService @Inject() (
   def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] = {
     val protections: Future[Option[Protections]] = retrieveProtections(nino)
     protections.map {
-      _.get.protections.find(p => p.id == protectionId)
+      _.flatMap(_.protections.find(p => p.id == protectionId))
     }
   }
+
+  def findHipProtectionByNinoAndId(nino: String, protectionId: Int): Future[Option[HipProtection]] =
+    findProtectionByNinoAndId(nino, protectionId).map(_.flatMap(HipProtection.fromProtection)) // If protection fails to convert it is ignored
 
 }

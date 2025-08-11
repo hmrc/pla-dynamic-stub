@@ -17,6 +17,7 @@
 package uk.gov.hmrc.pla.stub.guice
 
 import com.google.inject.AbstractModule
+
 import javax.inject.Inject
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
