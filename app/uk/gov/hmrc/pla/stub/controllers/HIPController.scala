@@ -18,11 +18,14 @@ package uk.gov.hmrc.pla.stub.controllers
 
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents, PlayBodyParsers, Result}
-import uk.gov.hmrc.pla.stub.model.{Error, Protections}
+import play.api.mvc._
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionRequestType._
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.notifications.Notifications
+import uk.gov.hmrc.pla.stub.model.{Error, Protections}
+import uk.gov.hmrc.pla.stub.rules.HipAmendmentRules.{
+  IndividualProtection2014AmendmentRules,
+  IndividualProtection2016AmendmentRules
+}
 import uk.gov.hmrc.pla.stub.rules._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -81,7 +84,6 @@ class HIPController @Inject() (
           val calculatedRelevantAmountMinusPSO =
             calculatedRelevantAmount - amendProtectionRequest.pensionDebitEnteredAmount.getOrElse(0)
 
-          // val amendmentTargetFutureOption = protectionRepository.findLatestVersionOfProtectionByNinoAndId(nino, protectionId)
           val amendmentTargetOption = protectionService.findHipProtectionByNinoAndId(nino, protectionId)
           amendmentTargetOption.flatMap[Result] {
             case None =>
@@ -93,20 +95,21 @@ class HIPController @Inject() (
               val error = Error("specified protection sequence does not match that of the protection to be amended")
               Future(BadRequest(Json.toJson(error)))
             case Some(amendmentTarget) =>
-              val existingProtections = protectionService.findAllProtectionsByNino(nino).map {
-                case Some(protections) => protections
+              val existingHipProtections = protectionService.findAllProtectionsByNino(nino).map {
+                case Some(protections) => protections.flatMap(HipProtection.fromProtection)
                 case _                 => List()
               }
-              val rules: Option[AmendmentRules] = amendProtectionRequest.`type` match {
-                case AmendProtectionRequestType.IndividualProtection2014 => Some(IP2014AmendmentRules)
-                case AmendProtectionRequestType.IndividualProtection2016 => Some(IP2016AmendmentRules)
+              val rules: Option[HipAmendmentRules] = amendProtectionRequest.`type` match {
+                case AmendProtectionRequestType.IndividualProtection2014 => Some(IndividualProtection2014AmendmentRules)
+                case AmendProtectionRequestType.IndividualProtection2016 => Some(IndividualProtection2016AmendmentRules)
                 case _                                                   => None
               }
               rules
-                .map { rules: AmendmentRules =>
-                  existingProtections.flatMap { protections =>
-                    val notificationId = rules.check(calculatedRelevantAmountMinusPSO, protections)
-                    processAmendment(nino, amendmentTarget, amendProtectionRequest, notificationId.toInt)
+                .map { rules: HipAmendmentRules =>
+                  existingHipProtections.flatMap { hipProtections =>
+                    val hipNotification =
+                      rules.calculateNotificationId(calculatedRelevantAmountMinusPSO, hipProtections)
+                    processAmendment(nino, amendmentTarget, amendProtectionRequest, hipNotification)
                   }
                 }
                 .getOrElse {
@@ -140,42 +143,28 @@ class HIPController @Inject() (
       nino: String,
       current: HipProtection,
       amendmentRequest: AmendProtectionRequest,
-      notificationId: Int
-  ): Future[Result] = {
-    val notification = Notifications.table(notificationId)
-    ProtectionStatus
-      .fromCertificateStatus(notification.status)
-      .map { status =>
-        AmendProtectionResponseStatus
-          .fromProtectionStatus(status)
-          .map { responseStatus =>
-            processAmendment(nino, current, amendmentRequest, notificationId, status, responseStatus)
-          }
-          .getOrElse {
-            val error =
-              Error(
-                s"Rules yielded a status of $status for notification ID $notificationId, but this is not a valid response status for the HIP API"
-              )
-            Future.successful(BadRequest(Json.toJson(error)))
-          }
-      }
+      hipNotification: HipNotification
+  ): Future[Result] =
+    AmendProtectionResponseStatus
+      .fromProtectionStatus(hipNotification.status)
+      .map(responseStatus => processAmendment(nino, current, amendmentRequest, hipNotification, responseStatus))
       .getOrElse {
-        val error = Error("Rules yielded an unknown status value.")
+        val error =
+          Error(
+            s"Rules yielded a status of ${hipNotification.status} for notification ID ${hipNotification.id}, but this is not a valid response status for the HIP API"
+          )
         Future.successful(BadRequest(Json.toJson(error)))
       }
-
-  }
 
   private def processAmendment(
       nino: String,
       current: HipProtection,
       amendmentRequest: AmendProtectionRequest,
-      notificationId: Int,
-      status: ProtectionStatus,
+      hipNotification: HipNotification,
       responseStatus: AmendProtectionResponseStatus
   ): Future[Result] = {
 
-    val amendedProtection = status match {
+    val amendedProtection = hipNotification.status match {
       case ProtectionStatus.Withdrawn =>
         protectionService.updateDormantProtectionStatusAsOpen(nino)
         current.copy(
@@ -204,7 +193,7 @@ class HIPController @Inject() (
           id = current.id,
           `type` = current.`type`,
           protectionReference = current.protectionReference,
-          status = status,
+          status = hipNotification.status,
           certificateDate = Some(currDate),
           certificateTime = Some(currTime),
           relevantAmount = relevantAmountMinusPSO,
@@ -232,7 +221,7 @@ class HIPController @Inject() (
       nonUKRightsAmount = amendedProtection.nonUKRightsAmount,
       pensionDebitAmount = amendedProtection.pensionDebitAmount,
       pensionDebitEnteredAmount = amendedProtection.pensionDebitEnteredAmount,
-      notificationIdentifier = Some(notificationId),
+      notificationIdentifier = Some(hipNotification.id),
       protectedAmount = amendedProtection.protectedAmount,
       pensionDebitStartDate = amendedProtection.pensionDebitStartDate,
       pensionDebitTotalAmount = amendedProtection.pensionDebitTotalAmount
