@@ -25,8 +25,8 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status.OK
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
 import play.api.mvc.Results.Ok
+import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.domain.Generator
@@ -181,14 +181,11 @@ class HIPControllerSpec
           )
 
         status(result) shouldBe OK
+
         val resultBody = contentAsJson(result).asInstanceOf[JsObject] - "certificateDate" - "certificateTime"
-
         resultBody.shouldBe(validAmendProtectionResponseOutput)
-
       }
-
     }
-
   }
 
 }
