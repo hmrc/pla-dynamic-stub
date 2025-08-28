@@ -57,10 +57,10 @@ class PLAProtectionService @Inject() (
   def retrieveProtections(nino: String): Future[Option[Protections]] =
     protectionsStore.findProtectionsByNino(nino)
 
-  def retrieveHIPProtections(nino: String): Future[Option[HIPProtectionsModel]] =
-    retrieveProtections(nino).map {
-      _.map(HIPProtectionsModel(_))
-    }
+  def retrieveHIPProtections(nino: String): Future[Option[HIPProtectionsModel]] = {
+    val ninoWithoutSuffix = nino.dropRight(1)
+    retrieveProtections(ninoWithoutSuffix).map(_.map(HIPProtectionsModel(_)))
+  }
 
   def insertOrUpdateHipProtection(protection: HipProtection): Future[Result] =
     insertOrUpdateProtection(protection.toProtection)
