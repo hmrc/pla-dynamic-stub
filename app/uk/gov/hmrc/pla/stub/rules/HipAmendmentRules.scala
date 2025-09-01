@@ -45,7 +45,7 @@ object HipAmendmentRules {
         relevantAmount: Double,
         otherExistingProtections: List[HipProtection]
     ): HipNotification = {
-      val withdraw       = relevantAmount < 1_125_001
+      val withdraw       = relevantAmount < 1_250_001
       val defaultOutcome = if (withdraw) HipNotification6 else HipNotification1
 
       val otherOpenProtection = otherExistingProtections.find {

@@ -36,6 +36,7 @@ import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.IndividualProtection2016
 import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 
+import java.time.{Clock, Instant, ZoneOffset}
 import java.util.Random
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,14 +48,16 @@ class HIPControllerSpec
     with BeforeAndAfterEach
     with Injecting {
 
-  val mockPLAProtectionService: PLAProtectionService = mock[PLAProtectionService]
+  private val mockPLAProtectionService: PLAProtectionService = mock[PLAProtectionService]
 
-  lazy val controller: HIPController = new HIPController(
+  private val nowInstant: Instant = Instant.parse("2025-08-15T12:34:56Z")
+  private def fixedClock: Clock   = Clock.fixed(nowInstant, ZoneOffset.UTC)
+
+  private lazy val controller: HIPController = new HIPController(
     inject[MessagesControllerComponents],
     mockPLAProtectionService,
-    inject[PlayBodyParsers],
-    inject[ExecutionContext]
-  )
+    inject[PlayBodyParsers]
+  )(inject[ExecutionContext], fixedClock)
 
   val rand: Random             = new Random()
   val ninoGenerator: Generator = new Generator(rand)
@@ -138,9 +141,10 @@ class HIPControllerSpec
     "amendProtections is called" must {
 
       "return 200 with correct response body" in {
-        val nino         = randomNino
-        val protectionId = 1
-        val sequence     = 1
+        val nino                = randomNino
+        val protectionId        = 1
+        val sequence            = 1
+        val protectionReference = "IP123456789012B"
 
         val protection = HipProtection(
           nino = nino,
@@ -148,19 +152,19 @@ class HIPControllerSpec
           sequence = sequence,
           status = ProtectionStatus.Open,
           `type` = ProtectionType.IndividualProtection2014,
-          relevantAmount = 1_254_000,
-          preADayPensionInPaymentAmount = 0,
-          postADayBenefitCrystallisationEventAmount = 0,
-          uncrystallisedRightsAmount = 0,
+          relevantAmount = 105000,
+          preADayPensionInPaymentAmount = 1500,
+          postADayBenefitCrystallisationEventAmount = 2500,
+          uncrystallisedRightsAmount = 75_500,
           nonUKRightsAmount = 0,
-          certificateDate = None,
-          certificateTime = None,
-          protectionReference = None,
-          pensionDebitAmount = None,
-          pensionDebitEnteredAmount = None,
-          protectedAmount = None,
-          pensionDebitStartDate = None,
-          pensionDebitTotalAmount = None
+          certificateDate = Some("2025-08-15"),
+          certificateTime = Some("123456"),
+          protectionReference = Some(protectionReference),
+          pensionDebitAmount = Some(25_000),
+          pensionDebitEnteredAmount = Some(25_000),
+          protectedAmount = Some(120_000),
+          pensionDebitStartDate = Some("2026-07-09"),
+          pensionDebitTotalAmount = Some(40_000)
         )
 
         when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
@@ -182,8 +186,8 @@ class HIPControllerSpec
 
         status(result) shouldBe OK
 
-        val resultBody = contentAsJson(result).asInstanceOf[JsObject] - "certificateDate" - "certificateTime"
-        resultBody.shouldBe(validAmendProtectionResponseOutput)
+        val resultBody = contentAsJson(result).asInstanceOf[JsObject]
+        resultBody.shouldBe(validHipAmendProtectionResponse)
       }
     }
   }

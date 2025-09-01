@@ -48,7 +48,7 @@ class HipAmendmentRulesSpec extends AnyWordSpec with Matchers {
 
     "provided with relevantAmount below threshold" when {
 
-      val relevantAmount = 1_125_000
+      val relevantAmount = 1_250_000
 
       "there is NO open protection" should {
         "return HipNotification no. 6" in {
@@ -86,7 +86,7 @@ class HipAmendmentRulesSpec extends AnyWordSpec with Matchers {
 
     "provided with relevantAmount above threshold" when {
 
-      val relevantAmount = 1_125_001
+      val relevantAmount = 1_250_001
 
       "there is NO open protection" should {
         "return HipNotification no. 1" in {
