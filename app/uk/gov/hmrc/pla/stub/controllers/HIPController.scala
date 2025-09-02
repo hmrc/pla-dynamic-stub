@@ -19,7 +19,6 @@ package uk.gov.hmrc.pla.stub.controllers
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionRequestType._
 import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.model.{Error, Protections}
 import uk.gov.hmrc.pla.stub.rules.HipAmendmentRules.{
@@ -31,16 +30,16 @@ import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.smartstub.{Generator => _}
 
-import java.time.LocalDateTime
+import java.time.{Clock, LocalDateTime}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HIPController @Inject() (
     val mcc: ControllerComponents,
     val protectionService: PLAProtectionService,
-    playBodyParsers: PlayBodyParsers,
-    implicit val ec: ExecutionContext
-) extends BackendController(mcc)
+    playBodyParsers: PlayBodyParsers
+)(implicit val ec: ExecutionContext, clock: Clock)
+    extends BackendController(mcc)
     with Logging {
 
   def readProtections(nino: String): Action[AnyContent] = Action.async { _ =>
@@ -55,20 +54,22 @@ class HIPController @Inject() (
 
   def amendProtection(nino: String, protectionId: Int, sequence: Int): Action[JsValue] =
     Action.async(playBodyParsers.json) { implicit request =>
-      val amendProtectionRequest = request.body.validate[AmendProtectionRequest]
+      val lifetimeAllowanceProtectionRecordResult =
+        request.body.validate[HipAmendProtectionRequest].map(_.lifetimeAllowanceProtectionRecord)
 
-      amendProtectionRequest.fold(
+      lifetimeAllowanceProtectionRecordResult.fold(
         errors =>
           Future.successful(BadRequest(Json.toJson(Error(message = "failed validation with errors: " + errors)))),
-        amendProtectionRequest => {
+        lifetimeAllowanceProtectionRecord => {
           // first cross-check relevant amount against total of the breakdown fields, reject if discrepancy found
           val calculatedRelevantAmount =
-            amendProtectionRequest.nonUKRightsAmount +
-              amendProtectionRequest.postADayBenefitCrystallisationEventAmount +
-              amendProtectionRequest.preADayPensionInPaymentAmount +
-              amendProtectionRequest.uncrystallisedRightsAmount -
-              amendProtectionRequest.pensionDebitTotalAmount.getOrElse(0)
-          if (calculatedRelevantAmount != amendProtectionRequest.relevantAmount) {
+            lifetimeAllowanceProtectionRecord.nonUKRightsAmount +
+              lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount +
+              lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount +
+              lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount -
+              lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount.getOrElse(0)
+
+          if (calculatedRelevantAmount != lifetimeAllowanceProtectionRecord.relevantAmount) {
             Future.successful(
               BadRequest(
                 Json.toJson(
@@ -82,13 +83,14 @@ class HIPController @Inject() (
           }
 
           val calculatedRelevantAmountMinusPSO =
-            calculatedRelevantAmount - amendProtectionRequest.pensionDebitEnteredAmount.getOrElse(0)
+            calculatedRelevantAmount - lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.getOrElse(0)
 
           val amendmentTargetOption = protectionService.findHipProtectionByNinoAndId(nino, protectionId)
           amendmentTargetOption.flatMap[Result] {
             case None =>
               Future(NotFound(Json.toJson(Error(message = "protection to amend not found"))))
-            case Some(amendmentTarget) if amendmentTarget.`type` != amendProtectionRequest.`type`.toProtectionType =>
+            case Some(amendmentTarget)
+                if amendmentTarget.`type` != lifetimeAllowanceProtectionRecord.`type`.toProtectionType =>
               val error = Error("specified protection type does not match that of the protection to be amended")
               Future(BadRequest(Json.toJson(error)))
             case Some(amendmentTarget) if amendmentTarget.sequence != sequence =>
@@ -99,17 +101,19 @@ class HIPController @Inject() (
                 case Some(protections) => protections.flatMap(HipProtection.fromProtection)
                 case _                 => List()
               }
-              val rules: Option[HipAmendmentRules] = amendProtectionRequest.`type` match {
-                case AmendProtectionRequestType.IndividualProtection2014 => Some(IndividualProtection2014AmendmentRules)
-                case AmendProtectionRequestType.IndividualProtection2016 => Some(IndividualProtection2016AmendmentRules)
-                case _                                                   => None
+              val rules: Option[HipAmendmentRules] = lifetimeAllowanceProtectionRecord.`type` match {
+                case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 =>
+                  Some(IndividualProtection2014AmendmentRules)
+                case AmendProtectionLifetimeAllowanceType.IndividualProtection2016 =>
+                  Some(IndividualProtection2016AmendmentRules)
+                case _ => None
               }
               rules
                 .map { rules: HipAmendmentRules =>
                   existingHipProtections.flatMap { hipProtections =>
                     val hipNotification =
                       rules.calculateNotificationId(calculatedRelevantAmountMinusPSO, hipProtections)
-                    processAmendment(nino, amendmentTarget, amendProtectionRequest, hipNotification)
+                    processAmendment(nino, amendmentTarget, lifetimeAllowanceProtectionRecord, hipNotification)
                   }
                 }
                 .getOrElse {
@@ -132,7 +136,7 @@ class HIPController @Inject() (
     *   individuals NINO
     * @param current
     *   The current version of the protection to be amended
-    * @param amendmentRequest
+    * @param lifetimeAllowanceProtectionRecord
     *   Details of the requested amendment, as parsed from the request body.
     * @param notificationId
     *   The notification id resulting from the business rule checks
@@ -142,12 +146,14 @@ class HIPController @Inject() (
   private def processAmendment(
       nino: String,
       current: HipProtection,
-      amendmentRequest: AmendProtectionRequest,
+      lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord,
       hipNotification: HipNotification
   ): Future[Result] =
     AmendProtectionResponseStatus
       .fromProtectionStatus(hipNotification.status)
-      .map(responseStatus => processAmendment(nino, current, amendmentRequest, hipNotification, responseStatus))
+      .map(responseStatus =>
+        processAmendment(nino, current, lifetimeAllowanceProtectionRecord, hipNotification, responseStatus)
+      )
       .getOrElse {
         val error =
           Error(
@@ -159,7 +165,7 @@ class HIPController @Inject() (
   private def processAmendment(
       nino: String,
       current: HipProtection,
-      amendmentRequest: AmendProtectionRequest,
+      lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord,
       hipNotification: HipNotification,
       responseStatus: AmendProtectionResponseStatus
   ): Future[Result] = {
@@ -173,18 +179,18 @@ class HIPController @Inject() (
         )
 
       case _ =>
-        val currDate = LocalDateTime.now.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
-        val currTime = LocalDateTime.now.format(java.time.format.DateTimeFormatter.ISO_LOCAL_TIME)
+        val currDate = LocalDateTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+        val currTime = LocalDateTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_TIME)
 
-        val amendmentPsoAmount = amendmentRequest.pensionDebitEnteredAmount.getOrElse(0)
+        val amendmentPsoAmount = lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.getOrElse(0)
         val updatedPensionDebitTotalAmount =
-          amendmentRequest.pensionDebitTotalAmount.getOrElse(0) + amendmentPsoAmount
-        val relevantAmountMinusPSO = amendmentRequest.relevantAmount - amendmentPsoAmount
+          lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount.getOrElse(0) + amendmentPsoAmount
+        val relevantAmountMinusPSO = lifetimeAllowanceProtectionRecord.relevantAmount - amendmentPsoAmount
 
-        val maxProtectedAmount = amendmentRequest.`type` match {
-          case IndividualProtection2014 => 1_500_000
-          case IndividualProtection2016 => 1_250_000
-          case _                        => 0
+        val maxProtectedAmount = lifetimeAllowanceProtectionRecord.`type` match {
+          case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 => 1_500_000
+          case AmendProtectionLifetimeAllowanceType.IndividualProtection2016 => 1_250_000
+          case _                                                             => 0
         }
 
         HipProtection(
@@ -198,42 +204,22 @@ class HIPController @Inject() (
           certificateTime = Some(currTime),
           relevantAmount = relevantAmountMinusPSO,
           protectedAmount = Some(relevantAmountMinusPSO.min(maxProtectedAmount)),
-          preADayPensionInPaymentAmount = amendmentRequest.preADayPensionInPaymentAmount,
-          postADayBenefitCrystallisationEventAmount = amendmentRequest.postADayBenefitCrystallisationEventAmount,
-          uncrystallisedRightsAmount = amendmentRequest.uncrystallisedRightsAmount,
-          nonUKRightsAmount = amendmentRequest.nonUKRightsAmount,
+          preADayPensionInPaymentAmount = lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount,
+          postADayBenefitCrystallisationEventAmount =
+            lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount,
+          uncrystallisedRightsAmount = lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount,
+          nonUKRightsAmount = lifetimeAllowanceProtectionRecord.nonUKRightsAmount,
           pensionDebitTotalAmount = Some(updatedPensionDebitTotalAmount)
         )
     }
 
-    val okResponse = AmendProtectionResponse(
-      identifier = amendedProtection.id,
-      sequenceNumber = amendedProtection.sequence,
-      `type` = amendedProtection.`type`,
-      certificateDate = amendedProtection.certificateDate,
-      certificateTime = amendedProtection.certificateTime,
-      status = responseStatus,
-      protectionReference = amendedProtection.protectionReference,
-      relevantAmount = amendedProtection.relevantAmount,
-      preADayPensionInPaymentAmount = amendedProtection.preADayPensionInPaymentAmount,
-      postADayBenefitCrystallisationEventAmount = amendedProtection.postADayBenefitCrystallisationEventAmount,
-      uncrystallisedRightsAmount = amendedProtection.uncrystallisedRightsAmount,
-      nonUKRightsAmount = amendedProtection.nonUKRightsAmount,
-      pensionDebitAmount = amendedProtection.pensionDebitAmount,
-      pensionDebitEnteredAmount = amendedProtection.pensionDebitEnteredAmount,
-      notificationIdentifier = Some(hipNotification.id),
-      protectedAmount = amendedProtection.protectedAmount,
-      pensionDebitStartDate = amendedProtection.pensionDebitStartDate,
-      pensionDebitTotalAmount = amendedProtection.pensionDebitTotalAmount
-    )
+    val okResponse     = HipAmendProtectionResponse.from(amendedProtection, responseStatus, Some(hipNotification.id))
     val okResponseBody = Json.toJson(okResponse)
     val result         = Ok(okResponseBody)
 
     val doAmendProtectionFut = protectionService.insertOrUpdateHipProtection(amendedProtection)
 
-    val updateRepoFut = for {
-      done <- doAmendProtectionFut
-    } yield done
+    val updateRepoFut = doAmendProtectionFut
 
     updateRepoFut.map(_ => result).recover { case x => InternalServerError(x.toString) }
   }

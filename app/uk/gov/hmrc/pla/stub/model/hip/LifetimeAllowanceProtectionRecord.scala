@@ -18,8 +18,8 @@ package uk.gov.hmrc.pla.stub.model.hip
 
 import play.api.libs.json._
 
-case class AmendProtectionRequest(
-    `type`: AmendProtectionRequestType,
+case class LifetimeAllowanceProtectionRecord(
+    `type`: AmendProtectionLifetimeAllowanceType,
     certificateDate: Option[String],
     certificateTime: Option[String],
     status: AmendProtectionRequestStatus,
@@ -37,6 +37,6 @@ case class AmendProtectionRequest(
     pensionDebitTotalAmount: Option[Int]
 )
 
-object AmendProtectionRequest {
-  implicit val format: Format[AmendProtectionRequest] = Json.format[AmendProtectionRequest]
+object LifetimeAllowanceProtectionRecord {
+  implicit val format: Format[LifetimeAllowanceProtectionRecord] = Json.format[LifetimeAllowanceProtectionRecord]
 }

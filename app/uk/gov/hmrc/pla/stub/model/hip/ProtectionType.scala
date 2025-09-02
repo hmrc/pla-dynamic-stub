@@ -77,7 +77,6 @@ object ProtectionType extends Enumerable.Implicits {
     case 6 => Some(FixedProtection)
     case 7 => Some(FixedProtection2014)
     case _ => None
-
   }
 
 }

@@ -18,10 +18,10 @@ package uk.gov.hmrc.pla.stub.model.hip
 
 import play.api.libs.json._
 
-case class AmendProtectionResponse(
+case class UpdatedLifetimeAllowanceProtectionRecord(
     identifier: Int,
     sequenceNumber: Int,
-    `type`: ProtectionType,
+    `type`: AmendProtectionLifetimeAllowanceType,
     certificateDate: Option[String],
     certificateTime: Option[String],
     status: AmendProtectionResponseStatus,
@@ -39,9 +39,9 @@ case class AmendProtectionResponse(
     pensionDebitTotalAmount: Option[Int]
 )
 
-object AmendProtectionResponse {
+object UpdatedLifetimeAllowanceProtectionRecord {
 
-  implicit val format: Format[AmendProtectionResponse] =
-    Json.format[AmendProtectionResponse]
+  implicit val format: Format[UpdatedLifetimeAllowanceProtectionRecord] =
+    Json.format[UpdatedLifetimeAllowanceProtectionRecord]
 
 }

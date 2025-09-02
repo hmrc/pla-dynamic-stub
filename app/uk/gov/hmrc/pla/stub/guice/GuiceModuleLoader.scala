@@ -22,6 +22,7 @@ import javax.inject.Inject
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
+import java.time.Clock
 import scala.concurrent.ExecutionContext
 
 class MongoProtectionRepositoryFactory @Inject() (
@@ -34,9 +35,7 @@ class MongoProtectionRepositoryFactory @Inject() (
 
 class GuiceModuleLoader extends AbstractModule {
 
-  override def configure(): Unit = {
-    // Sample bind config (if needed in the future)
-    // bind(classOf[TraitToImplement]).to(classOf[ClassToImplement]).asEagerSingleton()
-  }
+  override def configure(): Unit =
+    bind(classOf[Clock]).toInstance(Clock.systemUTC())
 
 }

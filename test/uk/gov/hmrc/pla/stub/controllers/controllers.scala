@@ -298,31 +298,50 @@ package object controllers {
 
   val validAmendProtectionRequestInput: JsValue =
     Json.parse("""{
-                 |  "type": "INDIVIDUAL PROTECTION 2014",
-                 |  "relevantAmount": 1250001,
-                 |  "status": "OPEN",
-                 |  "preADayPensionInPaymentAmount": 1000000,
-                 |  "postADayBenefitCrystallisationEventAmount": 1000000,
-                 |  "uncrystallisedRightsAmount": 1000000,
-                 |  "nonUKRightsAmount": 1000000
+                 |  "lifetimeAllowanceProtectionRecord": {
+                 |    "type": "INDIVIDUAL PROTECTION 2014",
+                 |    "certificateDate": "2025-08-15",
+                 |    "certificateTime": "123456",
+                 |    "status": "OPEN",
+                 |    "protectionReference": "IP123456789012B",
+                 |    "relevantAmount": 105000,
+                 |    "preADayPensionInPaymentAmount": 1500,
+                 |    "postADayBenefitCrystallisationEventAmount": 2500,
+                 |    "uncrystallisedRightsAmount": 75500,
+                 |    "nonUKRightsAmount": 0,
+                 |    "pensionDebitAmount": 25000,
+                 |    "pensionDebitEnteredAmount": 25000,
+                 |    "notificationIdentifier": 3,
+                 |    "protectedAmount": 120000,
+                 |    "pensionDebitStartDate": "2026-07-09",
+                 |    "pensionDebitTotalAmount": 40000
+                 |  }
                  |}
     """.stripMargin)
 
-  val validAmendProtectionResponseOutput: JsValue =
+  val validHipAmendProtectionResponse: JsValue =
     Json.parse(
       """{
-        |  "identifier": 1,
-        |  "sequenceNumber": 2,
-        |  "type": "INDIVIDUAL PROTECTION 2014",
-        |  "status": "OPEN",
-        |  "relevantAmount": 1250001,
-        |  "preADayPensionInPaymentAmount": 1000000,
-        |  "postADayBenefitCrystallisationEventAmount": 1000000,
-        |  "uncrystallisedRightsAmount": 1000000,
-        |  "nonUKRightsAmount": 1000000,
-        |  "notificationIdentifier": 1,
-        |  "protectedAmount": 1250001,
-        |  "pensionDebitTotalAmount": 0
+        |  "updatedLifetimeAllowanceProtectionRecord": {
+        |     "identifier": 1,
+        |     "sequenceNumber": 2,
+        |     "type": "INDIVIDUAL PROTECTION 2014",
+        |     "certificateDate": "2025-08-15",
+        |     "certificateTime": "123456",
+        |     "status": "WITHDRAWN",
+        |     "protectionReference": "IP123456789012B",
+        |     "relevantAmount": 105000,
+        |     "preADayPensionInPaymentAmount": 1500,
+        |     "postADayBenefitCrystallisationEventAmount": 2500,
+        |     "uncrystallisedRightsAmount": 75500,
+        |     "nonUKRightsAmount": 0,
+        |     "pensionDebitAmount": 25000,
+        |     "pensionDebitEnteredAmount": 25000,
+        |     "notificationIdentifier": 6,
+        |     "protectedAmount": 120000,
+        |     "pensionDebitStartDate": "2026-07-09",
+        |     "pensionDebitTotalAmount": 40000
+        |  }
         |}
     """.stripMargin
     )

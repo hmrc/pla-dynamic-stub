@@ -106,14 +106,15 @@ class PLAProtectionService @Inject() (
       case _                 => None
     }
 
-  def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] = {
-    val protections: Future[Option[Protections]] = retrieveProtections(nino)
-    protections.map {
-      _.flatMap(_.protections.find(p => p.id == protectionId))
-    }
-  }
+  def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] =
+    for {
+      protections <- retrieveProtections(nino)
+      result = protections.flatMap(_.protections.find(_.id == protectionId))
+    } yield result
 
-  def findHipProtectionByNinoAndId(nino: String, protectionId: Int): Future[Option[HipProtection]] =
-    findProtectionByNinoAndId(nino, protectionId).map(_.flatMap(HipProtection.fromProtection)) // If protection fails to convert it is ignored
+  def findHipProtectionByNinoAndId(nino: String, protectionId: Int): Future[Option[HipProtection]] = {
+    val ninoWithoutSuffix = nino.dropRight(1)
+    findProtectionByNinoAndId(ninoWithoutSuffix, protectionId).map(_.flatMap(HipProtection.fromProtection)) // If protection fails to convert it is ignored
+  }
 
 }
