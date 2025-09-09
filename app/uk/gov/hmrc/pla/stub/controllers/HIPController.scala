@@ -52,7 +52,7 @@ class HIPController @Inject() (
     }
   }
 
-  def amendProtection(nino: String, protectionId: Int, sequence: Int): Action[JsValue] =
+  def amendProtection(nino: String, protectionId: Long, sequence: Int): Action[JsValue] =
     Action.async(playBodyParsers.json) { implicit request =>
       val lifetimeAllowanceProtectionRecordResult =
         request.body.validate[HipAmendProtectionRequest].map(_.lifetimeAllowanceProtectionRecord)

@@ -142,7 +142,7 @@ class HIPControllerSpec
 
       "return 200 with correct response body" in {
         val nino                = randomNino
-        val protectionId        = 1
+        val protectionId        = 12960000000123L
         val sequence            = 1
         val protectionReference = "IP123456789012B"
 

@@ -15,4 +15,4 @@ GET     /pensions-lifetime-allowance/psa/check-protection                       
 
 # HIP endpoints
 GET     /paye/lifetime-allowance/person/:nino                                                   @uk.gov.hmrc.pla.stub.controllers.HIPController.readProtections(nino:String)
-POST    /paye/lifetime-allowance/person/:nino/reference/:protectionId/sequence-number/:sequence @uk.gov.hmrc.pla.stub.controllers.HIPController.amendProtection(nino:String, protectionId: Int, sequence: Int)
+POST    /paye/lifetime-allowance/person/:nino/reference/:protectionId/sequence-number/:sequence @uk.gov.hmrc.pla.stub.controllers.HIPController.amendProtection(nino:String, protectionId: Long, sequence: Int)
