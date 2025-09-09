@@ -79,7 +79,7 @@ object ProtectionRecord {
 
   def apply(protection: Protection): ProtectionRecord =
     ProtectionRecord(
-      protection.id.toInt,
+      protection.id,
       protection.version,
       toRecordType(protection),
       protection.certificateDate.getOrElse("2000-01-01"), // TODO: defaults for date and time?
