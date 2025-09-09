@@ -53,7 +53,7 @@ object ProtectionRecordsList {
 }
 
 case class ProtectionRecord(
-    identifier: Int,
+    identifier: Long,
     sequenceNumber: Int,
     `type`: ProtectionType,
     certificateDate: String,
