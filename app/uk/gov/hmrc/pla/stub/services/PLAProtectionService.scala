@@ -64,7 +64,7 @@ class PLAProtectionService @Inject() (
 
   def insertOrUpdateHipProtection(hipProtection: HipProtection): Future[Result] = {
     val ninoWithoutSuffix = hipProtection.nino.dropRight(1)
-    val protection = hipProtection.toProtection.copy(nino=ninoWithoutSuffix)
+    val protection        = hipProtection.toProtection.copy(nino = ninoWithoutSuffix)
 
     insertOrUpdateProtection(protection)
   }
