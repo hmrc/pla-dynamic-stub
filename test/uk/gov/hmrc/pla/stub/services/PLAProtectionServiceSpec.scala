@@ -33,15 +33,14 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object TestData {
 
-  val nino         = "AA000000A"
-  val strippedNino = nino.dropRight(1)
+  val nino                 = "AA000000A"
+  val strippedNino: String = nino.dropRight(1)
 
-  val idLong: Long = 0
-  val idInt: Int   = idLong.toInt
+  val id: Long = 0
 
   val protection = Protection(
     nino = strippedNino,
-    id = idLong,
+    id = id,
     version = 0,
     `type` = 0,
     status = 0,
@@ -52,7 +51,7 @@ object TestData {
 
   val hipProtection = HipProtection(
     nino = nino,
-    id = idInt,
+    id = id,
     sequence = 0,
     status = ProtectionStatus.Open,
     `type` = ProtectionType.IndividualProtection2014,
@@ -173,7 +172,7 @@ class PLAProtectionServiceSpec
         when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
           .thenReturn(Future.successful(None))
 
-        protectionService.findProtectionByNinoAndId(TestData.strippedNino, TestData.idLong)
+        protectionService.findProtectionByNinoAndId(TestData.strippedNino, TestData.id)
 
         verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
 
@@ -188,7 +187,7 @@ class PLAProtectionServiceSpec
         when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
           .thenReturn(Future.successful(None))
 
-        protectionService.findHipProtectionByNinoAndId(TestData.nino, TestData.idInt)
+        protectionService.findHipProtectionByNinoAndId(TestData.nino, TestData.id)
 
         verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
 
