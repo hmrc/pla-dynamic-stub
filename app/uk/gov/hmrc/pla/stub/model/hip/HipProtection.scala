@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter
 
 case class HipProtection(
     nino: String,
-    id: Int,
+    id: Long,
     sequence: Int,
     status: ProtectionStatus,
     `type`: ProtectionType,
@@ -46,7 +46,7 @@ case class HipProtection(
   def toProtection: Protection =
     Protection(
       nino = nino,
-      id = id.toLong,
+      id = id,
       version = sequence,
       `type` = `type`.toPlaId,
       status = status.toPlaId,
@@ -92,7 +92,7 @@ object HipProtection {
       status         <- ProtectionStatus.fromPlaId(protection.status)
     } yield HipProtection(
       nino = protection.nino,
-      id = protection.id.toInt,
+      id = protection.id,
       sequence = protection.version,
       status = status,
       `type` = protectionType,

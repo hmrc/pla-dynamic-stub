@@ -323,7 +323,7 @@ package object controllers {
     Json.parse(
       """{
         |  "updatedLifetimeAllowanceProtectionRecord": {
-        |     "identifier": 1,
+        |     "identifier": 12960000000123,
         |     "sequenceNumber": 2,
         |     "type": "INDIVIDUAL PROTECTION 2014",
         |     "certificateDate": "2025-08-15",

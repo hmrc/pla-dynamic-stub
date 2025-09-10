@@ -19,7 +19,7 @@ package uk.gov.hmrc.pla.stub.model.hip
 import play.api.libs.json._
 
 case class UpdatedLifetimeAllowanceProtectionRecord(
-    identifier: Int,
+    identifier: Long,
     sequenceNumber: Int,
     `type`: AmendProtectionLifetimeAllowanceType,
     certificateDate: Option[String],
