@@ -16,29 +16,30 @@
 
 package uk.gov.hmrc.pla.stub.repository
 
-import uk.gov.hmrc.pla.stub.model.Protections
-import org.mongodb.scala.model.Indexes._
 import org.mongodb.scala.model.Filters._
+import org.mongodb.scala.model.Indexes._
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
-import org.mongodb.scala.result.InsertOneResult
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import javax.inject.Singleton
+import uk.gov.hmrc.pla.stub.model.Protections
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait ProtectionRepository {
   def findAllProtectionsByNino(nino: String): Future[List[Protections]]
   def findProtectionsByNino(nino: String): Future[Option[Protections]]
-  def insertProtection(protections: Protections): Future[InsertOneResult]
+  def insertProtection(protections: Protections): Future[Unit]
   def removeByNino(nino: String): Future[Unit]
   def removeAllProtections(): Future[Unit]
   def removeProtectionsCollection(): Future[Boolean]
 }
 
 @Singleton
-class MongoProtectionRepository(mongoComponent: MongoComponent)(implicit val ec: ExecutionContext)
-    extends PlayMongoRepository[Protections](
+class MongoProtectionRepository @Inject() (
+    mongoComponent: MongoComponent,
+    implicit val ec: ExecutionContext
+) extends PlayMongoRepository[Protections](
       mongoComponent = mongoComponent,
       collectionName = "protections",
       domainFormat = Protections.protectionsFormat,
@@ -71,7 +72,7 @@ class MongoProtectionRepository(mongoComponent: MongoComponent)(implicit val ec:
   override def removeProtectionsCollection(): Future[Boolean] =
     collection.drop().toFuture().map(_ => true)
 
-  override def insertProtection(protections: Protections): Future[InsertOneResult] =
-    collection.insertOne(protections).toFuture()
+  override def insertProtection(protections: Protections): Future[Unit] =
+    collection.insertOne(protections).toFuture().map(_ => (): Unit)
 
 }

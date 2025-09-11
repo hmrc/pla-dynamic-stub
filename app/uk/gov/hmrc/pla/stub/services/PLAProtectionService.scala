@@ -16,28 +16,23 @@
 
 package uk.gov.hmrc.pla.stub.services
 
-import javax.inject.Inject
-import org.mongodb.scala.result.InsertOneResult
 import play.api.mvc.Result
 import play.api.mvc.Results.{NotFound, Ok}
 import uk.gov.hmrc.pla.stub.Generator.pensionSchemeAdministratorCheckReferenceGen
-import uk.gov.hmrc.pla.stub.guice.MongoProtectionRepositoryFactory
 import uk.gov.hmrc.pla.stub.model._
-import uk.gov.hmrc.pla.stub.model.hip.HipProtection
-import uk.gov.hmrc.pla.stub.model.hip.HIPProtectionsModel
+import uk.gov.hmrc.pla.stub.model.hip.{HIPProtectionsModel, HipProtection}
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PLAProtectionService @Inject() (
-    implicit val mongoProtectionRepositoryFactory: MongoProtectionRepositoryFactory,
-    val ec: ExecutionContext
+    val protectionsStore: MongoProtectionRepository,
+    implicit val ec: ExecutionContext
 ) {
 
-  lazy val protectionsStore: MongoProtectionRepository = mongoProtectionRepositoryFactory.apply()
-
-  def saveProtections(protections: Protections): Future[InsertOneResult] = {
-    def save(deleted: Unit, data: Protections): Future[InsertOneResult] = protectionsStore.insertProtection(data)
+  def saveProtections(protections: Protections): Future[Unit] = {
+    def save(deleted: Unit, data: Protections): Future[Unit] = protectionsStore.insertProtection(data)
 
     protectionsStore.removeByNino(protections.nino).flatMap(remove => save(remove, protections))
   }
@@ -62,8 +57,12 @@ class PLAProtectionService @Inject() (
     retrieveProtections(ninoWithoutSuffix).map(_.map(HIPProtectionsModel(_)))
   }
 
-  def insertOrUpdateHipProtection(protection: HipProtection): Future[Result] =
-    insertOrUpdateProtection(protection.toProtection)
+  def insertOrUpdateHipProtection(hipProtection: HipProtection): Future[Result] = {
+    val ninoWithoutSuffix = hipProtection.nino.dropRight(1)
+    val protection        = hipProtection.toProtection.copy(nino = ninoWithoutSuffix)
+
+    insertOrUpdateProtection(protection)
+  }
 
   def insertOrUpdateProtection(protection: Protection): Future[Result] = {
     val protections                              = protectionsStore.findProtectionsByNino(protection.nino)
@@ -84,7 +83,7 @@ class PLAProtectionService @Inject() (
       optProtections     <- protections
       updatedProtections <- ltaProtections(optProtections)
       result             <- listToProtections(updatedProtections)
-      save               <- saveProtections(result)
+      _                  <- saveProtections(result)
     } yield Ok
   }
 
