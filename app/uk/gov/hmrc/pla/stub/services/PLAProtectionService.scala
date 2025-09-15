@@ -52,17 +52,11 @@ class PLAProtectionService @Inject() (
   def retrieveProtections(nino: String): Future[Option[Protections]] =
     protectionsStore.findProtectionsByNino(nino)
 
-  def retrieveHIPProtections(nino: String): Future[Option[HIPProtectionsModel]] = {
-    val ninoWithoutSuffix = nino.dropRight(1)
-    retrieveProtections(ninoWithoutSuffix).map(_.map(HIPProtectionsModel(_)))
-  }
+  def retrieveHIPProtections(nino: String): Future[Option[HIPProtectionsModel]] =
+    retrieveProtections(nino).map(_.map(HIPProtectionsModel(_)))
 
-  def insertOrUpdateHipProtection(hipProtection: HipProtection): Future[Result] = {
-    val ninoWithoutSuffix = hipProtection.nino.dropRight(1)
-    val protection        = hipProtection.toProtection.copy(nino = ninoWithoutSuffix)
-
-    insertOrUpdateProtection(protection)
-  }
+  def insertOrUpdateHipProtection(hipProtection: HipProtection): Future[Result] =
+    insertOrUpdateProtection(hipProtection.toProtection)
 
   def insertOrUpdateProtection(protection: Protection): Future[Result] = {
     val protections                              = protectionsStore.findProtectionsByNino(protection.nino)
@@ -105,15 +99,19 @@ class PLAProtectionService @Inject() (
       case _                 => None
     }
 
+  def findAllHipProtectionsByNino(nino: String): Future[List[HipProtection]] =
+    retrieveProtections(nino).map {
+      case Some(protections) => protections.protections.flatMap(HipProtection.fromProtection)
+      case _                 => List.empty[HipProtection]
+    }
+
   def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] =
     for {
       protections <- retrieveProtections(nino)
       result = protections.flatMap(_.protections.find(_.id == protectionId))
     } yield result
 
-  def findHipProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[HipProtection]] = {
-    val ninoWithoutSuffix = nino.dropRight(1)
-    findProtectionByNinoAndId(ninoWithoutSuffix, protectionId).map(_.flatMap(HipProtection.fromProtection)) // If protection fails to convert it is ignored
-  }
+  def findHipProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[HipProtection]] =
+    findProtectionByNinoAndId(nino, protectionId).map(_.flatMap(HipProtection.fromProtection)) // If protection fails to convert it is ignored
 
 }
