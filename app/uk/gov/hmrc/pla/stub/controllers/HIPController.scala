@@ -43,7 +43,9 @@ class HIPController @Inject() (
     with Logging {
 
   def readProtections(nino: String): Action[AnyContent] = Action.async { _ =>
-    protectionService.retrieveHIPProtections(nino).map {
+    val ninoWithoutSuffix = nino.dropRight(1) // Remove when NPS code is removed and stub data is updated to use suffixes
+
+    protectionService.retrieveHIPProtections(ninoWithoutSuffix).map {
       case Some(protections) =>
         Ok(Json.toJson(protections))
       case None =>
@@ -54,6 +56,8 @@ class HIPController @Inject() (
 
   def amendProtection(nino: String, protectionId: Long, sequence: Int): Action[JsValue] =
     Action.async(playBodyParsers.json) { implicit request =>
+      val ninoWithoutSuffix = nino.dropRight(1) // Remove when NPS code is removed and stub data is updated to use suffixes
+
       val lifetimeAllowanceProtectionRecordResult =
         request.body.validate[HipAmendProtectionRequest].map(_.lifetimeAllowanceProtectionRecord)
 
@@ -85,7 +89,7 @@ class HIPController @Inject() (
           val calculatedRelevantAmountMinusPSO =
             calculatedRelevantAmount - lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.getOrElse(0)
 
-          val amendmentTargetOption = protectionService.findHipProtectionByNinoAndId(nino, protectionId)
+          val amendmentTargetOption = protectionService.findHipProtectionByNinoAndId(ninoWithoutSuffix, protectionId)
           amendmentTargetOption.flatMap[Result] {
             case None =>
               Future(NotFound(Json.toJson(Error(message = "protection to amend not found"))))
@@ -97,10 +101,7 @@ class HIPController @Inject() (
               val error = Error("specified protection sequence does not match that of the protection to be amended")
               Future(BadRequest(Json.toJson(error)))
             case Some(amendmentTarget) =>
-              val existingHipProtections = protectionService.findAllProtectionsByNino(nino).map {
-                case Some(protections) => protections.flatMap(HipProtection.fromProtection)
-                case _                 => List()
-              }
+              val existingHipProtections = protectionService.findAllHipProtectionsByNino(ninoWithoutSuffix)
               val rules: Option[HipAmendmentRules] = lifetimeAllowanceProtectionRecord.`type` match {
                 case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 =>
                   Some(IndividualProtection2014AmendmentRules)
@@ -113,7 +114,12 @@ class HIPController @Inject() (
                   existingHipProtections.flatMap { hipProtections =>
                     val hipNotification =
                       rules.calculateNotificationId(calculatedRelevantAmountMinusPSO, hipProtections)
-                    processAmendment(nino, amendmentTarget, lifetimeAllowanceProtectionRecord, hipNotification)
+                    processAmendment(
+                      ninoWithoutSuffix,
+                      amendmentTarget,
+                      lifetimeAllowanceProtectionRecord,
+                      hipNotification
+                    )
                   }
                 }
                 .getOrElse {

@@ -109,7 +109,9 @@ class HIPControllerSpec
 
           val nino = randomNino
 
-          when(mockPLAProtectionService.retrieveHIPProtections(eqTo(nino)))
+          val ninoWithoutSuffix = nino.dropRight(1)
+
+          when(mockPLAProtectionService.retrieveHIPProtections(eqTo(ninoWithoutSuffix)))
             .thenReturn(Future.successful(Some(protections)))
 
           val result = controller.readProtections(nino)(FakeRequest())
@@ -123,7 +125,9 @@ class HIPControllerSpec
 
           val nino = randomNino
 
-          when(mockPLAProtectionService.retrieveHIPProtections(eqTo(nino)))
+          val ninoWithoutSuffix = nino.dropRight(1)
+
+          when(mockPLAProtectionService.retrieveHIPProtections(eqTo(ninoWithoutSuffix)))
             .thenReturn(Future.successful(None))
 
           val result = controller.readProtections(nino)(FakeRequest())
@@ -167,11 +171,13 @@ class HIPControllerSpec
           pensionDebitTotalAmount = Some(40_000)
         )
 
-        when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
+        val ninoWithoutSuffix = nino.dropRight(1)
+
+        when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(ninoWithoutSuffix), eqTo(protectionId)))
           .thenReturn(Future.successful(Some(protection)))
 
-        when(mockPLAProtectionService.findAllProtectionsByNino(eqTo(nino)))
-          .thenReturn(Future.successful(Some(List(protection.toProtection))))
+        when(mockPLAProtectionService.findAllHipProtectionsByNino(eqTo(ninoWithoutSuffix)))
+          .thenReturn(Future.successful(List(protection)))
 
         when(mockPLAProtectionService.insertOrUpdateHipProtection(any())).thenReturn(Future.successful(Ok))
 
