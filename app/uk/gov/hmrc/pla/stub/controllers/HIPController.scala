@@ -144,7 +144,7 @@ class HIPController @Inject() (
     *   The current version of the protection to be amended
     * @param lifetimeAllowanceProtectionRecord
     *   Details of the requested amendment, as parsed from the request body.
-    * @param notificationId
+    * @param hipNotification
     *   The notification id resulting from the business rule checks
     * @return
     *   Updated protection result
@@ -176,56 +176,55 @@ class HIPController @Inject() (
       responseStatus: AmendProtectionResponseStatus
   ): Future[Result] = {
 
-    val amendedProtection = hipNotification.status match {
-      case ProtectionStatus.Withdrawn =>
-        protectionService.updateDormantProtectionStatusAsOpen(nino)
-        current.copy(
-          sequence = current.sequence + 1,
-          status = ProtectionStatus.Withdrawn
-        )
+    val amendedProtection = {
+      val currDate = LocalDateTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+      val currTime = LocalDateTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_TIME)
 
-      case _ =>
-        val currDate = LocalDateTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
-        val currTime = LocalDateTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_TIME)
+      val amendmentPsoAmount = lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.getOrElse(0)
+      val updatedPensionDebitTotalAmount =
+        lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount.getOrElse(0) + amendmentPsoAmount
+      val relevantAmountMinusPSO = lifetimeAllowanceProtectionRecord.relevantAmount - amendmentPsoAmount
 
-        val amendmentPsoAmount = lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.getOrElse(0)
-        val updatedPensionDebitTotalAmount =
-          lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount.getOrElse(0) + amendmentPsoAmount
-        val relevantAmountMinusPSO = lifetimeAllowanceProtectionRecord.relevantAmount - amendmentPsoAmount
+      val maxProtectedAmount = lifetimeAllowanceProtectionRecord.`type` match {
+        case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 => 1_500_000
+        case AmendProtectionLifetimeAllowanceType.IndividualProtection2016 => 1_250_000
+        case _                                                             => 0
+      }
 
-        val maxProtectedAmount = lifetimeAllowanceProtectionRecord.`type` match {
-          case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 => 1_500_000
-          case AmendProtectionLifetimeAllowanceType.IndividualProtection2016 => 1_250_000
-          case _                                                             => 0
-        }
-
-        HipProtection(
-          nino = nino,
-          sequence = current.sequence + 1,
-          id = current.id,
-          `type` = current.`type`,
-          protectionReference = current.protectionReference,
-          status = hipNotification.status,
-          certificateDate = Some(currDate),
-          certificateTime = Some(currTime),
-          relevantAmount = relevantAmountMinusPSO,
-          protectedAmount = Some(relevantAmountMinusPSO.min(maxProtectedAmount)),
-          preADayPensionInPaymentAmount = lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount,
-          postADayBenefitCrystallisationEventAmount =
-            lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount,
-          uncrystallisedRightsAmount = lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount,
-          nonUKRightsAmount = lifetimeAllowanceProtectionRecord.nonUKRightsAmount,
-          pensionDebitTotalAmount = Some(updatedPensionDebitTotalAmount)
-        )
+      HipProtection(
+        nino = nino,
+        sequence = current.sequence + 1,
+        id = current.id,
+        `type` = current.`type`,
+        protectionReference = current.protectionReference,
+        status = hipNotification.status,
+        certificateDate = Some(currDate),
+        certificateTime = Some(currTime),
+        relevantAmount = relevantAmountMinusPSO,
+        protectedAmount = Some(relevantAmountMinusPSO.min(maxProtectedAmount)),
+        preADayPensionInPaymentAmount = lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount,
+        postADayBenefitCrystallisationEventAmount =
+          lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount,
+        uncrystallisedRightsAmount = lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount,
+        nonUKRightsAmount = lifetimeAllowanceProtectionRecord.nonUKRightsAmount,
+        pensionDebitTotalAmount = Some(updatedPensionDebitTotalAmount)
+      )
     }
 
     val okResponse     = HipAmendProtectionResponse.from(amendedProtection, responseStatus, Some(hipNotification.id))
     val okResponseBody = Json.toJson(okResponse)
     val result         = Ok(okResponseBody)
 
-    val doAmendProtectionFut = protectionService.insertOrUpdateHipProtection(amendedProtection)
+    def updateDormantIP2016Protection(hipNotification: HipNotification, nino: String): Future[Unit] =
+      if (hipNotification.id == 7) {
+        protectionService.updateDormantProtectionStatusAsOpen(nino)
+      } else
+        Future.unit
 
-    val updateRepoFut = doAmendProtectionFut
+    val updateRepoFut = for {
+      _             <- protectionService.insertOrUpdateHipProtection(amendedProtection)
+      updateRepoFut <- updateDormantIP2016Protection(hipNotification, nino)
+    } yield updateRepoFut
 
     updateRepoFut.map(_ => result).recover { case x => InternalServerError(x.toString) }
   }

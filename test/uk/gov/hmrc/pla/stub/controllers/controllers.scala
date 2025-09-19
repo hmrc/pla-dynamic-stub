@@ -330,20 +330,40 @@ package object controllers {
         |     "certificateTime": "123456",
         |     "status": "WITHDRAWN",
         |     "protectionReference": "IP123456789012B",
-        |     "relevantAmount": 105000,
+        |     "relevantAmount": 80000,
         |     "preADayPensionInPaymentAmount": 1500,
         |     "postADayBenefitCrystallisationEventAmount": 2500,
         |     "uncrystallisedRightsAmount": 75500,
         |     "nonUKRightsAmount": 0,
-        |     "pensionDebitAmount": 25000,
-        |     "pensionDebitEnteredAmount": 25000,
         |     "notificationIdentifier": 6,
-        |     "protectedAmount": 120000,
-        |     "pensionDebitStartDate": "2026-07-09",
-        |     "pensionDebitTotalAmount": 40000
+        |     "protectedAmount": 80000,
+        |     "pensionDebitTotalAmount": 65000
         |  }
         |}
     """.stripMargin
     )
+
+  val invalidAmendProtectionRequestInput: JsValue =
+    Json.parse("""{
+                 |  "lifetimeAllowanceProtectionRecord": {
+                 |    "type": "INDIVIDUAL PROTECTION 2014",
+                 |    "certificateDate": "2025-08-15",
+                 |    "certificateTime": "123456",
+                 |    "status": "CLOSED",
+                 |    "protectionReference": "IP123456789012B",
+                 |    "relevantAmount": 105000,
+                 |    "preADayPensionInPaymentAmount": 1500,
+                 |    "postADayBenefitCrystallisationEventAmount": 2500,
+                 |    "uncrystallisedRightsAmount": 75500,
+                 |    "nonUKRightsAmount": 0,
+                 |    "pensionDebitAmount": 25000,
+                 |    "pensionDebitEnteredAmount": 25000,
+                 |    "notificationIdentifier": 3,
+                 |    "protectedAmount": 120000,
+                 |    "pensionDebitStartDate": "2026-07-09",
+                 |    "pensionDebitTotalAmount": 40000
+                 |  }
+                 |}
+    """.stripMargin)
 
 }

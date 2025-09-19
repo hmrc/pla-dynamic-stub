@@ -19,6 +19,7 @@ package uk.gov.hmrc.pla.stub.rules
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.pla.stub.model.hip.HipNotification._
+import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Dormant
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType._
 import uk.gov.hmrc.pla.stub.model.hip.{HipProtection, ProtectionStatus, ProtectionType}
 import uk.gov.hmrc.pla.stub.rules.HipAmendmentRules._
@@ -59,13 +60,13 @@ class HipAmendmentRulesSpec extends AnyWordSpec with Matchers {
         }
       }
 
-      s"the open protection type is ${FixedProtection2016.value}" should {
+      s"the dormant protection type is ${FixedProtection2016.value}" should {
         "return HipNotification no. 7" in {
-          val openProtection = protection.copy(`type` = FixedProtection2016)
+          val dormantProtection = protection.copy(`type` = FixedProtection2016, status = Dormant)
 
           IndividualProtection2014AmendmentRules.calculateNotificationId(
             relevantAmount,
-            List(openProtection)
+            List(dormantProtection, protection)
           ) shouldBe HipNotification7
         }
       }
@@ -130,13 +131,13 @@ class HipAmendmentRulesSpec extends AnyWordSpec with Matchers {
         }
       }
 
-      s"the open protection type is ${FixedProtection2016.value}" should {
+      s"the dormant protection type is ${FixedProtection2016.value}" should {
         "return HipNotification no. 5" in {
-          val openProtection = protection.copy(`type` = FixedProtection2016)
+          val dormantProtection = protection.copy(`type` = FixedProtection2016, status = Dormant)
 
           IndividualProtection2014AmendmentRules.calculateNotificationId(
             relevantAmount,
-            List(openProtection)
+            List(dormantProtection, protection)
           ) shouldBe HipNotification5
         }
       }
