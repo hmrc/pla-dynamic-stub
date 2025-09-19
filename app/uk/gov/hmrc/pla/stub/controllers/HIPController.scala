@@ -43,14 +43,211 @@ class HIPController @Inject() (
     with Logging {
 
   def readProtections(nino: String): Action[AnyContent] = Action.async { _ =>
-    val ninoWithoutSuffix = nino.dropRight(1) // Remove when NPS code is removed and stub data is updated to use suffixes
+    val ninoWithoutSuffix = nino.dropRight(1)
 
-    protectionService.retrieveHIPProtections(ninoWithoutSuffix).map {
-      case Some(protections) =>
-        Ok(Json.toJson(protections))
-      case None =>
-        logger.info("No protections set for given Nino, returning empty protections list")
-        Ok(Json.toJson(HIPProtectionsModel(Protections(nino, Some("stubPSACheckRef"), List.empty))))
+    ninoWithoutSuffix match {
+      case "AA903000" =>
+        Future.successful(Ok(Json.parse(
+        """{
+          |    "pensionSchemeAdministratorCheckReference": "PSA27727793Z",
+          |    "protectionRecordsList": [
+          |        {
+          |            "protectionRecord": {
+          |                "identifier": 2,
+          |                "sequenceNumber": 1,
+          |                "type": "INDIVIDUAL PROTECTION 2014",
+          |                "certificateDate": "2025-09-08",
+          |                "certificateTime": "123840",
+          |                "status": "OPEN",
+          |                "protectionReference": "IP140000016118C",
+          |                "relevantAmount": 1250500,
+          |                "preADayPensionInPaymentAmount": 500000,
+          |                "postADayBenefitCrystallisationEventAmount": 500000,
+          |                "uncrystallisedRightsAmount": 250000,
+          |                "nonUKRightsAmount": 600,
+          |                "pensionDebitAmount": 100,
+          |                "protectedAmount": 1250500,
+          |                "pensionDebitStartDate": "2026-12-12",
+          |                "pensionDebitTotalAmount": 100
+          |            }
+          |        },
+          |        {
+          |            "protectionRecord": {
+          |                "identifier": 1,
+          |                "sequenceNumber": 2,
+          |                "type": "INDIVIDUAL PROTECTION 2014 LTA",
+          |                "certificateDate": "2025-09-08",
+          |                "certificateTime": "123840",
+          |                "status": "WITHDRAWN",
+          |                "protectionReference": "5678912A",
+          |                "relevantAmount": 1250000,
+          |                "preADayPensionInPaymentAmount": 500000,
+          |                "postADayBenefitCrystallisationEventAmount": 500000,
+          |                "uncrystallisedRightsAmount": 250000,
+          |                "nonUKRightsAmount": 600,
+          |                "pensionDebitAmount": 100,
+          |                "protectedAmount": 1250000,
+          |                "pensionDebitStartDate": "2026-12-12",
+          |                "pensionDebitTotalAmount": 100
+          |            },
+          |            "historicaldetailsList": [
+          |                {
+          |                    "identifier": 1,
+          |                    "sequenceNumber": 1,
+          |                    "type": "INDIVIDUAL PROTECTION 2014 LTA",
+          |                    "certificateDate": "2025-11-16",
+          |                    "certificateTime": "125818",
+          |                    "status": "OPEN",
+          |                    "protectionReference": "5678912A",
+          |                    "relevantAmount": 1250000,
+          |                    "preADayPensionInPaymentAmount": 500000,
+          |                    "postADayBenefitCrystallisationEventAmount": 500000,
+          |                    "uncrystallisedRightsAmount": 250000,
+          |                    "nonUKRightsAmount": 600,
+          |                    "pensionDebitAmount": 100,
+          |                    "protectedAmount": 1250000,
+          |                    "pensionDebitStartDate": "2026-12-12",
+          |                    "pensionDebitTotalAmount": 100
+          |                }
+          |            ]
+          |        }
+          |    ]
+          |}""".stripMargin)))
+      case "AA916000" =>
+        Future.successful(Ok(Json.parse(
+        """{
+          |    "pensionSchemeAdministratorCheckReference": "PSA27740793Z",
+          |    "protectionRecordsList": [
+          |        {
+          |            "protectionRecord": {
+          |                "identifier": 2,
+          |                "sequenceNumber": 1,
+          |                "type": "INTERNATIONAL ENHANCEMENT (S221)",
+          |                "certificateDate": "2025-11-16",
+          |                "certificateTime": "144911",
+          |                "status": "OPEN",
+          |                "protectionReference": "6789123A",
+          |                "enhancementFactor": 0.54
+          |            }
+          |        }
+          |    ]
+          |}""".stripMargin)))
+      case "AA919000" =>
+        Future.successful(Ok(Json.parse(
+          """{
+            |    "pensionSchemeAdministratorCheckReference": "PSA27743793Z",
+            |    "protectionRecordsList": [
+            |        {
+            |            "protectionRecord": {
+            |                "identifier": 1,
+            |                "sequenceNumber": 1,
+            |                "type": "INTERNATIONAL ENHANCEMENT (S224)",
+            |                "certificateDate": "2025-11-16",
+            |                "certificateTime": "144911",
+            |                "status": "OPEN",
+            |                "protectionReference": "IE241234567890A",
+            |                "enhancementFactor": 0.62
+            |            }
+            |        }
+            |    ]
+            |}""".stripMargin
+        )))
+      case "AA918000" =>
+        Future.successful(Ok(Json.parse(
+          """{
+            |    "pensionSchemeAdministratorCheckReference": "PSA27742793Z",
+            |    "protectionRecordsList": [
+            |        {
+            |            "protectionRecord": {
+            |                "identifier": 1,
+            |                "sequenceNumber": 1,
+            |                "type": "PENSION CREDIT RIGHTS",
+            |                "certificateDate": "2025-11-16",
+            |                "certificateTime": "144911",
+            |                "status": "OPEN",
+            |                "protectionReference": "9876543B",
+            |                "enhancementFactor": 0.09
+            |            }
+            |        }
+            |    ]
+            |}""".stripMargin
+        )))
+      case "AA915000" =>
+        Future.successful(Ok(Json.parse(
+          """{
+            |    "pensionSchemeAdministratorCheckReference": "PSA27739793Z",
+            |    "protectionRecordsList": [
+            |        {
+            |            "protectionRecord": {
+            |                "identifier": 3,
+            |                "sequenceNumber": 1,
+            |                "type": "FIXED PROTECTION LTA",
+            |                "certificateDate": "2025-11-16",
+            |                "certificateTime": "125817",
+            |                "status": "OPEN",
+            |                "protectionReference": "4561234A"
+            |            }
+            |        },
+            |        {
+            |            "protectionRecord": {
+            |                "identifier": 2,
+            |                "sequenceNumber": 1,
+            |                "type": "ENHANCED PROTECTION LTA",
+            |                "certificateDate": "2025-11-16",
+            |                "certificateTime": "125819",
+            |                "status": "WITHDRAWN",
+            |                "protectionReference": "9542145A",
+            |                "lumpSumPercentage": 54
+            |            }
+            |        },
+            |        {
+            |            "protectionRecord": {
+            |                "identifier": 1,
+            |                "sequenceNumber": 1,
+            |                "type": "INDIVIDUAL PROTECTION 2014 LTA",
+            |                "certificateDate": "2025-11-16",
+            |                "certificateTime": "125819",
+            |                "status": "DORMANT",
+            |                "protectionReference": "6541278A",
+            |                "relevantAmount": 999999999,
+            |                "preADayPensionInPaymentAmount": 0,
+            |                "postADayBenefitCrystallisationEventAmount": 0,
+            |                "uncrystallisedRightsAmount": 999999999,
+            |                "nonUKRightsAmount": 0,
+            |                "protectedAmount": 1500000
+            |            }
+            |        }
+            |    ]
+            |}|""".stripMargin
+        )))
+      case "AA904000" =>
+        Future.successful(Ok(Json.parse(
+          """{
+            |    "pensionSchemeAdministratorCheckReference": "PSA27728793Z",
+            |    "protectionRecordsList": [
+            |        {
+            |            "protectionRecord": {
+            |                "identifier": 1,
+            |                "sequenceNumber": 1,
+            |                "type": "ENHANCED PROTECTION LTA",
+            |                "certificateDate": "2025-11-16",
+            |                "certificateTime": "125819",
+            |                "status": "OPEN",
+            |                "protectionReference": "EPRO8756412987A",
+            |                "lumpSumPercentage": 12
+            |            }
+            |        }
+            |    ]
+            |}""".stripMargin
+        )))
+      case _ =>          protectionService.retrieveHIPProtections(ninoWithoutSuffix).map {
+          case Some(protections) =>
+            Ok(Json.toJson(protections))
+          case None =>
+            logger.info("No protections set for given Nino, returning empty protections list")
+            Ok(Json.toJson(HIPProtectionsModel(Protections(nino, Some("stubPSACheckRef"), List.empty))))
+        }
+
     }
   }
 
