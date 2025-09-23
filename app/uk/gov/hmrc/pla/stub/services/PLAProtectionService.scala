@@ -31,11 +31,11 @@ class PLAProtectionService @Inject() (
     implicit val ec: ExecutionContext
 ) {
 
-  def saveProtections(protections: Protections): Future[Unit] = {
-    def save(deleted: Unit, data: Protections): Future[Unit] = protectionsStore.insertProtection(data)
-
-    protectionsStore.removeByNino(protections.nino).flatMap(remove => save(remove, protections))
-  }
+  private def saveProtections(protections: Protections): Future[Unit] =
+    for {
+      _ <- protectionsStore.removeByNino(protections.nino)
+      _ <- protectionsStore.insertProtection(protections)
+    } yield ()
 
   def updateDormantProtectionStatusAsOpen(nino: String): Future[Unit] =
     retrieveProtections(nino).map { optProtections =>

@@ -23,11 +23,11 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.Status.OK
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Results.Ok
 import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
-import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
+import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.domain.Generator
 import uk.gov.hmrc.pla.stub.model.Protections
@@ -195,6 +195,49 @@ class HIPControllerSpec
         val resultBody = contentAsJson(result).asInstanceOf[JsObject]
         resultBody.shouldBe(validHipAmendProtectionResponse)
       }
+
+      "return 400 with invalid request body" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "List(JsonValidationError(List(Received unknown AmendProtectionRequestStatus$: CLOSED)"
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(invalidAmendProtectionRequestInput)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+      "return 404 with no matching protection in db" in {
+        val nino              = randomNino
+        val protectionId      = 12960000000123L
+        val sequence          = 1
+        val error             = "protection to amend not found"
+        val ninoWithoutSuffix = nino.dropRight(1)
+
+        when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(ninoWithoutSuffix), eqTo(protectionId)))
+          .thenReturn(Future.successful(None))
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(validAmendProtectionRequestInput)
+          )
+
+        status(result) shouldBe NOT_FOUND
+        contentAsString(result) should include(error)
+      }
+
     }
   }
 

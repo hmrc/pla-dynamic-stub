@@ -23,7 +23,7 @@ import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{
   FixedProtection2014,
   FixedProtection2016
 }
-import uk.gov.hmrc.pla.stub.model.hip.{HipNotification, HipProtection, ProtectionStatus}
+import uk.gov.hmrc.pla.stub.model.hip.{HipNotification, HipProtection, ProtectionStatus, ProtectionType}
 
 sealed trait HipAmendmentRules {
 
@@ -48,18 +48,19 @@ object HipAmendmentRules {
       val withdraw       = relevantAmount < 1_250_001
       val defaultOutcome = if (withdraw) HipNotification6 else HipNotification1
 
-      val otherOpenProtection = otherExistingProtections.find {
-        _.status == ProtectionStatus.Open
-      }
+      val otherOpenProtection = otherExistingProtections.find(_.status == ProtectionStatus.Open)
+      val dormantFP2016Protection = otherExistingProtections.exists(p =>
+        p.`type` == ProtectionType.FixedProtection2016 && p.status == ProtectionStatus.Dormant
+      )
       otherOpenProtection
         .map { openProtection =>
-          (withdraw, openProtection.`type`) match {
-            case (false, EnhancedProtection)  => HipNotification2
-            case (false, FixedProtection)     => HipNotification3
-            case (false, FixedProtection2014) => HipNotification4
-            case (false, FixedProtection2016) => HipNotification5
-            case (true, FixedProtection2016)  => HipNotification7
-            case _                            => defaultOutcome
+          (withdraw, openProtection.`type`, dormantFP2016Protection) match {
+            case (false, EnhancedProtection, false)  => HipNotification2
+            case (false, FixedProtection, false)     => HipNotification3
+            case (false, FixedProtection2014, false) => HipNotification4
+            case (false, _, true)                    => HipNotification5
+            case (true, _, true)                     => HipNotification7
+            case _                                   => defaultOutcome
           }
         }
         .getOrElse(defaultOutcome)
