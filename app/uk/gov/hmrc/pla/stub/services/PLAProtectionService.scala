@@ -31,7 +31,7 @@ class PLAProtectionService @Inject() (
     implicit val ec: ExecutionContext
 ) {
 
-  private def saveProtections(protections: Protections): Future[Unit] =
+  def saveProtections(protections: Protections): Future[Unit] =
     for {
       _ <- protectionsStore.removeByNino(protections.nino)
       _ <- protectionsStore.insertProtection(protections)

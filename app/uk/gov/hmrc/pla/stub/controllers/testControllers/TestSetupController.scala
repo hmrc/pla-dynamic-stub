@@ -17,7 +17,7 @@
 package uk.gov.hmrc.pla.stub.controllers.testControllers
 
 import uk.gov.hmrc.pla.stub.repository.MongoExceptionTriggerRepository
-import uk.gov.hmrc.pla.stub.model.{Error, ExceptionTrigger, Protection}
+import uk.gov.hmrc.pla.stub.model.{Error, ExceptionTrigger, Protections}
 import play.api.mvc._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 import javax.inject.Inject
@@ -43,13 +43,13 @@ class TestSetupController @Inject() (
     * @return
     */
   def insertProtection(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    val protectionJs = request.body.validate[Protection]
+    val protectionJs = request.body.validate[Protections]
     protectionJs.fold(
       errors =>
         Future.successful(BadRequest(Json.toJson(Error(message = "body failed validation with errors: " + errors)))),
-      protection =>
+      protections =>
         protectionService
-          .insertOrUpdateProtection(protection)
+          .saveProtections(protections)
           .map(_ => Ok)(ec)
           .recover { case exception => Results.InternalServerError(exception.toString) }
     )
