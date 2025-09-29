@@ -534,7 +534,7 @@ class PLAStubController @Inject() (
           version = current.version + 1,
           status = Protection.extractedStatus(Protection.Status.Withdrawn),
           withdrawnDate = amendmentRequest.protection.withdrawnDate,
-          notificationID = Some(notificationId),
+          notificationID = Some(notificationId)
         )
 
       case _ =>
