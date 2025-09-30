@@ -12,7 +12,7 @@
 DELETE  /test-only/individuals/:nino/protections        @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtections(nino:String)
 DELETE  /test-only/individuals/:nino/protections/:pid   @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtection(nino:String,pid:Long)
 
-# Added to allow the performance tests to call this endpoint in the staging environment
+# nocsrf added to allow the performance tests to call this endpoint in the staging environment
 
 + nocsrf
 POST    /test-only/protections/insert                   @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.insertProtection
