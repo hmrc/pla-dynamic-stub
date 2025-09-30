@@ -8,8 +8,6 @@
 # !!!WARNING!!! Every route defined in this file MUST be prefixed with "/test-only/". This is because NGINX is blocking every uri containing the string "test-only" in production.
 # Failing to follow this rule may result in test routes deployed in production.
 
-# Add all the application routes to the prod.routes file
-
 # stub-only housekeeping ops
 DELETE  /test-only/individuals/:nino/protections        @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtections(nino:String)
 DELETE  /test-only/individuals/:nino/protections/:pid   @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtection(nino:String,pid:Long)
@@ -19,6 +17,8 @@ DELETE  /test-only/protections/drop                     @uk.gov.hmrc.pla.stub.co
 
 POST    /test-only/exception-triggers/insert            @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.insertExceptionTrigger
 DELETE  /test-only/exception-triggers/removeAll         @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeExceptionTriggers
+
+# Add all the application routes to the prod.routes file
 
 ->         /                          prod.Routes
 
