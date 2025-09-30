@@ -1,0 +1,9 @@
+# stub-only housekeeping ops
+DELETE  /individuals/:nino/protections        @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtections(nino:String)
+DELETE  /individuals/:nino/protections/:pid   @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtection(nino:String,pid:Long)
+POST    /protections/insert                   @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.insertProtection
+DELETE  /protections/removeAll                @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeAllProtections
+DELETE  /protections/drop                     @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.dropProtectionsCollection
+
+POST    /exception-triggers/insert            @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.insertExceptionTrigger
+DELETE  /exception-triggers/removeAll         @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeExceptionTriggers
