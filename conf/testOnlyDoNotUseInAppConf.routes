@@ -9,7 +9,6 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
-->         /                          prod.Routes
 
 # stub-only housekeeping ops
 DELETE  /test-only/individuals/:nino/protections        @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtections(nino:String)
@@ -20,3 +19,6 @@ DELETE  /test-only/protections/drop                     @uk.gov.hmrc.pla.stub.co
 
 POST    /test-only/exception-triggers/insert            @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.insertExceptionTrigger
 DELETE  /test-only/exception-triggers/removeAll         @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeExceptionTriggers
+
+->         /                          prod.Routes
+
