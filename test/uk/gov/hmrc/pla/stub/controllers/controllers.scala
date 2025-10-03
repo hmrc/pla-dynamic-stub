@@ -18,9 +18,7 @@ package uk.gov.hmrc.pla.stub
 
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType
-import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType.{
-  IndividualProtection2014,
-}
+import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType.IndividualProtection2014
 
 package object controllers {
 
