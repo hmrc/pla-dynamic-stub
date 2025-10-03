@@ -38,36 +38,36 @@ object AmendProtectionLifetimeAllowanceType extends Enumerable.Implicits {
         ProtectionType.IndividualProtection2016
       )
 
-  case object IndividualProtection2014Lta
+  case object IndividualProtection2014LTA
       extends AmendProtectionLifetimeAllowanceType(
         "INDIVIDUAL PROTECTION 2014 LTA",
-        ProtectionType.IndividualProtection2014Lta
+        ProtectionType.IndividualProtection2014LTA
       )
 
-  case object IndividualProtection2016Lta
+  case object IndividualProtection2016LTA
       extends AmendProtectionLifetimeAllowanceType(
         "INDIVIDUAL PROTECTION 2016 LTA",
-        ProtectionType.IndividualProtection2016Lta
+        ProtectionType.IndividualProtection2016LTA
       )
 
-  private val allValues: Seq[AmendProtectionLifetimeAllowanceType] = Seq(
+  val values: Seq[AmendProtectionLifetimeAllowanceType] = Seq(
     IndividualProtection2014,
     IndividualProtection2016,
-    IndividualProtection2014Lta,
-    IndividualProtection2016Lta
+    IndividualProtection2014LTA,
+    IndividualProtection2016LTA
   )
 
   implicit val toEnumerable: Enumerable[AmendProtectionLifetimeAllowanceType] =
-    Enumerable(allValues.map(v => v.toString -> v): _*)
+    Enumerable(values.map(v => v.toString -> v): _*)
 
   def from(protectionType: ProtectionType): AmendProtectionLifetimeAllowanceType = protectionType match {
     case ProtectionType.IndividualProtection2014    => AmendProtectionLifetimeAllowanceType.IndividualProtection2014
     case ProtectionType.IndividualProtection2016    => AmendProtectionLifetimeAllowanceType.IndividualProtection2016
-    case ProtectionType.IndividualProtection2014Lta => AmendProtectionLifetimeAllowanceType.IndividualProtection2014Lta
-    case ProtectionType.IndividualProtection2016Lta => AmendProtectionLifetimeAllowanceType.IndividualProtection2016Lta
+    case ProtectionType.IndividualProtection2014LTA => AmendProtectionLifetimeAllowanceType.IndividualProtection2014LTA
+    case ProtectionType.IndividualProtection2016LTA => AmendProtectionLifetimeAllowanceType.IndividualProtection2016LTA
     case _ =>
       throw new IllegalArgumentException(
-        s"Cannot convert ProtectionType: ${protectionType.value} into AmendProtectionLifetimeAllowanceType. Possible protection types are: ${allValues.map(_.value).mkString("[", ", ", "]")}"
+        s"Cannot convert ProtectionType: ${protectionType.value} into AmendProtectionLifetimeAllowanceType. Possible protection types are: ${values.map(_.value).mkString("[", ", ", "]")}"
       )
   }
 

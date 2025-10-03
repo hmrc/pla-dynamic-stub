@@ -17,6 +17,10 @@
 package uk.gov.hmrc.pla.stub
 
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType
+import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType.{
+  IndividualProtection2014,
+}
 
 package object controllers {
 
@@ -297,49 +301,58 @@ package object controllers {
     )
 
   val validAmendProtectionRequestInput: JsValue =
-    Json.parse("""{
-                 |  "lifetimeAllowanceProtectionRecord": {
-                 |    "type": "INDIVIDUAL PROTECTION 2014",
-                 |    "certificateDate": "2025-08-15",
-                 |    "certificateTime": "123456",
-                 |    "status": "OPEN",
-                 |    "protectionReference": "IP123456789012B",
-                 |    "relevantAmount": 105000,
-                 |    "preADayPensionInPaymentAmount": 1500,
-                 |    "postADayBenefitCrystallisationEventAmount": 2500,
-                 |    "uncrystallisedRightsAmount": 75500,
-                 |    "nonUKRightsAmount": 0,
-                 |    "pensionDebitAmount": 25000,
-                 |    "pensionDebitEnteredAmount": 25000,
-                 |    "notificationIdentifier": 3,
-                 |    "protectedAmount": 120000,
-                 |    "pensionDebitStartDate": "2026-07-09",
-                 |    "pensionDebitTotalAmount": 40000
-                 |  }
-                 |}
+    validAmendProtectionRequestInputForProtectionType(IndividualProtection2014)
+
+  def validAmendProtectionRequestInputForProtectionType(protectionType: AmendProtectionLifetimeAllowanceType): JsValue =
+    Json.parse(s"""{
+                  |  "lifetimeAllowanceProtectionRecord": {
+                  |    "type": "$protectionType",
+                  |    "certificateDate": "2025-08-15",
+                  |    "certificateTime": "123456",
+                  |    "status": "OPEN",
+                  |    "protectionReference": "IP123456789012B",
+                  |    "relevantAmount": 105000,
+                  |    "preADayPensionInPaymentAmount": 1500,
+                  |    "postADayBenefitCrystallisationEventAmount": 2500,
+                  |    "uncrystallisedRightsAmount": 75500,
+                  |    "nonUKRightsAmount": 0,
+                  |    "pensionDebitAmount": 25000,
+                  |    "pensionDebitEnteredAmount": 25000,
+                  |    "notificationIdentifier": 3,
+                  |    "protectedAmount": 120000,
+                  |    "pensionDebitStartDate": "2026-07-09",
+                  |    "pensionDebitTotalAmount": 40000
+                  |  }
+                  |}
     """.stripMargin)
 
   val validHipAmendProtectionResponse: JsValue =
+    validHipAmendProtectionResponseForProtectionType(IndividualProtection2014, 6)
+
+  def validHipAmendProtectionResponseForProtectionType(
+      protectionType: AmendProtectionLifetimeAllowanceType,
+      notificationIdentifier: Int
+  ): JsValue =
     Json.parse(
-      """{
-        |  "updatedLifetimeAllowanceProtectionRecord": {
-        |     "identifier": 12960000000123,
-        |     "sequenceNumber": 2,
-        |     "type": "INDIVIDUAL PROTECTION 2014",
-        |     "certificateDate": "2025-08-15",
-        |     "certificateTime": "123456",
-        |     "status": "WITHDRAWN",
-        |     "protectionReference": "IP123456789012B",
-        |     "relevantAmount": 80000,
-        |     "preADayPensionInPaymentAmount": 1500,
-        |     "postADayBenefitCrystallisationEventAmount": 2500,
-        |     "uncrystallisedRightsAmount": 75500,
-        |     "nonUKRightsAmount": 0,
-        |     "notificationIdentifier": 6,
-        |     "protectedAmount": 80000,
-        |     "pensionDebitTotalAmount": 65000
-        |  }
-        |}
+      s"""{
+         |  "updatedLifetimeAllowanceProtectionRecord": {
+         |     "identifier": 12960000000123,
+         |     "sequenceNumber": 2,
+         |     "type": "$protectionType",
+         |     "certificateDate": "2025-08-15",
+         |     "certificateTime": "123456",
+         |     "status": "WITHDRAWN",
+         |     "protectionReference": "IP123456789012B",
+         |     "relevantAmount": 80000,
+         |     "preADayPensionInPaymentAmount": 1500,
+         |     "postADayBenefitCrystallisationEventAmount": 2500,
+         |     "uncrystallisedRightsAmount": 75500,
+         |     "nonUKRightsAmount": 0,
+         |     "notificationIdentifier": $notificationIdentifier,
+         |     "protectedAmount": 80000,
+         |     "pensionDebitTotalAmount": 65000
+         |  }
+         |}
     """.stripMargin
     )
 
