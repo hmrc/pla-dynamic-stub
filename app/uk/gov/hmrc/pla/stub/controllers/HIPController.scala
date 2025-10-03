@@ -101,32 +101,26 @@ class HIPController @Inject() (
               val error = Error("specified protection sequence does not match that of the protection to be amended")
               Future(BadRequest(Json.toJson(error)))
             case Some(amendmentTarget) =>
-              val existingHipProtections = protectionService.findAllHipProtectionsByNino(ninoWithoutSuffix)
-              val rules: Option[HipAmendmentRules] = lifetimeAllowanceProtectionRecord.`type` match {
-                case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 =>
-                  Some(IndividualProtection2014AmendmentRules)
-                case AmendProtectionLifetimeAllowanceType.IndividualProtection2016 =>
-                  Some(IndividualProtection2016AmendmentRules)
-                case _ => None
+              val rules: HipAmendmentRules = lifetimeAllowanceProtectionRecord.`type` match {
+                case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 |
+                    AmendProtectionLifetimeAllowanceType.IndividualProtection2014LTA =>
+                  IndividualProtection2014AmendmentRules
+                case AmendProtectionLifetimeAllowanceType.IndividualProtection2016 |
+                    AmendProtectionLifetimeAllowanceType.IndividualProtection2016LTA =>
+                  IndividualProtection2016AmendmentRules
               }
-              rules
-                .map { rules: HipAmendmentRules =>
-                  existingHipProtections.flatMap { hipProtections =>
-                    val hipNotification =
-                      rules.calculateNotificationId(calculatedRelevantAmountMinusPSO, hipProtections)
-                    processAmendment(
-                      ninoWithoutSuffix,
-                      amendmentTarget,
-                      lifetimeAllowanceProtectionRecord,
-                      hipNotification
-                    )
-                  }
-                }
-                .getOrElse {
-                  val error = Error(
-                    "invalid protection type specified, expected IndividualProtection2014 or IndividualProtection2016"
+
+              protectionService
+                .findAllHipProtectionsByNino(ninoWithoutSuffix)
+                .flatMap { hipProtections =>
+                  val hipNotification =
+                    rules.calculateNotificationId(calculatedRelevantAmountMinusPSO, hipProtections)
+                  processAmendment(
+                    ninoWithoutSuffix,
+                    amendmentTarget,
+                    lifetimeAllowanceProtectionRecord,
+                    hipNotification
                   )
-                  Future.successful(BadRequest(Json.toJson(error)))
                 }
           }
         }
@@ -186,9 +180,12 @@ class HIPController @Inject() (
       val relevantAmountMinusPSO = lifetimeAllowanceProtectionRecord.relevantAmount - amendmentPsoAmount
 
       val maxProtectedAmount = lifetimeAllowanceProtectionRecord.`type` match {
-        case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 => 1_500_000
-        case AmendProtectionLifetimeAllowanceType.IndividualProtection2016 => 1_250_000
-        case _                                                             => 0
+        case AmendProtectionLifetimeAllowanceType.IndividualProtection2014 |
+            AmendProtectionLifetimeAllowanceType.IndividualProtection2014LTA =>
+          1_500_000
+        case AmendProtectionLifetimeAllowanceType.IndividualProtection2016 |
+            AmendProtectionLifetimeAllowanceType.IndividualProtection2016LTA =>
+          1_250_000
       }
 
       HipProtection(

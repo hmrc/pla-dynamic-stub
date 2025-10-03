@@ -144,56 +144,69 @@ class HIPControllerSpec
 
     "amendProtections is called" must {
 
-      "return 200 with correct response body" in {
-        val nino                = randomNino
-        val protectionId        = 12960000000123L
-        val sequence            = 1
-        val protectionReference = "IP123456789012B"
-
-        val protection = HipProtection(
-          nino = nino,
-          id = protectionId,
-          sequence = sequence,
-          status = ProtectionStatus.Open,
-          `type` = ProtectionType.IndividualProtection2014,
-          relevantAmount = 105000,
-          preADayPensionInPaymentAmount = 1500,
-          postADayBenefitCrystallisationEventAmount = 2500,
-          uncrystallisedRightsAmount = 75_500,
-          nonUKRightsAmount = 0,
-          certificateDate = Some("2025-08-15"),
-          certificateTime = Some("123456"),
-          protectionReference = Some(protectionReference),
-          pensionDebitAmount = Some(25_000),
-          pensionDebitEnteredAmount = Some(25_000),
-          protectedAmount = Some(120_000),
-          pensionDebitStartDate = Some("2026-07-09"),
-          pensionDebitTotalAmount = Some(40_000)
+      "return 200 with correct response body" when {
+        val values = Seq(
+          AmendProtectionLifetimeAllowanceType.IndividualProtection2014    -> 6,
+          AmendProtectionLifetimeAllowanceType.IndividualProtection2014LTA -> 6,
+          AmendProtectionLifetimeAllowanceType.IndividualProtection2016    -> 13,
+          AmendProtectionLifetimeAllowanceType.IndividualProtection2016LTA -> 13
         )
 
-        val ninoWithoutSuffix = nino.dropRight(1)
+        values.foreach { case (protectionType, notificationIdentifier) =>
+          s"the protection type is $protectionType" in {
+            val nino                = randomNino
+            val protectionId        = 12960000000123L
+            val sequence            = 1
+            val protectionReference = "IP123456789012B"
 
-        when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(ninoWithoutSuffix), eqTo(protectionId)))
-          .thenReturn(Future.successful(Some(protection)))
+            val protection = HipProtection(
+              nino = nino,
+              id = protectionId,
+              sequence = sequence,
+              status = ProtectionStatus.Open,
+              `type` = protectionType.toProtectionType,
+              relevantAmount = 105000,
+              preADayPensionInPaymentAmount = 1500,
+              postADayBenefitCrystallisationEventAmount = 2500,
+              uncrystallisedRightsAmount = 75_500,
+              nonUKRightsAmount = 0,
+              certificateDate = Some("2025-08-15"),
+              certificateTime = Some("123456"),
+              protectionReference = Some(protectionReference),
+              pensionDebitAmount = Some(25_000),
+              pensionDebitEnteredAmount = Some(25_000),
+              protectedAmount = Some(120_000),
+              pensionDebitStartDate = Some("2026-07-09"),
+              pensionDebitTotalAmount = Some(40_000)
+            )
 
-        when(mockPLAProtectionService.findAllHipProtectionsByNino(eqTo(ninoWithoutSuffix)))
-          .thenReturn(Future.successful(List(protection)))
+            val ninoWithoutSuffix = nino.dropRight(1)
 
-        when(mockPLAProtectionService.insertOrUpdateHipProtection(any())).thenReturn(Future.successful(Ok))
+            when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(ninoWithoutSuffix), eqTo(protectionId)))
+              .thenReturn(Future.successful(Some(protection)))
 
-        val result = controller
-          .amendProtection(nino, protectionId, 1)
-          .apply(
-            FakeRequest(
-              "POST",
-              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
-            ).withBody(validAmendProtectionRequestInput)
-          )
+            when(mockPLAProtectionService.findAllHipProtectionsByNino(eqTo(ninoWithoutSuffix)))
+              .thenReturn(Future.successful(List(protection)))
 
-        status(result) shouldBe OK
+            when(mockPLAProtectionService.insertOrUpdateHipProtection(any())).thenReturn(Future.successful(Ok))
 
-        val resultBody = contentAsJson(result).asInstanceOf[JsObject]
-        resultBody.shouldBe(validHipAmendProtectionResponse)
+            val result = controller
+              .amendProtection(nino, protectionId, 1)
+              .apply(
+                FakeRequest(
+                  "POST",
+                  s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+                ).withBody(validAmendProtectionRequestInputForProtectionType(protectionType))
+              )
+
+            status(result) shouldBe OK
+
+            val resultBody = contentAsJson(result).asInstanceOf[JsObject]
+            resultBody.shouldBe(
+              validHipAmendProtectionResponseForProtectionType(protectionType, notificationIdentifier)
+            )
+          }
+        }
       }
 
       "return 400 with invalid request body" in {
