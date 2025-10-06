@@ -101,26 +101,11 @@ object ProtectionRecord {
       None
     )
 
-  private def toRecordType(protection: Protection): ProtectionType = protection.`type` match {
-    case 1 => ProtectionType.FixedProtection2016
-    case 2 => ProtectionType.IndividualProtection2014
-    case 3 => ProtectionType.IndividualProtection2016
-    case 4 => ProtectionType.PrimaryProtection
-    case 5 => ProtectionType.EnhancedProtection
-    case 6 => ProtectionType.FixedProtection
-    case 7 => ProtectionType.FixedProtection2014
-    case _ => ProtectionType.FixedProtection2014 // TODO: Change this match to accommodate other protection types
-  }
+  private def toRecordType(protection: Protection): ProtectionType =
+    ProtectionType.fromPlaId(protection.`type`).getOrElse(ProtectionType.IndividualProtection2014)
 
-  private def toRecordStatus(protection: Protection): ProtectionStatus = protection.status match {
-    case 1 => ProtectionStatus.Open
-    case 2 => ProtectionStatus.Dormant
-    case 3 => ProtectionStatus.Withdrawn
-    case 4 => ProtectionStatus.Expired
-    case 5 => ProtectionStatus.Unsuccessful
-    case 6 => ProtectionStatus.Rejected
-    case _ => ProtectionStatus.Rejected // TODO: Change this match to accommodate other protection statuses
-  }
+  private def toRecordStatus(protection: Protection): ProtectionStatus =
+    ProtectionStatus.fromPlaId(protection.status).getOrElse(ProtectionStatus.Rejected)
 
   implicit val format: Format[ProtectionRecord] = Json.format[ProtectionRecord]
 }
