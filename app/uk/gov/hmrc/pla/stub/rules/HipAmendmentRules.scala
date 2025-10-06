@@ -19,9 +19,13 @@ package uk.gov.hmrc.pla.stub.rules
 import uk.gov.hmrc.pla.stub.model.hip.HipNotification._
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{
   EnhancedProtection,
+  EnhancedProtectionLTA,
   FixedProtection,
   FixedProtection2014,
-  FixedProtection2016
+  FixedProtection2014LTA,
+  FixedProtection2016,
+  FixedProtection2016LTA,
+  FixedProtectionLTA
 }
 import uk.gov.hmrc.pla.stub.model.hip.{HipNotification, HipProtection, ProtectionStatus, ProtectionType}
 
@@ -48,19 +52,18 @@ object HipAmendmentRules {
       val withdraw       = relevantAmount < 1_250_001
       val defaultOutcome = if (withdraw) HipNotification6 else HipNotification1
 
-      val otherOpenProtection = otherExistingProtections.find(_.status == ProtectionStatus.Open)
-      val dormantFP2016Protection = otherExistingProtections.exists(p =>
-        p.`type` == ProtectionType.FixedProtection2016 && p.status == ProtectionStatus.Dormant
-      )
+      val otherOpenProtection        = otherExistingProtections.find(_.status == ProtectionStatus.Open)
+      val dormantFixedProtection2016 = otherExistingProtections.exists(isDormantFixedProtection2016)
+
       otherOpenProtection
         .map { openProtection =>
-          (withdraw, openProtection.`type`, dormantFP2016Protection) match {
-            case (false, EnhancedProtection, false)  => HipNotification2
-            case (false, FixedProtection, false)     => HipNotification3
-            case (false, FixedProtection2014, false) => HipNotification4
-            case (false, _, true)                    => HipNotification5
-            case (true, _, true)                     => HipNotification7
-            case _                                   => defaultOutcome
+          (withdraw, openProtection.`type`, dormantFixedProtection2016) match {
+            case (false, EnhancedProtection | EnhancedProtectionLTA, false)   => HipNotification2
+            case (false, FixedProtection | FixedProtectionLTA, false)         => HipNotification3
+            case (false, FixedProtection2014 | FixedProtection2014LTA, false) => HipNotification4
+            case (false, _, true)                                             => HipNotification5
+            case (true, _, true)                                              => HipNotification7
+            case _                                                            => defaultOutcome
           }
         }
         .getOrElse(defaultOutcome)
@@ -77,23 +80,32 @@ object HipAmendmentRules {
       val withdraw       = relevantAmount < 1_000_001
       val defaultOutcome = if (withdraw) HipNotification13 else HipNotification8
 
-      val otherOpenProtection = otherExistingProtections.find {
-        _.status == ProtectionStatus.Open
-      }
+      val otherOpenProtection        = otherExistingProtections.find(_.status == ProtectionStatus.Open)
+      val dormantFixedProtection2016 = otherExistingProtections.exists(isDormantFixedProtection2016)
       otherOpenProtection
         .map { openProtection =>
-          (withdraw, openProtection.`type`) match {
-            case (false, EnhancedProtection)  => HipNotification9
-            case (false, FixedProtection)     => HipNotification10
-            case (false, FixedProtection2014) => HipNotification11
-            case (false, FixedProtection2016) => HipNotification12
-            case (true, FixedProtection2016)  => HipNotification14
-            case _                            => defaultOutcome
+          (withdraw, openProtection.`type`, dormantFixedProtection2016) match {
+            case (false, EnhancedProtection | EnhancedProtectionLTA, false)   => HipNotification9
+            case (false, FixedProtection | FixedProtectionLTA, false)         => HipNotification10
+            case (false, FixedProtection2014 | FixedProtection2014LTA, false) => HipNotification11
+            case (false, FixedProtection2016 | FixedProtection2016LTA, false) => HipNotification12
+            case (true, _, true)                                              => HipNotification14
+            case _                                                            => defaultOutcome
           }
         }
         .getOrElse(defaultOutcome)
     }
 
   }
+
+  private def isFixedProtection2016(protectionType: ProtectionType): Boolean =
+    protectionType match {
+      case FixedProtection2016    => true
+      case FixedProtection2016LTA => true
+      case _                      => false
+    }
+
+  private def isDormantFixedProtection2016(protection: HipProtection): Boolean =
+    isFixedProtection2016(protection.`type`) && protection.status == ProtectionStatus.Dormant
 
 }
