@@ -60,18 +60,20 @@ class HipAmendmentRulesSpec extends AnyWordSpec with Matchers {
         }
       }
 
-      s"the dormant protection type is ${FixedProtection2016.value}" should {
-        "return HipNotification no. 7" in {
-          val dormantProtection = protection.copy(`type` = FixedProtection2016, status = Dormant)
+      Seq(FixedProtection2016, FixedProtection2016LTA).foreach { fixedProtection2016Type =>
+        s"the dormant protection type is ${fixedProtection2016Type.value}" should {
+          "return HipNotification no. 7" in {
+            val dormantProtection = protection.copy(`type` = fixedProtection2016Type, status = Dormant)
 
-          IndividualProtection2014AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(dormantProtection, protection)
-          ) shouldBe HipNotification7
+            IndividualProtection2014AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(dormantProtection, protection)
+            ) shouldBe HipNotification7
+          }
         }
       }
 
-      ProtectionType.values.diff(Seq(FixedProtection2016)).foreach { protectionType =>
+      ProtectionType.values.diff(Seq(FixedProtection2016, FixedProtection2016LTA)).foreach { protectionType =>
         s"the open protection type is ${protectionType.value}" should {
           "return HipNotification no. 6" in {
             val openProtection = protection.copy(`type` = protectionType)
@@ -98,52 +100,71 @@ class HipAmendmentRulesSpec extends AnyWordSpec with Matchers {
         }
       }
 
-      s"the open protection type is ${EnhancedProtection.value}" should {
-        "return HipNotification no. 2" in {
-          val openProtection = protection.copy(`type` = EnhancedProtection)
+      Seq(EnhancedProtection, EnhancedProtectionLTA).foreach { enhancedProtectionType =>
+        s"the open protection type is ${enhancedProtectionType.value}" should {
+          "return HipNotification no. 2" in {
+            val openProtection = protection.copy(`type` = enhancedProtectionType)
 
-          IndividualProtection2014AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(openProtection)
-          ) shouldBe HipNotification2
+            IndividualProtection2014AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(openProtection)
+            ) shouldBe HipNotification2
+          }
         }
       }
 
-      s"the open protection type is ${FixedProtection.value}" should {
-        "return HipNotification no. 3" in {
-          val openProtection = protection.copy(`type` = FixedProtection)
+      Seq(FixedProtection, FixedProtectionLTA).foreach { fixedProtectionType =>
+        s"the open protection type is ${fixedProtectionType.value}" should {
+          "return HipNotification no. 3" in {
+            val openProtection = protection.copy(`type` = fixedProtectionType)
 
-          IndividualProtection2014AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(openProtection)
-          ) shouldBe HipNotification3
+            IndividualProtection2014AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(openProtection)
+            ) shouldBe HipNotification3
+          }
         }
       }
 
-      s"the open protection type is ${FixedProtection2014.value}" should {
-        "return HipNotification no. 4" in {
-          val openProtection = protection.copy(`type` = FixedProtection2014)
+      Seq(FixedProtection2014, FixedProtection2014LTA).foreach { fixedProtection2014Type =>
+        s"the open protection type is ${fixedProtection2014Type.value}" should {
+          "return HipNotification no. 4" in {
+            val openProtection = protection.copy(`type` = fixedProtection2014Type)
 
-          IndividualProtection2014AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(openProtection)
-          ) shouldBe HipNotification4
+            IndividualProtection2014AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(openProtection)
+            ) shouldBe HipNotification4
+          }
         }
       }
 
-      s"the dormant protection type is ${FixedProtection2016.value}" should {
-        "return HipNotification no. 5" in {
-          val dormantProtection = protection.copy(`type` = FixedProtection2016, status = Dormant)
+      Seq(FixedProtection2016, FixedProtection2016LTA).foreach { fixedProtection2016Type =>
+        s"the dormant protection type is ${fixedProtection2016Type.value}" should {
+          "return HipNotification no. 5" in {
+            val dormantProtection = protection.copy(`type` = fixedProtection2016Type, status = Dormant)
 
-          IndividualProtection2014AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(dormantProtection, protection)
-          ) shouldBe HipNotification5
+            IndividualProtection2014AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(dormantProtection, protection)
+            ) shouldBe HipNotification5
+          }
         }
       }
 
       ProtectionType.values
-        .diff(Seq(EnhancedProtection, FixedProtection, FixedProtection2014, FixedProtection2016))
+        .diff(
+          Seq(
+            EnhancedProtection,
+            EnhancedProtectionLTA,
+            FixedProtection,
+            FixedProtectionLTA,
+            FixedProtection2014,
+            FixedProtection2014LTA,
+            FixedProtection2016,
+            FixedProtection2016LTA
+          )
+        )
         .foreach { protectionType =>
           s"the open protection type is ${protectionType.value}" should {
             "return HipNotification no. 1" in {
@@ -174,18 +195,21 @@ class HipAmendmentRulesSpec extends AnyWordSpec with Matchers {
         }
       }
 
-      s"the open protection type is ${FixedProtection2016.value}" should {
-        "return HipNotification no. 14" in {
-          val openProtection = protection.copy(`type` = FixedProtection2016)
+      Seq(FixedProtection2016, FixedProtection2016LTA).foreach { fixedProtection2016Type =>
+        s"the dormant protection type is ${fixedProtection2016Type.value}" should {
+          "return HipNotification no. 14" in {
+            val openProtection    = protection.copy(`type` = IndividualProtection2016)
+            val dormantProtection = protection.copy(`type` = fixedProtection2016Type, status = ProtectionStatus.Dormant)
 
-          IndividualProtection2016AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(openProtection)
-          ) shouldBe HipNotification14
+            IndividualProtection2016AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(openProtection, dormantProtection)
+            ) shouldBe HipNotification14
+          }
         }
       }
 
-      ProtectionType.values.diff(Seq(FixedProtection2016)).foreach { protectionType =>
+      ProtectionType.values.diff(Seq(FixedProtection2016, FixedProtection2016LTA)).foreach { protectionType =>
         s"the open protection type is ${protectionType.value}" should {
           "return HipNotification no. 13" in {
             val openProtection = protection.copy(`type` = protectionType)
@@ -212,52 +236,71 @@ class HipAmendmentRulesSpec extends AnyWordSpec with Matchers {
         }
       }
 
-      s"the open protection type is ${EnhancedProtection.value}" should {
-        "return HipNotification no. 9" in {
-          val openProtection = protection.copy(`type` = EnhancedProtection)
+      Seq(EnhancedProtection, EnhancedProtectionLTA).foreach { enhancedProtectionType =>
+        s"the open protection type is ${enhancedProtectionType.value}" should {
+          "return HipNotification no. 9" in {
+            val openProtection = protection.copy(`type` = enhancedProtectionType)
 
-          IndividualProtection2016AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(openProtection)
-          ) shouldBe HipNotification9
+            IndividualProtection2016AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(openProtection)
+            ) shouldBe HipNotification9
+          }
         }
       }
 
-      s"the open protection type is ${FixedProtection.value}" should {
-        "return HipNotification no. 10" in {
-          val openProtection = protection.copy(`type` = FixedProtection)
+      Seq(FixedProtection, FixedProtectionLTA).foreach { fixedProtectionType =>
+        s"the open protection type is ${fixedProtectionType.value}" should {
+          "return HipNotification no. 10" in {
+            val openProtection = protection.copy(`type` = fixedProtectionType)
 
-          IndividualProtection2016AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(openProtection)
-          ) shouldBe HipNotification10
+            IndividualProtection2016AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(openProtection)
+            ) shouldBe HipNotification10
+          }
         }
       }
 
-      s"the open protection type is ${FixedProtection2014.value}" should {
-        "return HipNotification no. 11" in {
-          val openProtection = protection.copy(`type` = FixedProtection2014)
+      Seq(FixedProtection2014, FixedProtection2014LTA).foreach { fixedProtection2014Type =>
+        s"the open protection type is ${fixedProtection2014Type.value}" should {
+          "return HipNotification no. 11" in {
+            val openProtection = protection.copy(`type` = fixedProtection2014Type)
 
-          IndividualProtection2016AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(openProtection)
-          ) shouldBe HipNotification11
+            IndividualProtection2016AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(openProtection)
+            ) shouldBe HipNotification11
+          }
         }
       }
 
-      s"the open protection type is ${FixedProtection2016.value}" should {
-        "return HipNotification no. 12" in {
-          val openProtection = protection.copy(`type` = FixedProtection2016)
+      Seq(FixedProtection2016, FixedProtection2016LTA).foreach { fixedProtection2016Type =>
+        s"the open protection type is ${fixedProtection2016Type.value}" should {
+          "return HipNotification no. 12" in {
+            val openProtection = protection.copy(`type` = fixedProtection2016Type)
 
-          IndividualProtection2016AmendmentRules.calculateNotificationId(
-            relevantAmount,
-            List(openProtection)
-          ) shouldBe HipNotification12
+            IndividualProtection2016AmendmentRules.calculateNotificationId(
+              relevantAmount,
+              List(openProtection)
+            ) shouldBe HipNotification12
+          }
         }
       }
 
       ProtectionType.values
-        .diff(Seq(EnhancedProtection, FixedProtection, FixedProtection2014, FixedProtection2016))
+        .diff(
+          Seq(
+            EnhancedProtection,
+            EnhancedProtectionLTA,
+            FixedProtection,
+            FixedProtectionLTA,
+            FixedProtection2014,
+            FixedProtection2014LTA,
+            FixedProtection2016,
+            FixedProtection2016LTA
+          )
+        )
         .foreach { protectionType =>
           s"the open protection type is ${protectionType.value}" should {
             "return HipNotification no. 8" in {
