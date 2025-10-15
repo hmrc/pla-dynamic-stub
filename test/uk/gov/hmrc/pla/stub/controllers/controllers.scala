@@ -309,7 +309,7 @@ package object controllers {
                   |    "certificateTime": "123456",
                   |    "status": "OPEN",
                   |    "protectionReference": "IP123456789012B",
-                  |    "relevantAmount": 105000,
+                  |    "relevantAmount": 39500,
                   |    "preADayPensionInPaymentAmount": 1500,
                   |    "postADayBenefitCrystallisationEventAmount": 2500,
                   |    "uncrystallisedRightsAmount": 75500,
@@ -341,14 +341,14 @@ package object controllers {
          |     "certificateTime": "123456",
          |     "status": "WITHDRAWN",
          |     "protectionReference": "IP123456789012B",
-         |     "relevantAmount": 80000,
+         |     "relevantAmount": 27000,
          |     "preADayPensionInPaymentAmount": 1500,
          |     "postADayBenefitCrystallisationEventAmount": 2500,
          |     "uncrystallisedRightsAmount": 75500,
          |     "nonUKRightsAmount": 0,
          |     "notificationIdentifier": $notificationIdentifier,
-         |     "protectedAmount": 80000,
-         |     "pensionDebitTotalAmount": 65000
+         |     "protectedAmount": 27000,
+         |     "pensionDebitTotalAmount": 52500
          |  }
          |}
     """.stripMargin

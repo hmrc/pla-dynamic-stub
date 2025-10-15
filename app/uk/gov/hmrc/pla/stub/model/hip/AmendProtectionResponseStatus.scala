@@ -18,21 +18,14 @@ package uk.gov.hmrc.pla.stub.model.hip
 
 import uk.gov.hmrc.pla.stub.utils.{Enumerable, EnumerableInstance}
 
-sealed abstract class AmendProtectionResponseStatus(value: String) extends EnumerableInstance(value)
+sealed abstract class AmendProtectionResponseStatus(value: String, val toProtectionStatus: ProtectionStatus)
+    extends EnumerableInstance(value)
 
 object AmendProtectionResponseStatus extends Enumerable.Implicits {
 
-  case object Open      extends AmendProtectionResponseStatus("OPEN")
-  case object Dormant   extends AmendProtectionResponseStatus("DORMANT")
-  case object Withdrawn extends AmendProtectionResponseStatus("WITHDRAWN")
-
-  def fromProtectionStatus(protectionStatus: ProtectionStatus): Option[AmendProtectionResponseStatus] =
-    protectionStatus match {
-      case ProtectionStatus.Open      => Some(Open)
-      case ProtectionStatus.Dormant   => Some(Dormant)
-      case ProtectionStatus.Withdrawn => Some(Withdrawn)
-      case _                          => None
-    }
+  case object Open      extends AmendProtectionResponseStatus("OPEN", ProtectionStatus.Open)
+  case object Dormant   extends AmendProtectionResponseStatus("DORMANT", ProtectionStatus.Dormant)
+  case object Withdrawn extends AmendProtectionResponseStatus("WITHDRAWN", ProtectionStatus.Withdrawn)
 
   private val allValues: Seq[AmendProtectionResponseStatus] =
     Seq(Open, Dormant, Withdrawn)
