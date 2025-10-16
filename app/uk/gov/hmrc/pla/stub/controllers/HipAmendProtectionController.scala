@@ -156,7 +156,7 @@ class HipAmendProtectionController @Inject() (
     )
   }
 
-  private[controllers] def getHipAmendmentRules(
+  private def getHipAmendmentRules(
       protectionType: AmendProtectionLifetimeAllowanceType
   ): HipAmendmentRules =
     protectionType match {
@@ -187,7 +187,7 @@ class HipAmendProtectionController @Inject() (
     }
   }
 
-  private[controllers] def openDormantFixedProtection2016(
+  private def openDormantFixedProtection2016(
       hipNotification: HipNotification,
       nino: String
   ): Future[Unit] =
@@ -196,7 +196,7 @@ class HipAmendProtectionController @Inject() (
     } else
       Future.unit
 
-  private[controllers] def calculateAdjustedEnteredAmount(
+  private def calculateAdjustedEnteredAmount(
       lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord
   ): Int =
     lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount
@@ -209,19 +209,24 @@ class HipAmendProtectionController @Inject() (
   private val startDateFormat                  = DateTimeFormatter.ISO_LOCAL_DATE
   private val startOfTaxYear2016               = LocalDate.of(2016, 4, 6)
   private val enteredAmountDeductionPerTaxYear = 0.05
+  private val maxElapsedFullTaxYears           = 20
 
   private[controllers] def calculateAdjustedEnteredAmount(enteredAmount: Int, startDateString: String): Int = {
     val startDate = LocalDate.parse(startDateString, startDateFormat)
 
-    val fullTaxYearsElapsedSinceTaxYear2016 = ChronoUnit.YEARS.between(startOfTaxYear2016, startDate)
+    val fullTaxYearsElapsedSinceTaxYear2016 =
+      ChronoUnit.YEARS.between(startOfTaxYear2016, startDate).max(0).min(maxElapsedFullTaxYears)
 
-    val adjustedEnteredAmount =
-      enteredAmount * (1 - (enteredAmountDeductionPerTaxYear * fullTaxYearsElapsedSinceTaxYear2016)).max(0)
+    val deductionPerFullTaxYear = enteredAmountDeductionPerTaxYear * enteredAmount
+
+    val totalDeduction = deductionPerFullTaxYear * fullTaxYearsElapsedSinceTaxYear2016
+
+    val adjustedEnteredAmount = enteredAmount - totalDeduction
 
     adjustedEnteredAmount.toInt
   }
 
-  private[controllers] def createAmendedHipProtection(
+  private def createAmendedHipProtection(
       nino: String,
       current: HipProtection,
       lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord,

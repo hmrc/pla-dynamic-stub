@@ -30,6 +30,8 @@ import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType._
+import uk.gov.hmrc.pla.stub.model.hip.HipNotification._
 import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 
@@ -65,7 +67,7 @@ class HipAmendProtectionControllerSpec
     super.beforeEach()
   }
 
-  "amendProtections is called" must {
+  "amendProtections" must {
 
     "return 200 with correct response body" when {
       val values = Seq(
@@ -152,6 +154,7 @@ class HipAmendProtectionControllerSpec
 
       contentAsString(result) should include(error)
     }
+
     "return 404 with no matching protection in db" in {
       val nino              = randomNino
       val protectionId      = 12960000000123L
@@ -175,6 +178,110 @@ class HipAmendProtectionControllerSpec
       contentAsString(result) should include(error)
     }
 
+  }
+
+  "calculateMaxProtectedAmount" should {
+
+    "return £1,500,000" when
+      Seq(
+        IndividualProtection2014,
+        IndividualProtection2014LTA
+      ).foreach { protectionType =>
+        s"provided with $protectionType" in {
+          controller.calculateMaxProtectedAmount(protectionType) shouldBe 1_500_000
+        }
+      }
+
+    "return £1,250,000" when
+      Seq(
+        IndividualProtection2016,
+        IndividualProtection2016LTA
+      ).foreach { protectionType =>
+        s"provided with $protectionType" in {
+          controller.calculateMaxProtectedAmount(protectionType) shouldBe 1_250_000
+        }
+      }
+
+  }
+
+  "opensDormantFixedProtection2016" should {
+
+    "return true" when
+      Seq(
+        HipNotification7,
+        HipNotification14
+      ).foreach { notification =>
+        s"provided with notification ID ${notification.id}" in {
+          controller.opensDormantFixedProtection2016(notification) shouldBe true
+        }
+      }
+
+    "return false" when
+      Seq(
+        HipNotification1,
+        HipNotification2,
+        HipNotification3,
+        HipNotification4,
+        HipNotification5,
+        HipNotification6,
+        HipNotification8,
+        HipNotification9,
+        HipNotification10,
+        HipNotification11,
+        HipNotification12,
+        HipNotification13
+      ).foreach { notification =>
+        s"provided with notification ID ${notification.id}" in {
+          controller.opensDormantFixedProtection2016(notification) shouldBe false
+        }
+      }
+
+  }
+
+  "calculateAdjustedEnteredAmount" should {
+    "return the correct entered amount" when
+      Seq(
+        (600, "2015-04-06") -> 600,
+        (600, "2015-10-16") -> 600,
+        (600, "2016-04-05") -> 600,
+        (600, "2016-04-06") -> 600,
+        (600, "2016-10-16") -> 600,
+        (600, "2017-04-05") -> 600,
+        (600, "2017-04-06") -> 570,
+        (600, "2017-10-16") -> 570,
+        (600, "2018-04-05") -> 570,
+        (600, "2018-04-06") -> 540,
+        (600, "2018-10-16") -> 540,
+        (600, "2019-04-05") -> 540,
+        (600, "2019-04-06") -> 510,
+        (600, "2019-10-16") -> 510,
+        (600, "2020-04-05") -> 510,
+        (600, "2020-04-06") -> 480,
+        (600, "2020-10-16") -> 480,
+        (600, "2021-04-05") -> 480,
+        (600, "2021-04-06") -> 450,
+        (600, "2021-10-16") -> 450,
+        (600, "2022-04-05") -> 450,
+        (600, "2022-04-06") -> 420,
+        (600, "2022-10-16") -> 420,
+        (600, "2023-04-05") -> 420,
+        (600, "2023-04-06") -> 390,
+        (600, "2023-10-16") -> 390,
+        (600, "2024-04-05") -> 390,
+        (600, "2024-04-06") -> 360,
+        (600, "2024-10-16") -> 360,
+        (600, "2025-04-05") -> 360,
+        (600, "2025-04-06") -> 330,
+        (600, "2025-10-16") -> 330,
+        (600, "2026-04-05") -> 330,
+        (600, "2026-04-06") -> 300,
+        (600, "2026-10-16") -> 300,
+        (600, "2027-04-05") -> 300
+      ).foreach { case ((enteredAmount, startDate), adjustedEnteredAmount) =>
+        s"provided with £$enteredAmount starting $startDate" in {
+          controller.calculateAdjustedEnteredAmount(enteredAmount, startDate) shouldBe adjustedEnteredAmount
+        }
+      }
   }
 
 }
