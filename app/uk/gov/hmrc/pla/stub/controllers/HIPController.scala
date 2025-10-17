@@ -48,71 +48,7 @@ class HIPController @Inject() (
     ninoWithoutSuffix match {
       case "AA903000" =>
         Future.successful(Ok(Json.parse(
-        """{
-          |    "pensionSchemeAdministratorCheckReference": "PSA27727793Z",
-          |    "protectionRecordsList": [
-          |        {
-          |            "protectionRecord": {
-          |                "identifier": 2,
-          |                "sequenceNumber": 1,
-          |                "type": "INDIVIDUAL PROTECTION 2014",
-          |                "certificateDate": "2025-09-08",
-          |                "certificateTime": "123840",
-          |                "status": "OPEN",
-          |                "protectionReference": "IP140000016118C",
-          |                "relevantAmount": 1250500,
-          |                "preADayPensionInPaymentAmount": 500000,
-          |                "postADayBenefitCrystallisationEventAmount": 500000,
-          |                "uncrystallisedRightsAmount": 250000,
-          |                "nonUKRightsAmount": 600,
-          |                "pensionDebitAmount": 100,
-          |                "protectedAmount": 1250500,
-          |                "pensionDebitStartDate": "2026-12-12",
-          |                "pensionDebitTotalAmount": 100
-          |            }
-          |        },
-          |        {
-          |            "protectionRecord": {
-          |                "identifier": 1,
-          |                "sequenceNumber": 2,
-          |                "type": "INDIVIDUAL PROTECTION 2014 LTA",
-          |                "certificateDate": "2025-09-08",
-          |                "certificateTime": "123840",
-          |                "status": "WITHDRAWN",
-          |                "protectionReference": "5678912A",
-          |                "relevantAmount": 1250000,
-          |                "preADayPensionInPaymentAmount": 500000,
-          |                "postADayBenefitCrystallisationEventAmount": 500000,
-          |                "uncrystallisedRightsAmount": 250000,
-          |                "nonUKRightsAmount": 600,
-          |                "pensionDebitAmount": 100,
-          |                "protectedAmount": 1250000,
-          |                "pensionDebitStartDate": "2026-12-12",
-          |                "pensionDebitTotalAmount": 100
-          |            },
-          |            "historicaldetailsList": [
-          |                {
-          |                    "identifier": 1,
-          |                    "sequenceNumber": 1,
-          |                    "type": "INDIVIDUAL PROTECTION 2014 LTA",
-          |                    "certificateDate": "2025-11-16",
-          |                    "certificateTime": "125818",
-          |                    "status": "OPEN",
-          |                    "protectionReference": "5678912A",
-          |                    "relevantAmount": 1250000,
-          |                    "preADayPensionInPaymentAmount": 500000,
-          |                    "postADayBenefitCrystallisationEventAmount": 500000,
-          |                    "uncrystallisedRightsAmount": 250000,
-          |                    "nonUKRightsAmount": 600,
-          |                    "pensionDebitAmount": 100,
-          |                    "protectedAmount": 1250000,
-          |                    "pensionDebitStartDate": "2026-12-12",
-          |                    "pensionDebitTotalAmount": 100
-          |                }
-          |            ]
-          |        }
-          |    ]
-          |}""".stripMargin)))
+        """{"pensionSchemeAdministratorCheckReference":"PSA27727793Z","protectionRecordsList":[{"protectionRecord":{"identifier":1,"sequenceNumber":1,"type":"INDIVIDUAL PROTECTION 2014 LTA","certificateDate":"2025-11-16","certificateTime":"125818","status":"OPEN","protectionReference":"5678912A","relevantAmount":1250000,"preADayPensionInPaymentAmount":500000,"postADayBenefitCrystallisationEventAmount":500000,"uncrystallisedRightsAmount":250000,"nonUKRightsAmount":600,"pensionDebitAmount":100,"protectedAmount":1250000,"pensionDebitTotalAmount":100}},{"protectionRecord":{"identifier":2,"sequenceNumber":2,"type":"INDIVIDUAL PROTECTION 2014","certificateDate":"2025-10-15","certificateTime":"165934","status":"WITHDRAWN","protectionReference":"IP140000016118C","relevantAmount":1250500,"preADayPensionInPaymentAmount":500000,"postADayBenefitCrystallisationEventAmount":500000,"uncrystallisedRightsAmount":250000,"nonUKRightsAmount":600,"pensionDebitAmount":100,"protectedAmount":1250500,"pensionDebitTotalAmount":100},"historicaldetailsList":[{"identifier":2,"sequenceNumber":1,"type":"INDIVIDUAL PROTECTION 2014","certificateDate":"2025-09-08","certificateTime":"123840","status":"OPEN","protectionReference":"IP140000016118C","relevantAmount":1250500,"preADayPensionInPaymentAmount":500000,"postADayBenefitCrystallisationEventAmount":500000,"uncrystallisedRightsAmount":250000,"nonUKRightsAmount":600,"pensionDebitAmount":100,"protectedAmount":1250500,"pensionDebitTotalAmount":100}]}]}""".stripMargin)))
       case "AA916000" =>
         Future.successful(Ok(Json.parse(
         """{
