@@ -17,10 +17,14 @@
 package uk.gov.hmrc.pla.stub.model.hip
 
 import play.api.libs.json.{JsNumber, Writes}
-import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.{Dormant, Open, Withdrawn}
+import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionResponseStatus.{Dormant, Open, Withdrawn}
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{IndividualProtection2014, IndividualProtection2016}
 
-sealed abstract class HipNotification(val id: Int, val `type`: ProtectionType, val status: ProtectionStatus)
+sealed abstract class HipNotification(
+    val id: Int,
+    val `type`: ProtectionType,
+    val status: AmendProtectionResponseStatus
+)
 
 object HipNotification {
 

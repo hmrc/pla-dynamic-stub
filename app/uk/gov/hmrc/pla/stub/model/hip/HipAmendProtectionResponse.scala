@@ -35,7 +35,7 @@ object HipAmendProtectionResponse {
       sequenceNumber = hipProtection.sequence,
       `type` = AmendProtectionLifetimeAllowanceType.from(hipProtection.`type`),
       certificateDate = hipProtection.certificateDate,
-      certificateTime = hipProtection.certificateTime.map(_.replaceAll(":", "")),
+      certificateTime = hipProtection.certificateTime.map(_.replace(":", "")),
       status = status,
       protectionReference = hipProtection.protectionReference,
       relevantAmount = hipProtection.relevantAmount,

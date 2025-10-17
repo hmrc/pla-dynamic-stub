@@ -82,8 +82,8 @@ object ProtectionRecord {
       protection.id,
       protection.version,
       toRecordType(protection),
-      protection.certificateDate.getOrElse("2000-01-01"), // TODO: defaults for date and time?
-      protection.certificateTime.getOrElse("000000"),     // TODO: defaults for date and time?
+      protection.certificateDate.getOrElse("2000-01-01"),              // TODO: defaults for date and time?
+      protection.certificateTime.getOrElse("000000").replace(":", ""), // TODO: defaults for date and time?
       toRecordStatus(protection),
       protection.protectionReference,
       protection.relevantAmount.map(_.toInt),
