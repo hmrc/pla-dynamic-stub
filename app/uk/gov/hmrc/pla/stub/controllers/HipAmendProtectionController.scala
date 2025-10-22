@@ -30,7 +30,7 @@ import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.smartstub.{Generator => _}
 
-import java.time.format.DateTimeFormatter
+import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, LocalDate, LocalDateTime}
 import javax.inject.Inject
@@ -78,27 +78,40 @@ class HipAmendProtectionController @Inject() (
 
     protectionService.findHipProtectionByNinoAndId(nino, protectionId).flatMap[Result] {
       case _ if calculatedRelevantAmount != lifetimeAllowanceProtectionRecord.relevantAmount =>
-        val error = Error(
+        error(
+          UnprocessableEntity,
           s"The specified Relevant Amount ${lifetimeAllowanceProtectionRecord.relevantAmount} is not the sum of the specified breakdown amounts $calculatedRelevantAmount (non UK Rights + Post A Day BCE + Pre A Day Pensions In Payment + Uncrystallised Rights - pensionDebitTotalAmount)"
         )
-        Future(UnprocessableEntity(Json.toJson(error)))
       case _
           if lifetimeAllowanceProtectionRecord.pensionDebitStartDate.isDefined != lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.isDefined =>
-        val error = Error("Incomplete pension debits information")
-        Future(UnprocessableEntity(Json.toJson(error)))
+        error(UnprocessableEntity, "incomplete pension debits information - require either both, or neither of pension debit start date and pension debit entered amount")
+      case _ if lifetimeAllowanceProtectionRecord.relevantAmount < 0 =>
+        error(BadRequest, "relevant amount must be positive")
+      case _ if lifetimeAllowanceProtectionRecord.nonUKRightsAmount < 0 =>
+        error(BadRequest, "non UK rights amount must be positive")
+      case _ if lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount < 0 =>
+        error(BadRequest, "post A day benefit crystallisation event amount must be positive")
+      case _ if lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount < 0 =>
+        error(BadRequest, "pre A day pension in payment amount must be positive")
+      case _ if lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount < 0 =>
+        error(BadRequest, "uncrystallised rights amount must be positive")
+      case _ if !lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.forall(_ < 0) =>
+        error(BadRequest, "pension debit entered amount must be positive")
+      case _ if lifetimeAllowanceProtectionRecord.certificateDate.map(parseDate).contains(None) =>
+        error(BadRequest, "invalid certificate date")
+      case _ if !lifetimeAllowanceProtectionRecord.certificateTime.forall(isTimeValid) =>
+        error(BadRequest, "invalid certificate time")
+      case _ if lifetimeAllowanceProtectionRecord.pensionDebitStartDate.map(parseDate).contains(None) =>
+        error(BadRequest, "invalid pension debit start date")
       case None =>
-        Future(NotFound(Json.toJson(Error(message = "protection to amend not found"))))
+        error(NotFound, "protection to amend not found")
       case Some(amendmentTarget)
           if amendmentTarget.`type` != lifetimeAllowanceProtectionRecord.`type`.toProtectionType =>
-        val error = Error("specified protection type does not match that of the protection to be amended")
-        Future(BadRequest(Json.toJson(error)))
+        error(BadRequest, "specified protection type does not match that of the protection to be amended")
       case Some(amendmentTarget) if amendmentTarget.sequence != sequence =>
-        val error = Error("specified protection sequence does not match that of the protection to be amended")
-        Future(BadRequest(Json.toJson(error)))
+        error(BadRequest, "specified protection sequence does not match that of the protection to be amended")
       case Some(amendmentTarget) if pensionDebitTotalAmount != amendmentTarget.pensionDebitTotalAmount.getOrElse(0) =>
-        val error =
-          Error("specified pension debit total amount does not match that of protection to be amended")
-        Future(BadRequest(Json.toJson(error)))
+        error(BadRequest, "specified pension debit total amount does not match that of protection to be amended")
       case Some(amendmentTarget) =>
         protectionService
           .findAllHipProtectionsByNino(nino)
@@ -132,6 +145,9 @@ class HipAmendProtectionController @Inject() (
           }
     }
   }
+
+  private def error(statusConstructor: Status, message: String): Future[Result] =
+    Future(statusConstructor(Json.toJson(Error(message))))
 
   private[controllers] def updatedLifetimeAllowanceProtectionRecord(
       lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord
@@ -201,19 +217,45 @@ class HipAmendProtectionController @Inject() (
   ): Int =
     lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount
       .zip(lifetimeAllowanceProtectionRecord.pensionDebitStartDate)
-      .map { case (enteredAmount, startDate) =>
-        calculateAdjustedEnteredAmount(enteredAmount, startDate)
+      .flatMap { case (enteredAmount, startDateString) =>
+        parseDate(startDateString).map(startDate => calculateAdjustedEnteredAmount(enteredAmount, startDate))
       }
       .getOrElse(0)
 
-  private val startDateFormat                  = DateTimeFormatter.ISO_LOCAL_DATE
+  private val dateFormat = DateTimeFormatter.ISO_LOCAL_DATE
+  private val timeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HHmmss")
+
+  private def parseDate(dateString: String): Option[LocalDate] =
+    try
+      Some(LocalDate.parse(dateString, dateFormat))
+    catch {
+      case _: DateTimeParseException => None
+    }
+
+  private val CertificateTimeLength: Int = 6
+
+  private def isTimeValid(timeString: String): Boolean = {
+    def padCertificateTime(certificateTime: String): String = {
+      val paddedChars = (CertificateTimeLength - certificateTime.length).min(0)
+
+      val padding = "0".repeat(paddedChars)
+
+      s"2025-01-01T$padding$certificateTime"
+    }
+
+    try {
+      LocalDateTime.parse(padCertificateTime(timeString), timeFormat)
+      true
+    } catch {
+      case _: DateTimeParseException => false
+    }
+  }
+
   private val startOfTaxYear2016               = LocalDate.of(2016, 4, 6)
   private val enteredAmountDeductionPerTaxYear = 0.05
   private val maxElapsedFullTaxYears           = 20
 
-  private[controllers] def calculateAdjustedEnteredAmount(enteredAmount: Int, startDateString: String): Int = {
-    val startDate = LocalDate.parse(startDateString, startDateFormat)
-
+  private[controllers] def calculateAdjustedEnteredAmount(enteredAmount: Int, startDate: LocalDate): Int = {
     val fullTaxYearsElapsedSinceTaxYear2016 =
       ChronoUnit.YEARS.between(startOfTaxYear2016, startDate).max(0).min(maxElapsedFullTaxYears)
 
