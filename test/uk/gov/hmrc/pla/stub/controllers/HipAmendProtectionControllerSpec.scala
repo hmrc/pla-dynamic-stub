@@ -23,8 +23,8 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK}
-import play.api.libs.json.JsObject
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK, UNPROCESSABLE_ENTITY}
+import play.api.libs.json.{JsObject, __}
 import play.api.mvc.Results.Ok
 import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
@@ -121,7 +121,7 @@ class HipAmendProtectionControllerSpec
               FakeRequest(
                 "POST",
                 s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
-              ).withBody(validAmendProtectionRequestInputForProtectionType(protectionType))
+              ).withBody(validAmendProtectionRequestInputWith(protectionType = protectionType))
             )
 
           status(result) shouldBe OK
@@ -129,30 +129,236 @@ class HipAmendProtectionControllerSpec
           val resultBody = contentAsJson(result).asInstanceOf[JsObject]
 
           resultBody.shouldBe(
-            validHipAmendProtectionResponseForProtectionType(protectionType, notificationIdentifier)
+            validHipAmendProtectionResponseWith(
+              protectionType = protectionType,
+              notificationIdentifier = notificationIdentifier
+            )
           )
         }
       }
     }
 
-    "return 400 with invalid request body" in {
-      val nino         = randomNino
-      val protectionId = 12960000000123L
-      val sequence     = 1
-      val error        = "List(JsonValidationError(List(Received unknown AmendProtectionRequestStatus$: CLOSED)"
+    "return 400 with invalid request body" when {
+      "provided with request that does not parse from Json" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "List(JsonValidationError(List(Received unknown AmendProtectionRequestStatus$: CLOSED)"
 
-      val result = controller
-        .amendProtection(nino, protectionId, 1)
-        .apply(
-          FakeRequest(
-            "POST",
-            s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
-          ).withBody(invalidAmendProtectionRequestInput)
-        )
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(invalidAmendProtectionRequestInput)
+          )
 
-      status(result) shouldBe BAD_REQUEST
+        status(result) shouldBe BAD_REQUEST
 
-      contentAsString(result) should include(error)
+        contentAsString(result) should include(error)
+      }
+
+      "provided with negative relevant amount" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "relevant amount must be positive"
+
+        val requestBody = validAmendProtectionRequestInputWith(relevantAmount = -1, nonUKRightsAmount = -39501)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with a negative non UK rights amount" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "non UK rights amount must be positive"
+
+        val requestBody = validAmendProtectionRequestInputWith(relevantAmount = 39499, nonUKRightsAmount = -1)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with a negative post A day benefit crystallisation event amount" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "post A day benefit crystallisation event amount must be positive"
+
+        val requestBody =
+          validAmendProtectionRequestInputWith(relevantAmount = 36999, postADayBenefitCrystallisationEventAmount = -1)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with a negative pre A day pension in payment amount" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "pre A day pension in payment amount must be positive"
+
+        val requestBody =
+          validAmendProtectionRequestInputWith(relevantAmount = 37999, preADayPensionInPaymentAmount = -1)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with a negative uncrystallised rights amount" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "uncrystallised rights amount must be positive"
+
+        val requestBody =
+          validAmendProtectionRequestInputWith(uncrystallisedRightsAmount = -1, nonUKRightsAmount = 75501)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with a negative pension debit entered amount" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "pension debit entered amount must be positive"
+
+        val requestBody = validAmendProtectionRequestInputWith(pensionDebitEnteredAmount = -1)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with an invalid certificate date" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "invalid certificate date"
+
+        val requestBody = validAmendProtectionRequestInputWith(certificateDate = "22/10/2025")
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with an invalid certificate time" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "invalid certificate time"
+
+        val requestBody = validAmendProtectionRequestInputWith(certificateTime = "15:55:49")
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with an invalid pension debit start date" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "invalid pension debit start date"
+
+        val requestBody = validAmendProtectionRequestInputWith(pensionDebitStartDate = "22/10/2025")
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe BAD_REQUEST
+
+        contentAsString(result) should include(error)
+      }
     }
 
     "return 404 with no matching protection in db" in {
@@ -176,6 +382,87 @@ class HipAmendProtectionControllerSpec
 
       status(result) shouldBe NOT_FOUND
       contentAsString(result) should include(error)
+    }
+
+    "return 422 for unprocessable entity" when {
+      "provided relevant amount does not equal calculated relevant amount" in {
+        val nino           = randomNino
+        val protectionId   = 12960000000123L
+        val sequence       = 1
+        val relevantAmount = 100101
+        val error = s"The specified Relevant Amount $relevantAmount is not the sum of the specified breakdown amounts"
+
+        val requestBody = validAmendProtectionRequestInputWith(relevantAmount = relevantAmount)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe UNPROCESSABLE_ENTITY
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with partial pension debits information - missing start date" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error =
+          "incomplete pension debits information - require either both, or neither of pension debit start date and pension debit entered amount"
+
+        val requestBody =
+          validAmendProtectionRequestInput
+            .transform((__ \ "lifetimeAllowanceProtectionRecord" \ "pensionDebitStartDate").json.prune)
+            .get
+
+        println(requestBody)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe UNPROCESSABLE_ENTITY
+
+        contentAsString(result) should include(error)
+      }
+
+      "provided with partial pension debits information - missing entered amount" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error =
+          "incomplete pension debits information - require either both, or neither of pension debit start date and pension debit entered amount"
+
+        val requestBody =
+          validAmendProtectionRequestInput
+            .transform((__ \ "lifetimeAllowanceProtectionRecord" \ "pensionDebitEnteredAmount").json.prune)
+            .get
+
+        println(requestBody)
+
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(requestBody)
+          )
+
+        status(result) shouldBe UNPROCESSABLE_ENTITY
+
+        contentAsString(result) should include(error)
+      }
     }
 
   }

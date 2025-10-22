@@ -17,7 +17,11 @@
 package uk.gov.hmrc.pla.stub
 
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType
+import uk.gov.hmrc.pla.stub.model.hip.{
+  AmendProtectionLifetimeAllowanceType,
+  AmendProtectionRequestStatus,
+  AmendProtectionResponseStatus
+}
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType.IndividualProtection2014
 
 package object controllers {
@@ -298,57 +302,86 @@ package object controllers {
     """.stripMargin
     )
 
-  val validAmendProtectionRequestInput: JsValue =
-    validAmendProtectionRequestInputForProtectionType(IndividualProtection2014)
+  val validAmendProtectionRequestInput: JsValue = validAmendProtectionRequestInputWith()
 
-  def validAmendProtectionRequestInputForProtectionType(protectionType: AmendProtectionLifetimeAllowanceType): JsValue =
+  def validAmendProtectionRequestInputWith(
+      protectionType: AmendProtectionLifetimeAllowanceType =
+        AmendProtectionLifetimeAllowanceType.IndividualProtection2014,
+      certificateDate: String = "2025-08-15",
+      certificateTime: String = "123456",
+      status: AmendProtectionRequestStatus = AmendProtectionRequestStatus.Open,
+      protectionReference: String = "IP123456789012B",
+      relevantAmount: Int = 39500,
+      preADayPensionInPaymentAmount: Int = 1500,
+      postADayBenefitCrystallisationEventAmount: Int = 2500,
+      uncrystallisedRightsAmount: Int = 75500,
+      nonUKRightsAmount: Int = 0,
+      pensionDebitAmount: Int = 25000,
+      pensionDebitEnteredAmount: Int = 25000,
+      notificationIdentifier: Int = 3,
+      protectedAmount: Int = 120000,
+      pensionDebitStartDate: String = "2026-07-09",
+      pensionDebitTotalAmount: Int = 40000
+  ): JsValue =
     Json.parse(s"""{
                   |  "lifetimeAllowanceProtectionRecord": {
                   |    "type": "$protectionType",
-                  |    "certificateDate": "2025-08-15",
-                  |    "certificateTime": "123456",
-                  |    "status": "OPEN",
-                  |    "protectionReference": "IP123456789012B",
-                  |    "relevantAmount": 39500,
-                  |    "preADayPensionInPaymentAmount": 1500,
-                  |    "postADayBenefitCrystallisationEventAmount": 2500,
-                  |    "uncrystallisedRightsAmount": 75500,
-                  |    "nonUKRightsAmount": 0,
-                  |    "pensionDebitAmount": 25000,
-                  |    "pensionDebitEnteredAmount": 25000,
-                  |    "notificationIdentifier": 3,
-                  |    "protectedAmount": 120000,
-                  |    "pensionDebitStartDate": "2026-07-09",
-                  |    "pensionDebitTotalAmount": 40000
+                  |    "certificateDate": "$certificateDate",
+                  |    "certificateTime": "$certificateTime",
+                  |    "status": "$status",
+                  |    "protectionReference": "$protectionReference",
+                  |    "relevantAmount": $relevantAmount,
+                  |    "preADayPensionInPaymentAmount": $preADayPensionInPaymentAmount,
+                  |    "postADayBenefitCrystallisationEventAmount": $postADayBenefitCrystallisationEventAmount,
+                  |    "uncrystallisedRightsAmount": $uncrystallisedRightsAmount,
+                  |    "nonUKRightsAmount": $nonUKRightsAmount,
+                  |    "pensionDebitAmount": $pensionDebitAmount,
+                  |    "pensionDebitEnteredAmount": $pensionDebitEnteredAmount,
+                  |    "notificationIdentifier": $notificationIdentifier,
+                  |    "protectedAmount": $protectedAmount,
+                  |    "pensionDebitStartDate": "$pensionDebitStartDate",
+                  |    "pensionDebitTotalAmount": $pensionDebitTotalAmount
                   |  }
                   |}
     """.stripMargin)
 
-  val validHipAmendProtectionResponse: JsValue =
-    validHipAmendProtectionResponseForProtectionType(IndividualProtection2014, 6)
+  val validHipAmendProtectionResponse: JsValue = validHipAmendProtectionResponseWith()
 
-  def validHipAmendProtectionResponseForProtectionType(
-      protectionType: AmendProtectionLifetimeAllowanceType,
-      notificationIdentifier: Int
+  def validHipAmendProtectionResponseWith(
+      protectionType: AmendProtectionLifetimeAllowanceType = IndividualProtection2014,
+      identifier: Long = 12960000000123L,
+      sequenceNumber: Int = 2,
+      certificateDate: String = "2025-08-15",
+      certificateTime: String = "123456",
+      status: AmendProtectionResponseStatus = AmendProtectionResponseStatus.Withdrawn,
+      protectionReference: String = "IP123456789012B",
+      relevantAmount: Int = 27000,
+      preADayPensionInPaymentAmount: Int = 1500,
+      postADayBenefitCrystallisationEventAmount: Int = 2500,
+      uncrystallisedRightsAmount: Int = 75500,
+      nonUKRightsAmount: Int = 0,
+      notificationIdentifier: Int = 6,
+      protectedAmount: Int = 27000,
+      pensionDebitTotalAmount: Int = 52500
   ): JsValue =
     Json.parse(
       s"""{
          |  "updatedLifetimeAllowanceProtectionRecord": {
-         |     "identifier": 12960000000123,
-         |     "sequenceNumber": 2,
+         |     "identifier": $identifier,
+         |     "sequenceNumber": $sequenceNumber,
          |     "type": "$protectionType",
-         |     "certificateDate": "2025-08-15",
-         |     "certificateTime": "123456",
-         |     "status": "WITHDRAWN",
-         |     "protectionReference": "IP123456789012B",
-         |     "relevantAmount": 27000,
-         |     "preADayPensionInPaymentAmount": 1500,
-         |     "postADayBenefitCrystallisationEventAmount": 2500,
-         |     "uncrystallisedRightsAmount": 75500,
-         |     "nonUKRightsAmount": 0,
+         |     "certificateDate": "$certificateDate",
+         |     "certificateTime": "$certificateTime",
+         |     "status": "$status",
+         |     "protectionReference": "$protectionReference",
+         |     "relevantAmount": $relevantAmount,
+         |     "preADayPensionInPaymentAmount": $preADayPensionInPaymentAmount,
+         |     "postADayBenefitCrystallisationEventAmount": $postADayBenefitCrystallisationEventAmount,
+         |     "uncrystallisedRightsAmount": $uncrystallisedRightsAmount,
+         |     "nonUKRightsAmount": $nonUKRightsAmount,
          |     "notificationIdentifier": $notificationIdentifier,
-         |     "protectedAmount": 27000,
-         |     "pensionDebitTotalAmount": 52500
+         |     "protectedAmount": $protectedAmount,
+         |     "pensionDebitTotalAmount": $pensionDebitTotalAmount
          |  }
          |}
     """.stripMargin
