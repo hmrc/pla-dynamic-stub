@@ -98,7 +98,7 @@ class HipAmendProtectionController @Inject() (
         error(BadRequest, "pre A day pension in payment amount must be positive")
       case _ if lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount < 0 =>
         error(BadRequest, "uncrystallised rights amount must be positive")
-      case _ if !lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.forall(_ < 0) =>
+      case _ if lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.exists(_ < 0) =>
         error(BadRequest, "pension debit entered amount must be positive")
       case _ if lifetimeAllowanceProtectionRecord.certificateDate.map(parseDate).contains(None) =>
         error(BadRequest, "invalid certificate date")
