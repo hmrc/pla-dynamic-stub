@@ -91,7 +91,7 @@ class HipAmendProtectionController @Inject() (
         error(BadRequest, "non UK rights amount must be positive")
       case _ if lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount < 0 =>
         error(BadRequest, "post A day benefit crystallisation event amount must be positive")
-      case _ if lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount < 0 =>
+      case _ if lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount < 0 =>
         error(BadRequest, "pre A day pension in payment amount must be positive")
       case _ if lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount < 0 =>
         error(BadRequest, "uncrystallised rights amount must be positive")
