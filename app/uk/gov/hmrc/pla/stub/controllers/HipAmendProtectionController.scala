@@ -84,7 +84,10 @@ class HipAmendProtectionController @Inject() (
         )
       case _
           if lifetimeAllowanceProtectionRecord.pensionDebitStartDate.isDefined != lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.isDefined =>
-        error(UnprocessableEntity, "incomplete pension debits information - require either both, or neither of pension debit start date and pension debit entered amount")
+        error(
+          UnprocessableEntity,
+          "incomplete pension debits information - require either both, or neither of pension debit start date and pension debit entered amount"
+        )
       case _ if lifetimeAllowanceProtectionRecord.relevantAmount < 0 =>
         error(BadRequest, "relevant amount must be positive")
       case _ if lifetimeAllowanceProtectionRecord.nonUKRightsAmount < 0 =>
