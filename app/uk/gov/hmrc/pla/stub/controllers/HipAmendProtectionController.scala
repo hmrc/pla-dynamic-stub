@@ -102,8 +102,10 @@ class HipAmendProtectionController @Inject() (
                   hipNotification
                 )
 
+                val notificationId = Some(hipNotification.id).filter(_ => updatedRecord.relevantAmount <= calculateMaxProtectedAmount(updatedRecord.`type`))
+
                 val okResponse =
-                  HipAmendProtectionResponse.from(amendedProtection, hipNotification.status, Some(hipNotification.id))
+                  HipAmendProtectionResponse.from(amendedProtection, hipNotification.status, notificationId)
                 val okResponseBody = Json.toJson(okResponse)
                 val result         = Ok(okResponseBody)
 
@@ -214,7 +216,7 @@ class HipAmendProtectionController @Inject() (
       current: HipProtection,
       lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord,
       hipNotification: HipNotification
-  ): HipProtection =
+  ): HipProtection = {
     HipProtection(
       nino = nino,
       sequence = current.sequence + 1,
@@ -233,5 +235,6 @@ class HipAmendProtectionController @Inject() (
       nonUKRightsAmount = lifetimeAllowanceProtectionRecord.nonUKRightsAmount,
       pensionDebitTotalAmount = lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount
     )
+  }
 
 }
