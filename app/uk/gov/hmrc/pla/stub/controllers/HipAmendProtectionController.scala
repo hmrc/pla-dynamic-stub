@@ -20,17 +20,16 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.model.Error
 import uk.gov.hmrc.pla.stub.rules.HipAmendmentRules.{
   IndividualProtection2014AmendmentRules,
   IndividualProtection2016AmendmentRules
 }
 import uk.gov.hmrc.pla.stub.rules._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
+import uk.gov.hmrc.pla.stub.validation.AmendRequestValidation
+import uk.gov.hmrc.pla.stub.validation.AmendRequestValidationError.{JsonValidationFailed, ProtectionNotFound}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.smartstub.{Generator => _}
 
-import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, LocalDate, LocalTime}
 import javax.inject.Inject
@@ -48,9 +47,14 @@ class HipAmendProtectionController @Inject() (
     Action.async(playBodyParsers.json) { implicit request =>
       val ninoWithoutSuffix = nino.dropRight(1) // Remove when NPS code is removed and stub data is updated to use suffixes
 
-      request.body.validate[HipAmendProtectionRequest].map(_.lifetimeAllowanceProtectionRecord).asEither match {
-        case Left(errors) =>
-          Future.successful(BadRequest(Json.toJson(Error(message = "failed validation with errors: " + errors))))
+      request.body
+        .validate[HipAmendProtectionRequest]
+        .map(_.lifetimeAllowanceProtectionRecord)
+        .asEither
+        .left
+        .map(JsonValidationFailed)
+        .flatMap(AmendRequestValidation.validateRequest) match {
+        case Left(error) => Future(error.toResult)
         case Right(lifetimeAllowanceProtectionRecord) =>
           amendLifetimeAllowanceProtectionRecord(
             lifetimeAllowanceProtectionRecord,
@@ -66,94 +70,52 @@ class HipAmendProtectionController @Inject() (
       nino: String,
       protectionId: Long,
       sequence: Int
-  ): Future[Result] = {
-    val pensionDebitTotalAmount = lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount.getOrElse(0)
+  ): Future[Result] =
+    protectionService
+      .findHipProtectionByNinoAndId(nino, protectionId)
+      .flatMap[Result](
+        _.map(
+          AmendRequestValidation.validateRequestAgainstTarget(
+            lifetimeAllowanceProtectionRecord,
+            _,
+            sequence
+          )
+        )
+          .getOrElse(Left(ProtectionNotFound)) match {
+          case Left(error) => Future(error.toResult)
+          case Right(amendmentTarget) =>
+            protectionService
+              .findAllHipProtectionsByNino(nino)
+              .flatMap { hipProtections =>
+                val updatedRecord =
+                  updatedLifetimeAllowanceProtectionRecord(lifetimeAllowanceProtectionRecord)
 
-    val calculatedRelevantAmount =
-      lifetimeAllowanceProtectionRecord.nonUKRightsAmount +
-        lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount +
-        lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount +
-        lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount -
-        pensionDebitTotalAmount
+                val rules: HipAmendmentRules = getHipAmendmentRules(lifetimeAllowanceProtectionRecord.`type`)
 
-    if (calculatedRelevantAmount != lifetimeAllowanceProtectionRecord.relevantAmount) {
-      error(
-        UnprocessableEntity,
-        s"The specified Relevant Amount ${lifetimeAllowanceProtectionRecord.relevantAmount} is not the sum of the specified breakdown amounts $calculatedRelevantAmount (non UK Rights + Post A Day BCE + Pre A Day Pensions In Payment + Uncrystallised Rights - pensionDebitTotalAmount)"
+                val hipNotification =
+                  rules.calculateNotificationId(updatedRecord.relevantAmount, hipProtections)
+
+                val amendedProtection = createAmendedHipProtection(
+                  nino,
+                  amendmentTarget,
+                  updatedRecord,
+                  hipNotification
+                )
+
+                val okResponse =
+                  HipAmendProtectionResponse.from(amendedProtection, hipNotification.status, Some(hipNotification.id))
+                val okResponseBody = Json.toJson(okResponse)
+                val result         = Ok(okResponseBody)
+
+                val updateRepoFut = for {
+                  _             <- protectionService.insertOrUpdateHipProtection(amendedProtection)
+                  updateRepoFut <- openDormantFixedProtection2016(hipNotification, nino)
+                } yield updateRepoFut
+
+                updateRepoFut.map(_ => result).recover { case x => InternalServerError(x.toString) }
+              }
+        }
       )
-    } else if (
-      lifetimeAllowanceProtectionRecord.pensionDebitStartDate.isDefined != lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.isDefined
-    ) {
-      error(
-        UnprocessableEntity,
-        "incomplete pension debits information - require either both, or neither of pension debit start date and pension debit entered amount"
-      )
-    } else if (lifetimeAllowanceProtectionRecord.relevantAmount < 0) {
-      error(BadRequest, "relevant amount must be positive")
-    } else if (lifetimeAllowanceProtectionRecord.nonUKRightsAmount < 0) {
-      error(BadRequest, "non UK rights amount must be positive")
-    } else if (lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount < 0) {
-      error(BadRequest, "post A day benefit crystallisation event amount must be positive")
-    } else if (lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount < 0) {
-      error(BadRequest, "pre A day pension in payment amount must be positive")
-    } else if (lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount < 0) {
-      error(BadRequest, "uncrystallised rights amount must be positive")
-    } else if (lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.exists(_ < 0)) {
-      error(BadRequest, "pension debit entered amount must be positive")
-    } else if (lifetimeAllowanceProtectionRecord.certificateDate.map(parseDate).contains(None)) {
-      error(BadRequest, "invalid certificate date")
-    } else if (!lifetimeAllowanceProtectionRecord.certificateTime.forall(isTimeValid)) {
-      error(BadRequest, "invalid certificate time")
-    } else if (lifetimeAllowanceProtectionRecord.pensionDebitStartDate.map(parseDate).contains(None)) {
-      error(BadRequest, "invalid pension debit start date")
-    } else {
-      protectionService.findHipProtectionByNinoAndId(nino, protectionId).flatMap[Result] {
-        case None =>
-          error(NotFound, "protection to amend not found")
-        case Some(amendmentTarget)
-            if amendmentTarget.`type` != lifetimeAllowanceProtectionRecord.`type`.toProtectionType =>
-          error(BadRequest, "specified protection type does not match that of the protection to be amended")
-        case Some(amendmentTarget) if amendmentTarget.sequence != sequence =>
-          error(BadRequest, "specified protection sequence does not match that of the protection to be amended")
-        case Some(amendmentTarget) if pensionDebitTotalAmount != amendmentTarget.pensionDebitTotalAmount.getOrElse(0) =>
-          error(BadRequest, "specified pension debit total amount does not match that of protection to be amended")
-        case Some(amendmentTarget) =>
-          protectionService
-            .findAllHipProtectionsByNino(nino)
-            .flatMap { hipProtections =>
-              val updatedRecord =
-                updatedLifetimeAllowanceProtectionRecord(lifetimeAllowanceProtectionRecord)
-
-              val rules: HipAmendmentRules = getHipAmendmentRules(lifetimeAllowanceProtectionRecord.`type`)
-
-              val hipNotification =
-                rules.calculateNotificationId(updatedRecord.relevantAmount, hipProtections)
-
-              val amendedProtection = createAmendedHipProtection(
-                nino,
-                amendmentTarget,
-                updatedRecord,
-                hipNotification
-              )
-
-              val okResponse =
-                HipAmendProtectionResponse.from(amendedProtection, hipNotification.status, Some(hipNotification.id))
-              val okResponseBody = Json.toJson(okResponse)
-              val result         = Ok(okResponseBody)
-
-              val updateRepoFut = for {
-                _             <- protectionService.insertOrUpdateHipProtection(amendedProtection)
-                updateRepoFut <- openDormantFixedProtection2016(hipNotification, nino)
-              } yield updateRepoFut
-
-              updateRepoFut.map(_ => result).recover { case x => InternalServerError(x.toString) }
-            }
-      }
-    }
-  }
-
-  private def error(statusConstructor: Status, message: String): Future[Result] =
-    Future(statusConstructor(Json.toJson(Error(message))))
 
   private[controllers] def updatedLifetimeAllowanceProtectionRecord(
       lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord
@@ -224,38 +186,11 @@ class HipAmendProtectionController @Inject() (
     lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount
       .zip(lifetimeAllowanceProtectionRecord.pensionDebitStartDate)
       .flatMap { case (enteredAmount, startDateString) =>
-        parseDate(startDateString).map(startDate => calculateAdjustedEnteredAmount(enteredAmount, startDate))
+        AmendRequestValidation
+          .parseDate(startDateString)
+          .map(startDate => calculateAdjustedEnteredAmount(enteredAmount, startDate))
       }
       .getOrElse(0)
-
-  private val dateFormat = DateTimeFormatter.ISO_LOCAL_DATE
-  private val timeFormat = DateTimeFormatter.ofPattern("HHmmss")
-
-  private def parseDate(dateString: String): Option[LocalDate] =
-    try
-      Some(LocalDate.parse(dateString, dateFormat))
-    catch {
-      case _: DateTimeParseException => None
-    }
-
-  private val CertificateTimeLength: Int = 6
-
-  private def isTimeValid(timeString: String): Boolean = {
-    def padCertificateTime(certificateTime: String): String = {
-      val paddedChars = (CertificateTimeLength - certificateTime.length).max(0)
-
-      val padding = "0".repeat(paddedChars)
-
-      s"$padding$certificateTime"
-    }
-
-    try {
-      LocalTime.parse(padCertificateTime(timeString), timeFormat)
-      true
-    } catch {
-      case _: DateTimeParseException => false
-    }
-  }
 
   private val startOfTaxYear2016               = LocalDate.of(2016, 4, 6)
   private val enteredAmountDeductionPerTaxYear = 0.05
