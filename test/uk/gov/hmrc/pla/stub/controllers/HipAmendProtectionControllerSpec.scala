@@ -35,7 +35,7 @@ import uk.gov.hmrc.pla.stub.model.hip.HipNotification._
 import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 
-import java.time.{Clock, Instant, ZoneOffset}
+import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import java.util.Random
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -121,7 +121,7 @@ class HipAmendProtectionControllerSpec
               FakeRequest(
                 "POST",
                 s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
-              ).withBody(validAmendProtectionRequestInputForProtectionType(protectionType))
+              ).withBody(validAmendProtectionRequestInputWith(protectionType = protectionType))
             )
 
           status(result) shouldBe OK
@@ -129,30 +129,35 @@ class HipAmendProtectionControllerSpec
           val resultBody = contentAsJson(result).asInstanceOf[JsObject]
 
           resultBody.shouldBe(
-            validHipAmendProtectionResponseForProtectionType(protectionType, notificationIdentifier)
+            validHipAmendProtectionResponseWith(
+              protectionType = protectionType,
+              notificationIdentifier = notificationIdentifier
+            )
           )
         }
       }
     }
 
-    "return 400 with invalid request body" in {
-      val nino         = randomNino
-      val protectionId = 12960000000123L
-      val sequence     = 1
-      val error        = "List(JsonValidationError(List(Received unknown AmendProtectionRequestStatus$: CLOSED)"
+    "return 400 with invalid request body" when {
+      "provided with request that does not parse from Json" in {
+        val nino         = randomNino
+        val protectionId = 12960000000123L
+        val sequence     = 1
+        val error        = "List(JsonValidationError(List(Received unknown AmendProtectionRequestStatus$: CLOSED)"
 
-      val result = controller
-        .amendProtection(nino, protectionId, 1)
-        .apply(
-          FakeRequest(
-            "POST",
-            s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
-          ).withBody(invalidAmendProtectionRequestInput)
-        )
+        val result = controller
+          .amendProtection(nino, protectionId, 1)
+          .apply(
+            FakeRequest(
+              "POST",
+              s"/paye/lifetime-allowance/person/$nino/reference/$protectionId/sequence-number/$sequence"
+            ).withBody(invalidAmendProtectionRequestInput)
+          )
 
-      status(result) shouldBe BAD_REQUEST
+        status(result) shouldBe BAD_REQUEST
 
-      contentAsString(result) should include(error)
+        contentAsString(result) should include(error)
+      }
     }
 
     "return 404 with no matching protection in db" in {
@@ -177,7 +182,6 @@ class HipAmendProtectionControllerSpec
       status(result) shouldBe NOT_FOUND
       contentAsString(result) should include(error)
     }
-
   }
 
   "calculateMaxProtectedAmount" should {
@@ -241,45 +245,48 @@ class HipAmendProtectionControllerSpec
   "calculateAdjustedEnteredAmount" should {
     "return the correct entered amount" when
       Seq(
-        (600, "2015-04-06") -> 600,
-        (600, "2015-10-16") -> 600,
-        (600, "2016-04-05") -> 600,
-        (600, "2016-04-06") -> 600,
-        (600, "2016-10-16") -> 600,
-        (600, "2017-04-05") -> 600,
-        (600, "2017-04-06") -> 570,
-        (600, "2017-10-16") -> 570,
-        (600, "2018-04-05") -> 570,
-        (600, "2018-04-06") -> 540,
-        (600, "2018-10-16") -> 540,
-        (600, "2019-04-05") -> 540,
-        (600, "2019-04-06") -> 510,
-        (600, "2019-10-16") -> 510,
-        (600, "2020-04-05") -> 510,
-        (600, "2020-04-06") -> 480,
-        (600, "2020-10-16") -> 480,
-        (600, "2021-04-05") -> 480,
-        (600, "2021-04-06") -> 450,
-        (600, "2021-10-16") -> 450,
-        (600, "2022-04-05") -> 450,
-        (600, "2022-04-06") -> 420,
-        (600, "2022-10-16") -> 420,
-        (600, "2023-04-05") -> 420,
-        (600, "2023-04-06") -> 390,
-        (600, "2023-10-16") -> 390,
-        (600, "2024-04-05") -> 390,
-        (600, "2024-04-06") -> 360,
-        (600, "2024-10-16") -> 360,
-        (600, "2025-04-05") -> 360,
-        (600, "2025-04-06") -> 330,
-        (600, "2025-10-16") -> 330,
-        (600, "2026-04-05") -> 330,
-        (600, "2026-04-06") -> 300,
-        (600, "2026-10-16") -> 300,
-        (600, "2027-04-05") -> 300
-      ).foreach { case ((enteredAmount, startDate), adjustedEnteredAmount) =>
-        s"provided with £$enteredAmount starting $startDate" in {
-          controller.calculateAdjustedEnteredAmount(enteredAmount, startDate) shouldBe adjustedEnteredAmount
+        (600, (2015, 4, 6)) -> 600,
+        (600, (2015, 9, 8)) -> 600,
+        (600, (2016, 4, 5)) -> 600,
+        (600, (2016, 4, 6)) -> 600,
+        (600, (2016, 9, 8)) -> 600,
+        (600, (2017, 4, 5)) -> 600,
+        (600, (2017, 4, 6)) -> 570,
+        (600, (2017, 9, 8)) -> 570,
+        (600, (2018, 4, 5)) -> 570,
+        (600, (2018, 4, 6)) -> 540,
+        (600, (2018, 9, 8)) -> 540,
+        (600, (2019, 4, 5)) -> 540,
+        (600, (2019, 4, 6)) -> 510,
+        (600, (2019, 9, 8)) -> 510,
+        (600, (2020, 4, 5)) -> 510,
+        (600, (2020, 4, 6)) -> 480,
+        (600, (2020, 9, 8)) -> 480,
+        (600, (2021, 4, 5)) -> 480,
+        (600, (2021, 4, 6)) -> 450,
+        (600, (2021, 9, 8)) -> 450,
+        (600, (2022, 4, 5)) -> 450,
+        (600, (2022, 4, 6)) -> 420,
+        (600, (2022, 9, 8)) -> 420,
+        (600, (2023, 4, 5)) -> 420,
+        (600, (2023, 4, 6)) -> 390,
+        (600, (2023, 9, 8)) -> 390,
+        (600, (2024, 4, 5)) -> 390,
+        (600, (2024, 4, 6)) -> 360,
+        (600, (2024, 9, 8)) -> 360,
+        (600, (2025, 4, 5)) -> 360,
+        (600, (2025, 4, 6)) -> 330,
+        (600, (2025, 9, 8)) -> 330,
+        (600, (2026, 4, 5)) -> 330,
+        (600, (2026, 4, 6)) -> 300,
+        (600, (2026, 9, 8)) -> 300,
+        (600, (2027, 4, 5)) -> 300
+      ).foreach { case ((enteredAmount, (year, month, day)), adjustedEnteredAmount) =>
+        s"provided with £$enteredAmount starting $year-$month-$day" in {
+          controller.calculateAdjustedEnteredAmount(
+            enteredAmount,
+            LocalDate.of(year, month, day)
+          ) shouldBe adjustedEnteredAmount
         }
       }
   }

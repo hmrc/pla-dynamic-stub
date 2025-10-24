@@ -18,11 +18,8 @@ package uk.gov.hmrc.pla.stub.model.hip
 
 import uk.gov.hmrc.pla.stub.utils.{Enumerable, EnumerableInstance}
 
-sealed abstract class AmendProtectionLifetimeAllowanceType(val value: String, lifetimeAllowanceType: ProtectionType)
-    extends EnumerableInstance(value) {
-
-  def toProtectionType: ProtectionType = lifetimeAllowanceType
-}
+sealed abstract class AmendProtectionLifetimeAllowanceType(val value: String, val toProtectionType: ProtectionType)
+    extends EnumerableInstance(value) {}
 
 object AmendProtectionLifetimeAllowanceType extends Enumerable.Implicits {
 
