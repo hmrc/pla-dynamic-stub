@@ -32,7 +32,7 @@ import uk.gov.hmrc.smartstub.{Generator => _}
 
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.temporal.ChronoUnit
-import java.time.{Clock, LocalDate, LocalDateTime}
+import java.time.{Clock, LocalDate, LocalTime}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -164,8 +164,8 @@ class HipAmendProtectionController @Inject() (
     val adjustedPensionDebitTotalAmount =
       lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount.getOrElse(0) + adjustedEnteredAmount
 
-    val certificateDate = LocalDateTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
-    val certificateTime = LocalDateTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_TIME)
+    val certificateDate = LocalDate.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+    val certificateTime = LocalTime.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_TIME)
 
     val maxProtectedAmount = calculateMaxProtectedAmount(lifetimeAllowanceProtectionRecord.`type`)
 
@@ -229,7 +229,7 @@ class HipAmendProtectionController @Inject() (
       .getOrElse(0)
 
   private val dateFormat = DateTimeFormatter.ISO_LOCAL_DATE
-  private val timeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HHmmss")
+  private val timeFormat = DateTimeFormatter.ofPattern("HHmmss")
 
   private def parseDate(dateString: String): Option[LocalDate] =
     try
@@ -246,11 +246,11 @@ class HipAmendProtectionController @Inject() (
 
       val padding = "0".repeat(paddedChars)
 
-      s"2025-01-01T$padding$certificateTime"
+      s"$padding$certificateTime"
     }
 
     try {
-      LocalDateTime.parse(padCertificateTime(timeString), timeFormat)
+      LocalTime.parse(padCertificateTime(timeString), timeFormat)
       true
     } catch {
       case _: DateTimeParseException => false
