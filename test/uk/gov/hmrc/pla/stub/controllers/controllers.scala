@@ -361,7 +361,7 @@ package object controllers {
       uncrystallisedRightsAmount: Int = 75500,
       nonUKRightsAmount: Int = 0,
       notificationIdentifier: Int = 6,
-      protectedAmount: Int = 27000,
+      protectedAmount: Int = 0,
       pensionDebitTotalAmount: Int = 52500
   ): JsValue =
     Json.parse(
