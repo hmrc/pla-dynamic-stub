@@ -19,6 +19,7 @@ package uk.gov.hmrc.pla.stub.controllers
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
+import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionResponseStatus.Withdrawn
 import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.rules.HipAmendmentRules.{
   IndividualProtection2014AmendmentRules,
@@ -102,7 +103,8 @@ class HipAmendProtectionController @Inject() (
                   hipNotification
                 )
 
-                val notificationId = Some(hipNotification.id).filter(_ => updatedRecord.relevantAmount <= calculateMaxProtectedAmount(updatedRecord.`type`))
+                val notificationId = Some(hipNotification.id)
+                  .filter(_ => updatedRecord.relevantAmount <= calculateMaxProtectedAmount(updatedRecord.`type`))
 
                 val okResponse =
                   HipAmendProtectionResponse.from(amendedProtection, hipNotification.status, notificationId)
@@ -217,6 +219,14 @@ class HipAmendProtectionController @Inject() (
       lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord,
       hipNotification: HipNotification
   ): HipProtection = {
+    val protectedAmount = lifetimeAllowanceProtectionRecord.protectedAmount.map { protectedAmount =>
+      if (hipNotification.status == Withdrawn) {
+        0
+      } else {
+        protectedAmount
+      }
+    }
+
     HipProtection(
       nino = nino,
       sequence = current.sequence + 1,
@@ -227,7 +237,7 @@ class HipAmendProtectionController @Inject() (
       certificateDate = lifetimeAllowanceProtectionRecord.certificateDate,
       certificateTime = lifetimeAllowanceProtectionRecord.certificateTime,
       relevantAmount = lifetimeAllowanceProtectionRecord.relevantAmount,
-      protectedAmount = lifetimeAllowanceProtectionRecord.protectedAmount,
+      protectedAmount = protectedAmount,
       preADayPensionInPaymentAmount = lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount,
       postADayBenefitCrystallisationEventAmount =
         lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount,
