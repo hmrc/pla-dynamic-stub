@@ -16,28 +16,20 @@
 
 package uk.gov.hmrc.pla.stub.controllers
 
-import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json._
-import play.api.mvc.Results.Ok
 import play.api.mvc.{ControllerComponents, PlayBodyParsers}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.pla.stub.actions.ExceptionTriggersActions
-import uk.gov.hmrc.pla.stub.model._
 import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 object TestData {
-
-  val validFP2016CeateRequest = CreateLTAProtectionRequest(
-    nino = Generator.randomNino,
-    protection = ProtectionApplicationTestData.Fp2016
-  )
 
   val authHeader = "Authorization" -> "Bearer: abcdef12345678901234567890"
   val envHeader  = "Environment"   -> "IST0"
@@ -55,7 +47,7 @@ object TestData {
   val notFoundProtectionsForNinoResponse = "\"no protections found for nino\""
 }
 
-class PLAStubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with GuiceOneServerPerSuite {
+class PsaLookupControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with GuiceOneServerPerSuite {
 
   def Action = cc.actionBuilder
 
@@ -64,111 +56,10 @@ class PLAStubControllerSpec extends AnyWordSpec with Matchers with MockitoSugar 
   implicit lazy val playBodyParsers          = app.injector.instanceOf[PlayBodyParsers]
   implicit lazy val exceptionTriggersActions = app.injector.instanceOf[ExceptionTriggersActions]
   implicit lazy val protectionService        = mock[PLAProtectionService]
-  val mockController: PLAStubController      = mock[PLAStubController]
-
-  "Read Protections" when {
-    "return Status: OK Body: Protections for given nino on retrieval protections request" in {
-      val nino        = "RC966967C"
-      val protections = Json.fromJson[Protections](successfulProtectionsRetrieveOutput)
-      when(mockController.readProtections(nino)).thenReturn(Action {
-        Ok(Json.toJson(protections.get))
-      })
-
-      val response = mockController.readProtections(nino).apply(FakeRequest("GET", s"/individual/$nino/protections/"))
-      status(response) shouldBe OK
-      contentAsJson(response).shouldBe(successfulProtectionsRetrieveOutput)
-
-    }
-
-    "return Status: OK Body: List of Empty Protections on retrieval of empty list" in {
-      val nino        = "AA000000A"
-      val protections = Json.fromJson[Protections](successfulEmptyProtectionsRetrieveOutput)
-      when(mockController.readProtections(nino)).thenReturn(Action {
-        Ok(Json.toJson(protections.get))
-      })
-
-      val response = mockController.readProtections(nino).apply(FakeRequest("GET", s"/individual/$nino/protections/"))
-      status(response) shouldBe OK
-      contentAsJson(response).shouldBe(successfulEmptyProtectionsRetrieveOutput)
-
-    }
-
-  }
-
-  "Read Protection" when {
-    "return Status: OK Body: Protection for given nino and protection id on retrieval protection request" in {
-      val nino         = "RC966967C"
-      val protectionId = 1
-      val protection   = Json.fromJson[Protection](successfulProtectionRetrieveOutput)
-      when(mockController.readProtection(nino, protectionId)).thenReturn(Action {
-        Ok(Json.toJson(protection.get))
-      })
-
-      val response =
-        mockController.readProtection(nino, 1).apply(FakeRequest("GET", s"/individual/$nino/protections/$protectionId"))
-      status(response) shouldBe OK
-      contentAsJson(response).shouldBe(successfulProtectionRetrieveOutput)
-
-    }
-  }
-
-  "Read Protection Version" when {
-    "return Status: OK Body: Protection for given nino , protection id and version on retrieval protection request" in {
-      val nino         = "RC966967C"
-      val protectionId = 1
-      val versionId    = 1
-      val protection   = Json.fromJson[Protection](successfulProtectionRetrieveOutput)
-      when(mockController.readProtectionVersion(nino, protectionId, versionId)).thenReturn(Action {
-        Ok(Json.toJson(protection.get))
-      })
-      val response = mockController
-        .readProtectionVersion(nino, protectionId, versionId)
-        .apply(FakeRequest("GET", s"/individual/$nino/protections/$protectionId/version/$versionId"))
-      status(response) shouldBe OK
-      contentAsJson(response).shouldBe(successfulProtectionRetrieveOutput)
-
-    }
-  }
-
-  "Create Protection" when {
-    "return Status: OK Body: CreateLTAProtectionResponse for successful valid CreateLTAProtectionRequest with all optional data" in {
-      val nino = "RC966967C"
-      when(mockController.createProtection(nino)).thenReturn(Action.async(playBodyParsers.json) { _ =>
-        Future.successful(Ok(validCreateProtectionResponseOutput))
-      })
-      val response = mockController
-        .createProtection(nino)
-        .apply(
-          FakeRequest("POST", s"/individual/$nino/protection/")
-            .withBody(validCreateProtectionRequestInput)
-        )
-      status(response) shouldBe OK
-      contentAsJson(response).shouldBe(validCreateProtectionResponseOutput)
-
-    }
-  }
-
-  "Update Protection" when {
-    "return Status: OK Body: UpdateLTAProtectionResponse for successful valid UpdateLTAProtectionRequest with all optional data" in {
-      val nino         = "RC966967C"
-      val protectionId = 5
-      when(mockController.updateProtection(nino, protectionId)).thenReturn(Action.async(playBodyParsers.json) { _ =>
-        Future.successful(Ok(validUpdateProtectionResponseOutput))
-      })
-      val response = mockController
-        .updateProtection(nino, protectionId)
-        .apply(
-          FakeRequest("POST", s"/individual/$nino/protections/$protectionId")
-            .withBody(validUpdateProtectionRequestInput)
-        )
-      status(response) shouldBe OK
-      contentAsJson(response).shouldBe(validUpdateProtectionResponseOutput)
-
-    }
-  }
+  val mockController: PsaLookupController    = mock[PsaLookupController]
 
   "PSA Lookup" when {
-    val controller = new PLAStubController(cc, protectionService, ec, playBodyParsers, exceptionTriggersActions)
+    val controller = new PsaLookupController(cc, protectionService, ec, playBodyParsers, exceptionTriggersActions)
     "return a 403 Forbidden with empty body when provided no environment header" in {
       val result = controller.updatedPSALookup("PSA12345678A", "IP141000000000A").apply(FakeRequest())
       status(result) shouldBe FORBIDDEN

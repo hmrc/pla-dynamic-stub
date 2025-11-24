@@ -39,7 +39,7 @@ import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import java.util.Random
 import scala.concurrent.{ExecutionContext, Future}
 
-class HipAmendProtectionControllerSpec
+class AmendProtectionControllerSpec
     extends AnyWordSpec
     with Matchers
     with MockitoSugar
@@ -52,7 +52,7 @@ class HipAmendProtectionControllerSpec
   private val nowInstant: Instant = Instant.parse("2025-08-15T12:34:56Z")
   private def fixedClock: Clock   = Clock.fixed(nowInstant, ZoneOffset.UTC)
 
-  private lazy val controller: HipAmendProtectionController = new HipAmendProtectionController(
+  private lazy val controller: AmendProtectionController = new AmendProtectionController(
     inject[MessagesControllerComponents],
     mockPLAProtectionService,
     inject[PlayBodyParsers]
