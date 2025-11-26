@@ -36,7 +36,7 @@ import java.time.{Clock, LocalDate, LocalTime}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class HipAmendProtectionController @Inject() (
+class AmendProtectionController @Inject() (
     val mcc: ControllerComponents,
     val protectionService: PLAProtectionService,
     playBodyParsers: PlayBodyParsers

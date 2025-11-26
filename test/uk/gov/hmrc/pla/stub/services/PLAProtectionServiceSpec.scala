@@ -90,28 +90,6 @@ class PLAProtectionServiceSpec
 
   "Protection Service" when {
 
-    "retrieveProtections is called" must {
-
-      "return None when no data can be found" in {
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(Future.successful(None))
-
-        protectionService.retrieveProtections(TestData.strippedNino).futureValue shouldBe None
-      }
-
-      "return protections when data is present" in {
-
-        val protections =
-          Protections(TestData.strippedNino, Some(TestData.psaCheckReference), List(TestData.protection))
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(Future.successful(Some(protections)))
-
-        protectionService.retrieveProtections(TestData.strippedNino).futureValue shouldBe Some(protections)
-      }
-    }
-
     "retrieveHIPProtections is called" must {
 
       "return None when no data can be found" in {
@@ -137,57 +115,6 @@ class PLAProtectionServiceSpec
             Seq(ProtectionRecordsList(ProtectionRecord(TestData.protection), None))
           )
         )
-      }
-    }
-
-    "insertOrUpdateProtection is called" must {
-
-      "insert a record if it does not exist" in {
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(Future.successful(None))
-
-        when(mockProtectionsStore.removeByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(Future.successful((): Unit))
-
-        when(mockProtectionsStore.insertProtection(any()))
-          .thenReturn(Future.successful((): Unit))
-
-        protectionService.insertOrUpdateProtection(TestData.protection).futureValue shouldBe Results.Ok
-
-        val mock = Mockito.inOrder(mockProtectionsStore)
-
-        mock.verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
-
-        mock.verify(mockProtectionsStore).removeByNino(TestData.strippedNino)
-
-        mock.verify(mockProtectionsStore).insertProtection(any())
-      }
-
-      "update a record if it exists" in {
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(
-            Future.successful(
-              Some(Protections(TestData.strippedNino, Some(TestData.psaCheckReference), List(TestData.protection)))
-            )
-          )
-
-        when(mockProtectionsStore.removeByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(Future.successful((): Unit))
-
-        when(mockProtectionsStore.insertProtection(any()))
-          .thenReturn(Future.successful((): Unit))
-
-        protectionService.insertOrUpdateProtection(TestData.protection.copy(status = 3)).futureValue shouldBe Results.Ok
-
-        val mock = Mockito.inOrder(mockProtectionsStore)
-
-        mock.verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
-
-        mock.verify(mockProtectionsStore).removeByNino(TestData.strippedNino)
-
-        mock.verify(mockProtectionsStore).insertProtection(any())
       }
     }
 
@@ -247,49 +174,6 @@ class PLAProtectionServiceSpec
       }
     }
 
-    "findProtectionByNinoAndId is called" must {
-
-      "return None if no protection is present with a matching Nino" in {
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(Future.successful(None))
-
-        protectionService.findProtectionByNinoAndId(TestData.strippedNino, TestData.id).futureValue shouldBe None
-
-        verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
-      }
-
-      "return None if no protection is present with a matching ID" in {
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(
-            Future.successful(
-              Some(Protections(TestData.strippedNino, Some(TestData.psaCheckReference), List(TestData.protection)))
-            )
-          )
-
-        protectionService.findProtectionByNinoAndId(TestData.strippedNino, 1).futureValue shouldBe None
-
-        verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
-      }
-
-      "return the corresponding protection when the Nino and ID match" in {
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(
-            Future.successful(
-              Some(Protections(TestData.strippedNino, Some(TestData.psaCheckReference), List(TestData.protection)))
-            )
-          )
-
-        protectionService.findProtectionByNinoAndId(TestData.strippedNino, TestData.id).futureValue shouldBe Some(
-          TestData.protection
-        )
-
-        verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
-      }
-    }
-
     "findHipProtectionByNinoAndId is called" must {
 
       "return None if no protection is present with a matching Nino" in {
@@ -327,35 +211,6 @@ class PLAProtectionServiceSpec
 
         protectionService.findHipProtectionByNinoAndId(TestData.strippedNino, TestData.id).futureValue shouldBe Some(
           TestData.hipProtection.copy(nino = TestData.strippedNino)
-        )
-
-        verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
-      }
-    }
-
-    "findAllProtectionsByNino is called" must {
-
-      "return None if no protections are present with a matching Nino" in {
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(Future.successful(None))
-
-        protectionService.findAllProtectionsByNino(TestData.strippedNino).futureValue shouldBe None
-
-        verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)
-      }
-
-      "return the corresponding protections when the Nino matches" in {
-
-        when(mockProtectionsStore.findProtectionsByNino(eqTo(TestData.strippedNino)))
-          .thenReturn(
-            Future.successful(
-              Some(Protections(TestData.strippedNino, Some(TestData.psaCheckReference), List(TestData.protection)))
-            )
-          )
-
-        protectionService.findAllProtectionsByNino(TestData.strippedNino).futureValue shouldBe Some(
-          List(TestData.protection)
         )
 
         verify(mockProtectionsStore).findProtectionsByNino(TestData.strippedNino)

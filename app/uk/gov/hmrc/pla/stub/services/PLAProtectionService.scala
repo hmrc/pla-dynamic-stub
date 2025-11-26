@@ -49,7 +49,7 @@ class PLAProtectionService @Inject() (
       }
     }
 
-  def retrieveProtections(nino: String): Future[Option[Protections]] =
+  private def retrieveProtections(nino: String): Future[Option[Protections]] =
     protectionsStore.findProtectionsByNino(nino)
 
   def retrieveHIPProtections(nino: String): Future[Option[HIPProtectionsModel]] =
@@ -58,7 +58,7 @@ class PLAProtectionService @Inject() (
   def insertOrUpdateHipProtection(hipProtection: HipProtection): Future[Result] =
     insertOrUpdateProtection(hipProtection.toProtection)
 
-  def insertOrUpdateProtection(protection: Protection): Future[Result] = {
+  private def insertOrUpdateProtection(protection: Protection): Future[Result] = {
     val protections                              = protectionsStore.findProtectionsByNino(protection.nino)
     val pensionSchemeAdministratorCheckReference = pensionSchemeAdministratorCheckReferenceGen.sample
 
@@ -93,19 +93,13 @@ class PLAProtectionService @Inject() (
       }
     }
 
-  def findAllProtectionsByNino(nino: String): Future[Option[List[Protection]]] =
-    retrieveProtections(nino).map {
-      case Some(protections) => Some(protections.protections)
-      case _                 => None
-    }
-
   def findAllHipProtectionsByNino(nino: String): Future[List[HipProtection]] =
     retrieveProtections(nino).map {
       case Some(protections) => protections.protections.flatMap(HipProtection.fromProtection)
       case _                 => List.empty[HipProtection]
     }
 
-  def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] =
+  private def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] =
     for {
       protections <- retrieveProtections(nino)
       result = protections.flatMap(_.protections.find(_.id == protectionId))

@@ -28,7 +28,7 @@ import uk.gov.hmrc.smartstub.{Generator => _}
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class HipReadProtectionsController @Inject() (
+class ReadProtectionsController @Inject() (
     val mcc: ControllerComponents,
     val protectionService: PLAProtectionService
 )(implicit val ec: ExecutionContext)

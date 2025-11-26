@@ -38,7 +38,7 @@ import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 import java.util.Random
 import scala.concurrent.{ExecutionContext, Future}
 
-class HipReadProtectionsControllerSpec
+class ReadProtectionsControllerSpec
     extends AnyWordSpec
     with Matchers
     with MockitoSugar
@@ -48,7 +48,7 @@ class HipReadProtectionsControllerSpec
 
   private val mockPLAProtectionService: PLAProtectionService = mock[PLAProtectionService]
 
-  private lazy val controller: HipReadProtectionsController = new HipReadProtectionsController(
+  private lazy val controller: ReadProtectionsController = new ReadProtectionsController(
     inject[MessagesControllerComponents],
     mockPLAProtectionService
   )(inject[ExecutionContext])
