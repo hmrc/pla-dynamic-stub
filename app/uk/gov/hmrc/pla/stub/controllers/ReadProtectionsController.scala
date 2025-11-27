@@ -36,9 +36,8 @@ class ReadProtectionsController @Inject() (
     with Logging {
 
   def readProtections(nino: String): Action[AnyContent] = Action.async { _ =>
-    val ninoWithoutSuffix = nino.dropRight(1) // Remove when NPS code is removed and stub data is updated to use suffixes
 
-    protectionService.retrieveHIPProtections(ninoWithoutSuffix).map {
+    protectionService.retrieveHIPProtections(nino).map {
       case Some(protections) =>
         Ok(Json.toJson(protections))
       case None =>

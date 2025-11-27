@@ -101,9 +101,8 @@ class ReadProtectionsControllerSpec
 
         val nino = randomNino
 
-        val ninoWithoutSuffix = nino.dropRight(1)
 
-        when(mockPLAProtectionService.retrieveHIPProtections(eqTo(ninoWithoutSuffix)))
+        when(mockPLAProtectionService.retrieveHIPProtections(eqTo(nino)))
           .thenReturn(Future.successful(Some(protections)))
 
         val result = controller.readProtections(nino)(FakeRequest())
@@ -117,9 +116,7 @@ class ReadProtectionsControllerSpec
 
         val nino = randomNino
 
-        val ninoWithoutSuffix = nino.dropRight(1)
-
-        when(mockPLAProtectionService.retrieveHIPProtections(eqTo(ninoWithoutSuffix)))
+        when(mockPLAProtectionService.retrieveHIPProtections(eqTo(nino)))
           .thenReturn(Future.successful(None))
 
         val result = controller.readProtections(nino)(FakeRequest())

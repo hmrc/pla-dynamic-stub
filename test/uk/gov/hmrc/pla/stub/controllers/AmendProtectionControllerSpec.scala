@@ -105,12 +105,11 @@ class AmendProtectionControllerSpec
             pensionDebitTotalAmount = Some(40_000)
           )
 
-          val ninoWithoutSuffix = nino.dropRight(1)
 
-          when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(ninoWithoutSuffix), eqTo(protectionId)))
+          when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
             .thenReturn(Future.successful(Some(protection)))
 
-          when(mockPLAProtectionService.findAllHipProtectionsByNino(eqTo(ninoWithoutSuffix)))
+          when(mockPLAProtectionService.findAllHipProtectionsByNino(eqTo(nino)))
             .thenReturn(Future.successful(List(protection)))
 
           when(mockPLAProtectionService.insertOrUpdateHipProtection(any())).thenReturn(Future.successful(Ok))
@@ -165,9 +164,8 @@ class AmendProtectionControllerSpec
       val protectionId      = 12960000000123L
       val sequence          = 1
       val error             = "protection to amend not found"
-      val ninoWithoutSuffix = nino.dropRight(1)
 
-      when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(ninoWithoutSuffix), eqTo(protectionId)))
+      when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
         .thenReturn(Future.successful(None))
 
       val result = controller

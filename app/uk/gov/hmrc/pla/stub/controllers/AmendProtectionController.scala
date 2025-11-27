@@ -46,8 +46,6 @@ class AmendProtectionController @Inject() (
 
   def amendProtection(nino: String, protectionId: Long, sequence: Int): Action[JsValue] =
     Action.async(playBodyParsers.json) { implicit request =>
-      val ninoWithoutSuffix = nino.dropRight(1) // Remove when NPS code is removed and stub data is updated to use suffixes
-
       request.body
         .validate[HipAmendProtectionRequest]
         .map(_.lifetimeAllowanceProtectionRecord)
@@ -59,7 +57,7 @@ class AmendProtectionController @Inject() (
         case Right(lifetimeAllowanceProtectionRecord) =>
           amendLifetimeAllowanceProtectionRecord(
             lifetimeAllowanceProtectionRecord,
-            ninoWithoutSuffix,
+            nino,
             protectionId,
             sequence
           )
