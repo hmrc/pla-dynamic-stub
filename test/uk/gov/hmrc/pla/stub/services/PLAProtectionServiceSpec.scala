@@ -36,7 +36,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object TestData {
 
-  val nino                 = "AA000000A"
+  val nino = "AA000000A"
 
   val id: Long = 0
 
