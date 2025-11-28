@@ -24,7 +24,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, OK}
-import play.api.libs.json.JsObject
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc.Results.Ok
 import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
@@ -33,7 +33,7 @@ import uk.gov.hmrc.domain.Generator
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType._
 import uk.gov.hmrc.pla.stub.model.hip.HipNotification._
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.services.PLAProtectionService
+import uk.gov.hmrc.pla.stub.services.ProtectionService
 
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import java.util.Random
@@ -47,14 +47,14 @@ class AmendProtectionControllerSpec
     with BeforeAndAfterEach
     with Injecting {
 
-  private val mockPLAProtectionService: PLAProtectionService = mock[PLAProtectionService]
+  private val mockProtectionService: ProtectionService = mock[ProtectionService]
 
   private val nowInstant: Instant = Instant.parse("2025-08-15T12:34:56Z")
   private def fixedClock: Clock   = Clock.fixed(nowInstant, ZoneOffset.UTC)
 
   private lazy val controller: AmendProtectionController = new AmendProtectionController(
     inject[MessagesControllerComponents],
-    mockPLAProtectionService,
+    mockProtectionService,
     inject[PlayBodyParsers]
   )(inject[ExecutionContext], fixedClock)
 
@@ -63,9 +63,117 @@ class AmendProtectionControllerSpec
   def randomNino: String       = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
 
   override def beforeEach(): Unit = {
-    reset(mockPLAProtectionService)
+    reset(mockProtectionService)
     super.beforeEach()
   }
+
+  val validAmendProtectionRequestInput: JsValue = validAmendProtectionRequestInputWith()
+
+  def validAmendProtectionRequestInputWith(
+      protectionType: AmendProtectionLifetimeAllowanceType =
+        AmendProtectionLifetimeAllowanceType.IndividualProtection2014,
+      certificateDate: String = "2025-08-15",
+      certificateTime: String = "123456",
+      status: AmendProtectionRequestStatus = AmendProtectionRequestStatus.Open,
+      protectionReference: String = "IP123456789012B",
+      relevantAmount: Int = 39500,
+      preADayPensionInPaymentAmount: Int = 1500,
+      postADayBenefitCrystallisationEventAmount: Int = 2500,
+      uncrystallisedRightsAmount: Int = 75500,
+      nonUKRightsAmount: Int = 0,
+      pensionDebitAmount: Int = 25000,
+      pensionDebitEnteredAmount: Int = 25000,
+      notificationIdentifier: Int = 3,
+      protectedAmount: Int = 120000,
+      pensionDebitStartDate: String = "2026-07-09",
+      pensionDebitTotalAmount: Int = 40000
+  ): JsValue =
+    Json.parse(s"""{
+                  |  "lifetimeAllowanceProtectionRecord": {
+                  |    "type": "$protectionType",
+                  |    "certificateDate": "$certificateDate",
+                  |    "certificateTime": "$certificateTime",
+                  |    "status": "$status",
+                  |    "protectionReference": "$protectionReference",
+                  |    "relevantAmount": $relevantAmount,
+                  |    "preADayPensionInPaymentAmount": $preADayPensionInPaymentAmount,
+                  |    "postADayBenefitCrystallisationEventAmount": $postADayBenefitCrystallisationEventAmount,
+                  |    "uncrystallisedRightsAmount": $uncrystallisedRightsAmount,
+                  |    "nonUKRightsAmount": $nonUKRightsAmount,
+                  |    "pensionDebitAmount": $pensionDebitAmount,
+                  |    "pensionDebitEnteredAmount": $pensionDebitEnteredAmount,
+                  |    "notificationIdentifier": $notificationIdentifier,
+                  |    "protectedAmount": $protectedAmount,
+                  |    "pensionDebitStartDate": "$pensionDebitStartDate",
+                  |    "pensionDebitTotalAmount": $pensionDebitTotalAmount
+                  |  }
+                  |}
+    """.stripMargin)
+
+  val validHipAmendProtectionResponse: JsValue = validHipAmendProtectionResponseWith()
+
+  def validHipAmendProtectionResponseWith(
+      protectionType: AmendProtectionLifetimeAllowanceType = IndividualProtection2014,
+      identifier: Long = 12960000000123L,
+      sequenceNumber: Int = 2,
+      certificateDate: String = "2025-08-15",
+      certificateTime: String = "123456",
+      status: AmendProtectionResponseStatus = AmendProtectionResponseStatus.Withdrawn,
+      protectionReference: String = "IP123456789012B",
+      relevantAmount: Int = 27000,
+      preADayPensionInPaymentAmount: Int = 1500,
+      postADayBenefitCrystallisationEventAmount: Int = 2500,
+      uncrystallisedRightsAmount: Int = 75500,
+      nonUKRightsAmount: Int = 0,
+      notificationIdentifier: Int = 6,
+      protectedAmount: Int = 0,
+      pensionDebitTotalAmount: Int = 52500
+  ): JsValue =
+    Json.parse(
+      s"""{
+         |  "updatedLifetimeAllowanceProtectionRecord": {
+         |     "identifier": $identifier,
+         |     "sequenceNumber": $sequenceNumber,
+         |     "type": "$protectionType",
+         |     "certificateDate": "$certificateDate",
+         |     "certificateTime": "$certificateTime",
+         |     "status": "$status",
+         |     "protectionReference": "$protectionReference",
+         |     "relevantAmount": $relevantAmount,
+         |     "preADayPensionInPaymentAmount": $preADayPensionInPaymentAmount,
+         |     "postADayBenefitCrystallisationEventAmount": $postADayBenefitCrystallisationEventAmount,
+         |     "uncrystallisedRightsAmount": $uncrystallisedRightsAmount,
+         |     "nonUKRightsAmount": $nonUKRightsAmount,
+         |     "notificationIdentifier": $notificationIdentifier,
+         |     "protectedAmount": $protectedAmount,
+         |     "pensionDebitTotalAmount": $pensionDebitTotalAmount
+         |  }
+         |}
+    """.stripMargin
+    )
+
+  val invalidAmendProtectionRequestInput: JsValue =
+    Json.parse("""{
+                 |  "lifetimeAllowanceProtectionRecord": {
+                 |    "type": "INDIVIDUAL PROTECTION 2014",
+                 |    "certificateDate": "2025-08-15",
+                 |    "certificateTime": "123456",
+                 |    "status": "CLOSED",
+                 |    "protectionReference": "IP123456789012B",
+                 |    "relevantAmount": 105000,
+                 |    "preADayPensionInPaymentAmount": 1500,
+                 |    "postADayBenefitCrystallisationEventAmount": 2500,
+                 |    "uncrystallisedRightsAmount": 75500,
+                 |    "nonUKRightsAmount": 0,
+                 |    "pensionDebitAmount": 25000,
+                 |    "pensionDebitEnteredAmount": 25000,
+                 |    "notificationIdentifier": 3,
+                 |    "protectedAmount": 120000,
+                 |    "pensionDebitStartDate": "2026-07-09",
+                 |    "pensionDebitTotalAmount": 40000
+                 |  }
+                 |}
+    """.stripMargin)
 
   "amendProtections" must {
 
@@ -105,13 +213,13 @@ class AmendProtectionControllerSpec
             pensionDebitTotalAmount = Some(40_000)
           )
 
-          when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
+          when(mockProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
             .thenReturn(Future.successful(Some(protection)))
 
-          when(mockPLAProtectionService.findAllHipProtectionsByNino(eqTo(nino)))
+          when(mockProtectionService.findAllHipProtectionsByNino(eqTo(nino)))
             .thenReturn(Future.successful(List(protection)))
 
-          when(mockPLAProtectionService.insertOrUpdateHipProtection(any())).thenReturn(Future.successful(Ok))
+          when(mockProtectionService.insertOrUpdateHipProtection(any())).thenReturn(Future.successful(Ok))
 
           val result = controller
             .amendProtection(nino, protectionId, 1)
@@ -164,7 +272,7 @@ class AmendProtectionControllerSpec
       val sequence     = 1
       val error        = "protection to amend not found"
 
-      when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
+      when(mockProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
         .thenReturn(Future.successful(None))
 
       val result = controller

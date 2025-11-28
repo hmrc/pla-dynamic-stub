@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class PSALookupResult(protectionType: Int, validResult: Boolean, relevantAmount: Option[Double] = None)
 
 object PSALookupResult {
-  implicit val psaLookupResultFormat = Json.format[PSALookupResult]
+  implicit val format: OFormat[PSALookupResult] = Json.format[PSALookupResult]
 }

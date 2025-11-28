@@ -42,7 +42,7 @@ class MongoProtectionRepository @Inject() (
 ) extends PlayMongoRepository[Protections](
       mongoComponent = mongoComponent,
       collectionName = "protections",
-      domainFormat = Protections.protectionsFormat,
+      domainFormat = Protections.format,
       indexes = Seq(
         IndexModel(
           ascending("nino", "id", "version"),

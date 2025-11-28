@@ -21,29 +21,25 @@ import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, _}
 import uk.gov.hmrc.pla.stub.Generator
 import uk.gov.hmrc.pla.stub.model._
-import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 import uk.gov.hmrc.smartstub.Enumerable.instances.ninoEnumNoSpaces
 import uk.gov.hmrc.smartstub.{Generator => _, _}
 
 import javax.inject.Inject
-import uk.gov.hmrc.pla.stub.actions.ExceptionTriggersActions
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class PsaLookupController @Inject() (
     val mcc: ControllerComponents,
-    val protectionService: PLAProtectionService,
     implicit val ec: ExecutionContext,
-    playBodyParsers: PlayBodyParsers,
-    implicit val exceptionTriggersActions: ExceptionTriggersActions
+    playBodyParsers: PlayBodyParsers
 ) extends BackendController(mcc)
     with Logging {
 
   def psaLookupNew(ref: String, psaref: String): Action[JsValue] = Action(playBodyParsers.json) { _ =>
     val c1          = psaref.substring(3, 4).toShort.toChar
     val c2          = psaref.substring(5, 6).toShort.toChar
-    val nino        = c1 + c2 + psaref.substring(7, 12)
+    val nino        = (c1 + c2).+(psaref.substring(7, 12))
     val protections = Generator.genProtections(nino).seeded(nino).get.protections
     val result      = protections.find(p => p.protectionReference.contains(ref))
     result match {

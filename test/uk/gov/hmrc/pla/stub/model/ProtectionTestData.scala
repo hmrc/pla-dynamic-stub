@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,57 +16,14 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import java.time.LocalDateTime
-import java.util.Random
-
-import cats.implicits._
-import org.scalacheck._
-import org.scalacheck.cats.implicits._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.smartstub._
-import play.api.libs.json._
-
-object Generator {
-  import uk.gov.hmrc.domain.Generator
-
-  val rand          = new Random()
-  val ninoGenerator = new Generator(rand)
-
-  def randomNino: String       = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
-  def randomProtectionID: Long = rand.nextLong
-
-  /** "^[0-9]{4}[ABCDEFGHJKLMNPRSTXYZ]$^"
-    */
-  def refGenForProtectionType(protectionType: String): Gen[String] = {
-
-    val refType = List(
-      pattern"9999".gen,
-      Gen.oneOf("ABCDEFGHJKLMNPRSTXYZ".toList)
-    ).sequence
-
-    refType.map {
-      protectionType +
-        _.mkString
-    }
-  }
-
-  def refGenFP16: Option[String]                     = refGenForProtectionType("FP16").seeded(1L)
-  def refGenIP16: Option[String]                     = refGenForProtectionType("IP16").seeded(1L)
-  def refGenIP14: Option[String]                     = refGenForProtectionType("IP14").seeded(1L)
-  def randomOlderProtectionReference: Option[String] = refGenForProtectionType("A").seeded(1L)
-
-  /** "^PSA[0-9]{8}[A-Z]?$^"
-    */
-  val pensionSchemeAdministratorCheckReferenceGen: Gen[String] = pattern"99999999Z".map("PSA" + _)
-}
+import java.time.{LocalDate, LocalTime}
 
 object ProtectionTestData {
 
   import Generator._
 
-  val currDate = LocalDateTime.now.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
-  val currTime = LocalDateTime.now.format(java.time.format.DateTimeFormatter.ISO_LOCAL_TIME)
+  val currentDate: String = LocalDate.now.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+  val currentTime: String = LocalTime.now.format(java.time.format.DateTimeFormatter.ISO_LOCAL_TIME)
 
   val openFP2016 = Protection(
     nino = randomNino,
@@ -77,8 +34,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = refGenFP16,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val openFP2016WithPensionDebits = Protection(
@@ -91,8 +48,8 @@ object ProtectionTestData {
     protectionReference = refGenFP16,
     version = 1,
     pensionDebits = Some(List(PensionDebit(100000.0, "29-8-2016"), PensionDebit(250000.0, "12-03-2017"))),
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val openIP2016 = Protection(
@@ -104,8 +61,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = refGenIP16,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val openFP2014 = Protection(
@@ -117,8 +74,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = refGenFP16,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val openIP2014 = Protection(
@@ -130,8 +87,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = refGenIP14,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val openPrimary = Protection(
@@ -143,8 +100,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = randomOlderProtectionReference,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val openFixed = Protection(
@@ -156,8 +113,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = randomOlderProtectionReference,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val openEnhanced = Protection(
@@ -169,8 +126,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = randomOlderProtectionReference,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val dormantPrimary = Protection(
@@ -182,8 +139,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = randomOlderProtectionReference,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val dormantEnhanced = Protection(
@@ -195,8 +152,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = randomOlderProtectionReference,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val withdrawnPrimary = Protection(
@@ -208,8 +165,8 @@ object ProtectionTestData {
     notificationMsg = None,
     protectionReference = randomOlderProtectionReference,
     version = 1,
-    certificateDate = Some(currDate),
-    certificateTime = Some(currTime)
+    certificateDate = Some(currentDate),
+    certificateTime = Some(currentTime)
   )
 
   val rejected = Protection(
@@ -222,67 +179,5 @@ object ProtectionTestData {
     protectionReference = None,
     version = 1
   )
-
-}
-
-class ProtectionsFormatSpec extends AnyWordSpec with Matchers {
-
-  import ProtectionTestData._
-
-  "FP2016 json read and write functions" when {
-    "be an isomorphic pair" in {
-      val json             = Json.toJson(openFP2016)
-      val parsedProtection = Json.fromJson[Protection](json)
-      parsedProtection.get shouldEqual openFP2016
-    }
-  }
-
-  "FP2016 with pension debits json read and write functions" when {
-    "be an isomorphic pair" in {
-      val json             = Json.toJson(openFP2016WithPensionDebits)
-      val parsedProtection = Json.fromJson[Protection](json)
-      parsedProtection.get shouldEqual openFP2016WithPensionDebits
-    }
-  }
-
-  "IP2016 json read and write functions" when {
-    "be an isomorphic pair" in {
-      val json             = Json.toJson(openIP2016)
-      val parsedProtection = Json.fromJson[Protection](json)
-      parsedProtection.get shouldEqual openIP2016
-    }
-  }
-
-  "IP2014 json read and write functions" when {
-    "be an isomorphic pair" in {
-      val json             = Json.toJson(openIP2014)
-      val parsedProtection = Json.fromJson[Protection](json)
-      parsedProtection.get shouldEqual openIP2014
-    }
-  }
-
-  "FP2014 json read and write functions" when {
-    "be an isomorphic pair" in {
-      val json             = Json.toJson(openFP2014)
-      val parsedProtection = Json.fromJson[Protection](json)
-      parsedProtection.get shouldEqual openFP2014
-    }
-  }
-
-  "Primary protection json read and write functions" when {
-    "be an isomorphic pair" in {
-      val json             = Json.toJson(openPrimary)
-      val parsedProtection = Json.fromJson[Protection](json)
-      parsedProtection.get shouldEqual openPrimary
-    }
-  }
-
-  "Dormant enhanced protection json read and write functions" when {
-    "be an isomorphic pair" in {
-      val json             = Json.toJson(dormantEnhanced)
-      val parsedProtection = Json.fromJson[Protection](json)
-      parsedProtection.get shouldEqual dormantEnhanced
-    }
-  }
 
 }

@@ -33,7 +33,7 @@ import uk.gov.hmrc.pla.stub.model.Protections
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Open
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.IndividualProtection2016
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.services.PLAProtectionService
+import uk.gov.hmrc.pla.stub.services.ProtectionService
 
 import java.util.Random
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,7 +46,7 @@ class ReadProtectionsControllerSpec
     with BeforeAndAfterEach
     with Injecting {
 
-  private val mockPLAProtectionService: PLAProtectionService = mock[PLAProtectionService]
+  private val mockPLAProtectionService: ProtectionService = mock[ProtectionService]
 
   private lazy val controller: ReadProtectionsController = new ReadProtectionsController(
     inject[MessagesControllerComponents],

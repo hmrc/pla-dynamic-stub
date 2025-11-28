@@ -26,5 +26,5 @@ case class PSALookupUpdatedResult(
 )
 
 object PSALookupUpdatedResult {
-  implicit val psaLookupUpdatedResultFormat = Json.format[PSALookupUpdatedResult]
+  implicit val format = Json.format[PSALookupUpdatedResult]
 }
