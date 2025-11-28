@@ -27,6 +27,6 @@ case class Protections(
 )
 
 object Protections {
-  implicit val protectionsFormat = Json.format[Protections]
+  implicit val format = Json.format[Protections]
 
 }

@@ -16,27 +16,23 @@
 
 package uk.gov.hmrc.pla.stub.controllers.testControllers
 
-import uk.gov.hmrc.pla.stub.repository.MongoExceptionTriggerRepository
-import uk.gov.hmrc.pla.stub.model.{Error, ExceptionTrigger, Protections}
-import play.api.mvc._
-import uk.gov.hmrc.pla.stub.services.PLAProtectionService
-import javax.inject.Inject
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc._
 import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.pla.stub.model.{Error, Protections}
+import uk.gov.hmrc.pla.stub.services.ProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class TestSetupController @Inject() (
     val mcc: play.api.mvc.MessagesControllerComponents,
-    val protectionService: PLAProtectionService,
+    val protectionService: ProtectionService,
     implicit val ec: ExecutionContext,
     playBodyParsers: PlayBodyParsers,
     implicit val mongoComponent: MongoComponent
 ) extends BackendController(mcc) {
-
-  val exceptionTriggerRepository = new MongoExceptionTriggerRepository(mongoComponent)
 
   /** Stub-only convenience operation to add a protection to test data
     *
@@ -92,33 +88,6 @@ class TestSetupController @Inject() (
   def dropProtectionsCollection(): Action[AnyContent] = Action.async { _ =>
     protectionService.protectionsStore.removeProtectionsCollection()
     Future.successful(Ok)
-  }
-
-  /** Stub-only convenience operation to remove all exception triggers from the database
-    *
-    * @return
-    */
-  def removeExceptionTriggers(): Action[AnyContent] = Action.async { _ =>
-    exceptionTriggerRepository.removeAllExceptionTriggers()(ec)
-    Future.successful(Ok)
-  }
-
-  /** Stub-only convenience operation to add an exception trigger for a particular nino
-    *
-    * @return
-    */
-  def insertExceptionTrigger(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
-    val exceptionTriggerJs = request.body.validate[ExceptionTrigger]
-    exceptionTriggerJs.fold(
-      errors =>
-        Future.successful(BadRequest(Json.toJson(Error(message = "body failed validation with errors: " + errors)))),
-      exceptionTrigger =>
-        exceptionTriggerRepository.collection
-          .insertOne(exceptionTrigger)
-          .toFuture()
-          .map(_ => Ok)(ec)
-          .recover { case exception => Results.InternalServerError(exception.toString) }
-    )
   }
 
 }

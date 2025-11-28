@@ -21,7 +21,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.hmrc.pla.stub.model.Protections
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.services.PLAProtectionService
+import uk.gov.hmrc.pla.stub.services.ProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.smartstub.{Generator => _}
 
@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext
 
 class ReadProtectionsController @Inject() (
     val mcc: ControllerComponents,
-    val protectionService: PLAProtectionService
+    val protectionService: ProtectionService
 )(implicit val ec: ExecutionContext)
     extends BackendController(mcc)
     with Logging {

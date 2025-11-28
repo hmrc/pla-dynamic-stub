@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class PensionDebit(pensionDebitEnteredAmount: Double, pensionDebitStartDate: String)
 
 object PensionDebit {
-  implicit val pdFormat = Json.format[PensionDebit]
+  implicit val format: OFormat[PensionDebit] = Json.format[PensionDebit]
 }

@@ -26,7 +26,7 @@ import uk.gov.hmrc.pla.stub.rules.HipAmendmentRules.{
   IndividualProtection2016AmendmentRules
 }
 import uk.gov.hmrc.pla.stub.rules._
-import uk.gov.hmrc.pla.stub.services.PLAProtectionService
+import uk.gov.hmrc.pla.stub.services.ProtectionService
 import uk.gov.hmrc.pla.stub.validation.AmendRequestValidation
 import uk.gov.hmrc.pla.stub.validation.AmendRequestValidationError.{JsonValidationFailed, ProtectionNotFound}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AmendProtectionController @Inject() (
     val mcc: ControllerComponents,
-    val protectionService: PLAProtectionService,
+    val protectionService: ProtectionService,
     playBodyParsers: PlayBodyParsers
 )(implicit val ec: ExecutionContext, clock: Clock)
     extends BackendController(mcc)

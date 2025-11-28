@@ -26,7 +26,7 @@ import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PLAProtectionService @Inject() (
+class ProtectionService @Inject() (
     val protectionsStore: MongoProtectionRepository,
     implicit val ec: ExecutionContext
 ) {

@@ -20,46 +20,32 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.libs.json._
-import play.api.mvc.{ControllerComponents, PlayBodyParsers}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.pla.stub.actions.ExceptionTriggersActions
-import uk.gov.hmrc.pla.stub.services.PLAProtectionService
 
 import scala.concurrent.ExecutionContext
 
-object TestData {
+class PsaLookupControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with GuiceOneServerPerSuite {
 
-  val authHeader = "Authorization" -> "Bearer: abcdef12345678901234567890"
-  val envHeader  = "Environment"   -> "IST0"
+  def Action: ActionBuilder[Request, AnyContent] = cc.actionBuilder
 
-  val validHeadersExample   = Map(authHeader, envHeader)
-  val noAuthHeadersExample  = Map(envHeader)
-  val noEnvHeadersExample   = Map(authHeader)
-  val emptyHeadersExample   = Map[String, String]()
-  val invalidRequestJsError = JsError("invalid request body")
+  implicit val ec: ExecutionContext             = app.injector.instanceOf[ExecutionContext]
+  implicit val cc: ControllerComponents         = app.injector.instanceOf[ControllerComponents]
+  implicit val playBodyParsers: PlayBodyParsers = app.injector.instanceOf[PlayBodyParsers]
+
+  val mockController: PsaLookupController = mock[PsaLookupController]
+
+  val authHeader: (String, String) = "Authorization" -> "Bearer: abcdef12345678901234567890"
+  val envHeader: (String, String)  = "Environment"   -> "IST0"
 
   val validResponse =
     "\"pensionSchemeAdministratorCheckReference\":\"PSA12345678A\",\"ltaType\":5,\"psaCheckResult\":1,\"protectedAmount\":25000"
 
-  val notFoundResponse                   = "\"reason\":\"Resource not found\""
-  val notFoundProtectionsForNinoResponse = "\"no protections found for nino\""
-}
-
-class PsaLookupControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with GuiceOneServerPerSuite {
-
-  def Action = cc.actionBuilder
-
-  implicit val ec                            = app.injector.instanceOf[ExecutionContext]
-  implicit lazy val cc                       = app.injector.instanceOf[ControllerComponents]
-  implicit lazy val playBodyParsers          = app.injector.instanceOf[PlayBodyParsers]
-  implicit lazy val exceptionTriggersActions = app.injector.instanceOf[ExceptionTriggersActions]
-  implicit lazy val protectionService        = mock[PLAProtectionService]
-  val mockController: PsaLookupController    = mock[PsaLookupController]
+  val notFoundResponse = "\"reason\":\"Resource not found\""
 
   "PSA Lookup" when {
-    val controller = new PsaLookupController(cc, protectionService, ec, playBodyParsers, exceptionTriggersActions)
+    val controller = new PsaLookupController(cc, ec, playBodyParsers)
     "return a 403 Forbidden with empty body when provided no environment header" in {
       val result = controller.updatedPSALookup("PSA12345678A", "IP141000000000A").apply(FakeRequest())
       status(result) shouldBe FORBIDDEN
@@ -69,14 +55,14 @@ class PsaLookupControllerSpec extends AnyWordSpec with Matchers with MockitoSuga
     "return a 401 Unauthorised with body when provided no auth header" in {
       val result = controller
         .updatedPSALookup("PSA12345678A", "IP141000000000A")
-        .apply(FakeRequest().withHeaders(TestData.envHeader))
+        .apply(FakeRequest().withHeaders(envHeader))
       status(result) shouldBe UNAUTHORIZED
       contentAsString(result) should include("Required OAuth credentials not provided")
     }
 
     "return a 400 BadRequest with body when provided invalid psa and lta references" in {
       val result =
-        controller.updatedPSALookup("", "").apply(FakeRequest().withHeaders(TestData.envHeader, TestData.authHeader))
+        controller.updatedPSALookup("", "").apply(FakeRequest().withHeaders(envHeader, authHeader))
       val error =
         "Your submission contains one or more errors. Failed Parameter(s) - [pensionSchemeAdministratorCheckReference, lifetimeAllowanceReference]"
       status(result) shouldBe BAD_REQUEST
@@ -86,7 +72,7 @@ class PsaLookupControllerSpec extends AnyWordSpec with Matchers with MockitoSuga
     "return a 400 BadRequest with body when provided invalid psaReference" in {
       val result = controller
         .updatedPSALookup("", "IP141000000000A")
-        .apply(FakeRequest().withHeaders(TestData.envHeader, TestData.authHeader))
+        .apply(FakeRequest().withHeaders(envHeader, authHeader))
       val error =
         "Your submission contains one or more errors. Failed Parameter(s) - [pensionSchemeAdministratorCheckReference]"
       status(result) shouldBe BAD_REQUEST
@@ -96,7 +82,7 @@ class PsaLookupControllerSpec extends AnyWordSpec with Matchers with MockitoSuga
     "return a 400 BadRequest with body when provided invalid ltaReference" in {
       val result = controller
         .updatedPSALookup("PSA12345678A", "")
-        .apply(FakeRequest().withHeaders(TestData.envHeader, TestData.authHeader))
+        .apply(FakeRequest().withHeaders(envHeader, authHeader))
       val error = "Your submission contains one or more errors. Failed Parameter(s) - [lifetimeAllowanceReference]"
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(error)
@@ -105,25 +91,25 @@ class PsaLookupControllerSpec extends AnyWordSpec with Matchers with MockitoSuga
     "return a 404 with body when provided psa reference ending in Z" in {
       val result = controller
         .updatedPSALookup("PSA12345678Z", "IP141000000000A")
-        .apply(FakeRequest().withHeaders(TestData.envHeader, TestData.authHeader))
+        .apply(FakeRequest().withHeaders(envHeader, authHeader))
       status(result) shouldBe NOT_FOUND
-      contentAsString(result) should include(TestData.notFoundResponse)
+      contentAsString(result) should include(notFoundResponse)
     }
 
     "return a 404 with body when provided lta reference ending in Z" in {
       val result = controller
         .updatedPSALookup("PSA12345678A", "IP141000000000Z")
-        .apply(FakeRequest().withHeaders(TestData.envHeader, TestData.authHeader))
+        .apply(FakeRequest().withHeaders(envHeader, authHeader))
       status(result) shouldBe NOT_FOUND
-      contentAsString(result) should include(TestData.notFoundResponse)
+      contentAsString(result) should include(notFoundResponse)
     }
 
     "return a 200 with body when provided valid references" in {
       val result = controller
         .updatedPSALookup("PSA12345678A", "IP141000000000A")
-        .apply(FakeRequest().withHeaders(TestData.envHeader, TestData.authHeader))
+        .apply(FakeRequest().withHeaders(envHeader, authHeader))
       status(result) shouldBe OK
-      contentAsString(result) should include(TestData.validResponse)
+      contentAsString(result) should include(validResponse)
     }
   }
 

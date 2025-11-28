@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class Error(message: String)
 
 object Error {
-  implicit val errorFormat = Json.format[Error]
+  implicit val format: OFormat[Error] = Json.format[Error]
 }
