@@ -36,7 +36,6 @@ class ReadProtectionsController @Inject() (
     with Logging {
 
   def readProtections(nino: String): Action[AnyContent] = Action.async { _ =>
-
     protectionService.retrieveHIPProtections(nino).map {
       case Some(protections) =>
         Ok(Json.toJson(protections))

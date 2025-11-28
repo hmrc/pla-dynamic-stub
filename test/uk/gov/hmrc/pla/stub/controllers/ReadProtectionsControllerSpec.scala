@@ -101,7 +101,6 @@ class ReadProtectionsControllerSpec
 
         val nino = randomNino
 
-
         when(mockPLAProtectionService.retrieveHIPProtections(eqTo(nino)))
           .thenReturn(Future.successful(Some(protections)))
 

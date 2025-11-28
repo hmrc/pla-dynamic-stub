@@ -105,7 +105,6 @@ class AmendProtectionControllerSpec
             pensionDebitTotalAmount = Some(40_000)
           )
 
-
           when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
             .thenReturn(Future.successful(Some(protection)))
 
@@ -160,10 +159,10 @@ class AmendProtectionControllerSpec
     }
 
     "return 404 with no matching protection in db" in {
-      val nino              = randomNino
-      val protectionId      = 12960000000123L
-      val sequence          = 1
-      val error             = "protection to amend not found"
+      val nino         = randomNino
+      val protectionId = 12960000000123L
+      val sequence     = 1
+      val error        = "protection to amend not found"
 
       when(mockPLAProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
         .thenReturn(Future.successful(None))
