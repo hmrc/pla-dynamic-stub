@@ -20,7 +20,8 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{NotFound, Ok}
 import uk.gov.hmrc.pla.stub.Generator.pensionSchemeAdministratorCheckReferenceGen
 import uk.gov.hmrc.pla.stub.model._
-import uk.gov.hmrc.pla.stub.model.hip.{HIPProtectionsModel, HipProtection}
+import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.{Dormant, Open}
+import uk.gov.hmrc.pla.stub.model.hip.{Protection, ReadProtectionsResponse}
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
 import javax.inject.Inject
@@ -40,10 +41,10 @@ class ProtectionService @Inject() (
   def updateDormantProtectionStatusAsOpen(nino: String): Future[Unit] =
     retrieveProtections(nino).map { optProtections =>
       val protections = optProtections.get
-      protections.protections.find(_.status == 2) match {
+      protections.protections.find(_.status == Dormant) match {
         case Some(existingDormantProtection) =>
           val ltaProtections: List[Protection] =
-            existingDormantProtection.copy(status = 1) :: protections.protections.filter(_.status != 2)
+            existingDormantProtection.copy(status = Open) :: protections.protections.filter(_.status != Dormant)
           saveProtections(protections.copy(protections = ltaProtections))
         case None => ()
       }
@@ -52,13 +53,10 @@ class ProtectionService @Inject() (
   private def retrieveProtections(nino: String): Future[Option[Protections]] =
     protectionsStore.findProtectionsByNino(nino)
 
-  def retrieveHIPProtections(nino: String): Future[Option[HIPProtectionsModel]] =
-    retrieveProtections(nino).map(_.map(HIPProtectionsModel(_)))
+  def retrieveConvertedProtections(nino: String): Future[Option[ReadProtectionsResponse]] =
+    retrieveProtections(nino).map(_.map(ReadProtectionsResponse(_)))
 
-  def insertOrUpdateHipProtection(hipProtection: HipProtection): Future[Result] =
-    insertOrUpdateProtection(hipProtection.toProtection)
-
-  private def insertOrUpdateProtection(protection: Protection): Future[Result] = {
+  def insertOrUpdateProtection(protection: Protection): Future[Result] = {
     val protections                              = protectionsStore.findProtectionsByNino(protection.nino)
     val pensionSchemeAdministratorCheckReference = pensionSchemeAdministratorCheckReferenceGen.sample
 
@@ -93,19 +91,16 @@ class ProtectionService @Inject() (
       }
     }
 
-  def findAllHipProtectionsByNino(nino: String): Future[List[HipProtection]] =
+  def findAllProtectionsByNino(nino: String): Future[List[Protection]] =
     retrieveProtections(nino).map {
-      case Some(protections) => protections.protections.flatMap(HipProtection.fromProtection)
-      case _                 => List.empty[HipProtection]
+      case Some(protections) => protections.protections
+      case _                 => List.empty[Protection]
     }
 
-  private def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] =
+  def findProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[Protection]] =
     for {
       protections <- retrieveProtections(nino)
       result = protections.flatMap(_.protections.find(_.id == protectionId))
     } yield result
-
-  def findHipProtectionByNinoAndId(nino: String, protectionId: Long): Future[Option[HipProtection]] =
-    findProtectionByNinoAndId(nino, protectionId).map(_.flatMap(HipProtection.fromProtection)) // If protection fails to convert it is ignored
 
 }

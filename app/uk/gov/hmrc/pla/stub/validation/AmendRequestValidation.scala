@@ -17,7 +17,7 @@
 package uk.gov.hmrc.pla.stub.validation
 
 import AmendRequestValidationError._
-import uk.gov.hmrc.pla.stub.model.hip.{HipProtection, LifetimeAllowanceProtectionRecord}
+import uk.gov.hmrc.pla.stub.model.hip.{LifetimeAllowanceProtectionRecord, Protection}
 
 import java.time.{LocalDate, LocalTime}
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
@@ -60,9 +60,9 @@ object AmendRequestValidation {
 
   def validateRequestAgainstTarget(
       lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord,
-      amendmentTarget: HipProtection,
+      amendmentTarget: Protection,
       sequence: Int
-  ): Either[AmendRequestValidationError, HipProtection] =
+  ): Either[AmendRequestValidationError, Protection] =
     if (amendmentTarget.`type` != lifetimeAllowanceProtectionRecord.`type`.toProtectionType) {
       Left(ProtectionTypeDoesNotMatch)
     } else if (amendmentTarget.sequence != sequence) {

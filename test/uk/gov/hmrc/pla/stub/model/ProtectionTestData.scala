@@ -16,6 +16,17 @@
 
 package uk.gov.hmrc.pla.stub.model
 
+import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{
+  EnhancedProtection,
+  FixedProtection,
+  FixedProtection2014,
+  FixedProtection2016,
+  IndividualProtection2014,
+  IndividualProtection2016,
+  PrimaryProtection
+}
+import uk.gov.hmrc.pla.stub.model.hip.{Protection, ProtectionStatus}
+
 import java.time.{LocalDate, LocalTime}
 
 object ProtectionTestData {
@@ -28,156 +39,169 @@ object ProtectionTestData {
   val openFP2016 = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.FP2016),
-    status = Protection.extractedStatus(Protection.Status.Open),
-    notificationID = Some(22),
-    notificationMsg = None,
-    protectionReference = refGenFP16,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Open,
+    `type` = FixedProtection2016,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = refGenFP16
   )
 
   val openFP2016WithPensionDebits = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.FP2016),
-    status = Protection.extractedStatus(Protection.Status.Open),
-    notificationID = Some(22),
-    notificationMsg = None,
-    protectionReference = refGenFP16,
-    version = 1,
-    pensionDebits = Some(List(PensionDebit(100000.0, "29-8-2016"), PensionDebit(250000.0, "12-03-2017"))),
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Open,
+    `type` = FixedProtection2016,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = refGenFP16
   )
 
   val openIP2016 = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.IP2016),
-    status = Protection.extractedStatus(Protection.Status.Open),
-    notificationID = Some(12),
-    notificationMsg = None,
-    protectionReference = refGenIP16,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Open,
+    `type` = IndividualProtection2016,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = refGenIP16
   )
 
   val openFP2014 = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.FP2014),
-    status = Protection.extractedStatus(Protection.Status.Open),
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = refGenFP16,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Open,
+    `type` = FixedProtection2014,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = refGenFP16
   )
 
   val openIP2014 = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.IP2014),
-    status = Protection.extractedStatus(Protection.Status.Open),
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = refGenIP14,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Open,
+    `type` = IndividualProtection2014,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = refGenIP14
   )
 
   val openPrimary = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.Primary),
-    status = Protection.extractedStatus(Protection.Status.Open),
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = randomOlderProtectionReference,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Open,
+    `type` = PrimaryProtection,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = randomOlderProtectionReference
   )
 
   val openFixed = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.Fixed),
-    status = Protection.extractedStatus(Protection.Status.Open),
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = randomOlderProtectionReference,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Open,
+    `type` = FixedProtection,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = randomOlderProtectionReference
   )
 
   val openEnhanced = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.Enhanced),
-    status = Protection.extractedStatus(Protection.Status.Open),
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = randomOlderProtectionReference,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Open,
+    `type` = EnhancedProtection,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = randomOlderProtectionReference
   )
 
   val dormantPrimary = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.Primary),
-    status = Protection.extractedStatus(Protection.Status.Dormant),
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = randomOlderProtectionReference,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Dormant,
+    `type` = PrimaryProtection,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = randomOlderProtectionReference
   )
 
   val dormantEnhanced = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.Enhanced),
-    status = Protection.extractedStatus(Protection.Status.Dormant),
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = randomOlderProtectionReference,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Dormant,
+    `type` = EnhancedProtection,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = randomOlderProtectionReference
   )
 
   val withdrawnPrimary = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.Enhanced),
-    status = Protection.extractedStatus(Protection.Status.Withdrawn),
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = randomOlderProtectionReference,
-    version = 1,
-    certificateDate = Some(currentDate),
-    certificateTime = Some(currentTime)
+    sequence = 1,
+    status = ProtectionStatus.Withdrawn,
+    `type` = PrimaryProtection,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = randomOlderProtectionReference
   )
 
   val rejected = Protection(
     nino = randomNino,
     id = randomProtectionID,
-    `type` = Protection.extractedType(Protection.Type.IP2016),
-    status = Protection.extractedStatus(Protection.Status.Rejected),
-    notificationID = Some(21),
-    notificationMsg = None,
-    protectionReference = None,
-    version = 1
+    sequence = 1,
+    status = ProtectionStatus.Rejected,
+    `type` = IndividualProtection2016,
+    relevantAmount = 1_254_000,
+    preADayPensionInPaymentAmount = 0,
+    postADayBenefitCrystallisationEventAmount = 0,
+    uncrystallisedRightsAmount = 0,
+    nonUKRightsAmount = 0,
+    protectionReference = None
   )
 
 }
