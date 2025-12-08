@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.pla.stub.rules
 
-import uk.gov.hmrc.pla.stub.model.hip.HipNotification._
+import uk.gov.hmrc.pla.stub.model.hip.Notification._
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{
   EnhancedProtection,
   EnhancedProtectionLTA,
@@ -27,9 +27,9 @@ import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{
   FixedProtection2016LTA,
   FixedProtectionLTA
 }
-import uk.gov.hmrc.pla.stub.model.hip.{HipNotification, HipProtection, ProtectionStatus, ProtectionType}
+import uk.gov.hmrc.pla.stub.model.hip.{Notification, Protection, ProtectionStatus, ProtectionType}
 
-sealed trait HipAmendmentRules {
+sealed trait AmendmentRules {
 
   /** @param relevantAmount
     *   the relevant amount on the amendment request
@@ -38,19 +38,19 @@ sealed trait HipAmendmentRules {
     * @return
     *   the outcome of the business rules check in the form of a HipNotification object with id field in 1-14 range
     */
-  def calculateNotificationId(relevantAmount: Double, otherExistingProtections: List[HipProtection]): HipNotification
+  def calculateNotificationId(relevantAmount: Double, otherExistingProtections: List[Protection]): Notification
 }
 
-object HipAmendmentRules {
+object AmendmentRules {
 
-  object IndividualProtection2014AmendmentRules extends HipAmendmentRules {
+  object IndividualProtection2014AmendmentRules extends AmendmentRules {
 
     override def calculateNotificationId(
         relevantAmount: Double,
-        otherExistingProtections: List[HipProtection]
-    ): HipNotification = {
+        otherExistingProtections: List[Protection]
+    ): Notification = {
       val withdraw       = relevantAmount < 1_250_001
-      val defaultOutcome = if (withdraw) HipNotification6 else HipNotification1
+      val defaultOutcome = if (withdraw) Notification6 else Notification1
 
       val otherOpenProtection        = otherExistingProtections.find(_.status == ProtectionStatus.Open)
       val dormantFixedProtection2016 = otherExistingProtections.exists(isDormantFixedProtection2016)
@@ -58,11 +58,11 @@ object HipAmendmentRules {
       otherOpenProtection
         .map { openProtection =>
           (withdraw, openProtection.`type`, dormantFixedProtection2016) match {
-            case (false, EnhancedProtection | EnhancedProtectionLTA, false)   => HipNotification2
-            case (false, FixedProtection | FixedProtectionLTA, false)         => HipNotification3
-            case (false, FixedProtection2014 | FixedProtection2014LTA, false) => HipNotification4
-            case (false, _, true)                                             => HipNotification5
-            case (true, _, true)                                              => HipNotification7
+            case (false, EnhancedProtection | EnhancedProtectionLTA, false)   => Notification2
+            case (false, FixedProtection | FixedProtectionLTA, false)         => Notification3
+            case (false, FixedProtection2014 | FixedProtection2014LTA, false) => Notification4
+            case (false, _, true)                                             => Notification5
+            case (true, _, true)                                              => Notification7
             case _                                                            => defaultOutcome
           }
         }
@@ -71,25 +71,25 @@ object HipAmendmentRules {
 
   }
 
-  object IndividualProtection2016AmendmentRules extends HipAmendmentRules {
+  object IndividualProtection2016AmendmentRules extends AmendmentRules {
 
     override def calculateNotificationId(
         relevantAmount: Double,
-        otherExistingProtections: List[HipProtection]
-    ): HipNotification = {
+        otherExistingProtections: List[Protection]
+    ): Notification = {
       val withdraw       = relevantAmount < 1_000_001
-      val defaultOutcome = if (withdraw) HipNotification13 else HipNotification8
+      val defaultOutcome = if (withdraw) Notification13 else Notification8
 
       val otherOpenProtection        = otherExistingProtections.find(_.status == ProtectionStatus.Open)
       val dormantFixedProtection2016 = otherExistingProtections.exists(isDormantFixedProtection2016)
       otherOpenProtection
         .map { openProtection =>
           (withdraw, openProtection.`type`, dormantFixedProtection2016) match {
-            case (false, EnhancedProtection | EnhancedProtectionLTA, false)   => HipNotification9
-            case (false, FixedProtection | FixedProtectionLTA, false)         => HipNotification10
-            case (false, FixedProtection2014 | FixedProtection2014LTA, false) => HipNotification11
-            case (false, FixedProtection2016 | FixedProtection2016LTA, false) => HipNotification12
-            case (true, _, true)                                              => HipNotification14
+            case (false, EnhancedProtection | EnhancedProtectionLTA, false)   => Notification9
+            case (false, FixedProtection | FixedProtectionLTA, false)         => Notification10
+            case (false, FixedProtection2014 | FixedProtection2014LTA, false) => Notification11
+            case (false, FixedProtection2016 | FixedProtection2016LTA, false) => Notification12
+            case (true, _, true)                                              => Notification14
             case _                                                            => defaultOutcome
           }
         }
@@ -105,7 +105,7 @@ object HipAmendmentRules {
       case _                      => false
     }
 
-  private def isDormantFixedProtection2016(protection: HipProtection): Boolean =
+  private def isDormantFixedProtection2016(protection: Protection): Boolean =
     isFixedProtection2016(protection.`type`) && protection.status == ProtectionStatus.Dormant
 
 }

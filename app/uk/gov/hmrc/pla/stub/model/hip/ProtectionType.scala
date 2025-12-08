@@ -22,26 +22,23 @@ sealed abstract class ProtectionType(val value: String, val toPlaId: Int) extend
 
 object ProtectionType extends Enumerable.Implicits {
 
-  case object EnhancedProtection     extends ProtectionType("ENHANCED PROTECTION", PlaId.EnhancedProtection)
-  case object EnhancedProtectionLTA  extends ProtectionType("ENHANCED PROTECTION LTA", PlaId.EnhancedProtectionLTA)
-  case object FixedProtection        extends ProtectionType("FIXED PROTECTION", PlaId.FixedProtection)
-  case object FixedProtection2014    extends ProtectionType("FIXED PROTECTION 2014", PlaId.FixedProtection2014)
-  case object FixedProtection2014LTA extends ProtectionType("FIXED PROTECTION 2014 LTA", PlaId.FixedProtection2014LTA)
-  case object FixedProtection2016    extends ProtectionType("FIXED PROTECTION 2016", PlaId.FixedProtection2016)
-  case object FixedProtection2016LTA extends ProtectionType("FIXED PROTECTION 2016 LTA", PlaId.FixedProtection2016LTA)
-  case object FixedProtectionLTA     extends ProtectionType("FIXED PROTECTION LTA", PlaId.FixedProtectionLTA)
+  case object FixedProtection2016 extends ProtectionType("FIXED PROTECTION 2016", PlaId.FixedProtection2016)
 
   case object IndividualProtection2014
       extends ProtectionType("INDIVIDUAL PROTECTION 2014", PlaId.IndividualProtection2014)
 
-  case object IndividualProtection2014LTA
-      extends ProtectionType("INDIVIDUAL PROTECTION 2014 LTA", PlaId.IndividualProtection2014LTA)
-
   case object IndividualProtection2016
       extends ProtectionType("INDIVIDUAL PROTECTION 2016", PlaId.IndividualProtection2016)
 
-  case object IndividualProtection2016LTA
-      extends ProtectionType("INDIVIDUAL PROTECTION 2016 LTA", PlaId.IndividualProtection2016LTA)
+  case object PrimaryProtection extends ProtectionType("PRIMARY PROTECTION", PlaId.PrimaryProtection)
+
+  case object EnhancedProtection extends ProtectionType("ENHANCED PROTECTION", PlaId.EnhancedProtection)
+
+  case object FixedProtection extends ProtectionType("FIXED PROTECTION", PlaId.FixedProtection)
+
+  case object FixedProtection2014 extends ProtectionType("FIXED PROTECTION 2014", PlaId.FixedProtection2014)
+
+  case object PensionCreditRights extends ProtectionType("PENSION CREDIT RIGHTS", PlaId.PensionCreditRights)
 
   case object InternationalEnhancementS221
       extends ProtectionType("INTERNATIONAL ENHANCEMENT (S221)", PlaId.InternationalEnhancementS221)
@@ -49,9 +46,21 @@ object ProtectionType extends Enumerable.Implicits {
   case object InternationalEnhancementS224
       extends ProtectionType("INTERNATIONAL ENHANCEMENT (S224)", PlaId.InternationalEnhancementS224)
 
-  case object PensionCreditRights  extends ProtectionType("PENSION CREDIT RIGHTS", PlaId.PensionCreditRights)
-  case object PrimaryProtection    extends ProtectionType("PRIMARY PROTECTION", PlaId.PrimaryProtection)
+  case object FixedProtection2016LTA extends ProtectionType("FIXED PROTECTION 2016 LTA", PlaId.FixedProtection2016LTA)
+
+  case object IndividualProtection2014LTA
+      extends ProtectionType("INDIVIDUAL PROTECTION 2014 LTA", PlaId.IndividualProtection2014LTA)
+
+  case object IndividualProtection2016LTA
+      extends ProtectionType("INDIVIDUAL PROTECTION 2016 LTA", PlaId.IndividualProtection2016LTA)
+
   case object PrimaryProtectionLTA extends ProtectionType("PRIMARY PROTECTION LTA", PlaId.PrimaryProtectionLTA)
+
+  case object EnhancedProtectionLTA extends ProtectionType("ENHANCED PROTECTION LTA", PlaId.EnhancedProtectionLTA)
+
+  case object FixedProtectionLTA extends ProtectionType("FIXED PROTECTION LTA", PlaId.FixedProtectionLTA)
+
+  case object FixedProtection2014LTA extends ProtectionType("FIXED PROTECTION 2014 LTA", PlaId.FixedProtection2014LTA)
 
   val values: Seq[ProtectionType] = Seq(
     FixedProtection2016,
@@ -84,6 +93,9 @@ object ProtectionType extends Enumerable.Implicits {
     case PlaId.EnhancedProtection           => Some(EnhancedProtection)
     case PlaId.FixedProtection              => Some(FixedProtection)
     case PlaId.FixedProtection2014          => Some(FixedProtection2014)
+    case PlaId.PensionCreditRights          => Some(PensionCreditRights)
+    case PlaId.InternationalEnhancementS221 => Some(InternationalEnhancementS221)
+    case PlaId.InternationalEnhancementS224 => Some(InternationalEnhancementS224)
     case PlaId.FixedProtection2016LTA       => Some(FixedProtection2016LTA)
     case PlaId.IndividualProtection2014LTA  => Some(IndividualProtection2014LTA)
     case PlaId.IndividualProtection2016LTA  => Some(IndividualProtection2016LTA)
@@ -91,9 +103,6 @@ object ProtectionType extends Enumerable.Implicits {
     case PlaId.EnhancedProtectionLTA        => Some(EnhancedProtectionLTA)
     case PlaId.FixedProtectionLTA           => Some(FixedProtectionLTA)
     case PlaId.FixedProtection2014LTA       => Some(FixedProtection2014LTA)
-    case PlaId.InternationalEnhancementS221 => Some(InternationalEnhancementS221)
-    case PlaId.InternationalEnhancementS224 => Some(InternationalEnhancementS224)
-    case PlaId.PensionCreditRights          => Some(PensionCreditRights)
     case _                                  => None
   }
 
@@ -105,16 +114,16 @@ object ProtectionType extends Enumerable.Implicits {
     val EnhancedProtection           = 5
     val FixedProtection              = 6
     val FixedProtection2014          = 7
-    val FixedProtection2016LTA       = 8
-    val IndividualProtection2014LTA  = 9
-    val IndividualProtection2016LTA  = 10
-    val PrimaryProtectionLTA         = 11
-    val EnhancedProtectionLTA        = 12
-    val FixedProtectionLTA           = 13
-    val FixedProtection2014LTA       = 14
-    val InternationalEnhancementS221 = 15
-    val InternationalEnhancementS224 = 16
-    val PensionCreditRights          = 17
+    val PensionCreditRights          = 8
+    val InternationalEnhancementS221 = 9
+    val InternationalEnhancementS224 = 10
+    val FixedProtection2016LTA       = 11
+    val IndividualProtection2014LTA  = 12
+    val IndividualProtection2016LTA  = 13
+    val PrimaryProtectionLTA         = 14
+    val EnhancedProtectionLTA        = 15
+    val FixedProtectionLTA           = 16
+    val FixedProtection2014LTA       = 17
   }
 
 }

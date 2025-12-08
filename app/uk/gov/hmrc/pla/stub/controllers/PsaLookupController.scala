@@ -21,6 +21,7 @@ import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent, _}
 import uk.gov.hmrc.pla.stub.Generator
 import uk.gov.hmrc.pla.stub.model._
+import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Open
 import uk.gov.hmrc.smartstub.Enumerable.instances.ninoEnumNoSpaces
 import uk.gov.hmrc.smartstub.{Generator => _, _}
 
@@ -43,8 +44,12 @@ class PsaLookupController @Inject() (
     val protections = Generator.genProtections(nino).seeded(nino).get.protections
     val result      = protections.find(p => p.protectionReference.contains(ref))
     result match {
-      case Some(protection) if protection.status == 1 =>
-        Ok(Json.toJson(PSALookupResult(protection.`type`, validResult = true, protection.relevantAmount)))
+      case Some(protection) if protection.status == Open =>
+        Ok(
+          Json.toJson(
+            PSALookupResult(protection.`type`.toPlaId, validResult = true, Some(protection.relevantAmount.toDouble))
+          )
+        )
       case _ => Ok(Json.toJson(PSALookupResult(0, validResult = false, None)))
     }
   }

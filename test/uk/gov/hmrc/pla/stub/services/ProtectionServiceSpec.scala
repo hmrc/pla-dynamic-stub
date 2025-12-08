@@ -29,7 +29,7 @@ import play.api.mvc.Results
 import play.api.test.Injecting
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Withdrawn
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.model.{Protection, Protections}
+import uk.gov.hmrc.pla.stub.model.Protections
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -61,17 +61,6 @@ class ProtectionServiceSpec
   val protection = Protection(
     nino = nino,
     id = id,
-    version = 0,
-    `type` = 2,
-    status = 1,
-    notificationID = None,
-    notificationMsg = None,
-    protectionReference = None
-  )
-
-  val hipProtection = HipProtection(
-    nino = nino,
-    id = id,
     sequence = 0,
     status = ProtectionStatus.Open,
     `type` = ProtectionType.IndividualProtection2014,
@@ -85,17 +74,17 @@ class ProtectionServiceSpec
 
   "Protection Service" when {
 
-    "retrieveHIPProtections is called" must {
+    "retrieveConvertedProtections is called" must {
 
       "return None when no data can be found" in {
 
         when(mockProtectionsStore.findProtectionsByNino(eqTo(nino)))
           .thenReturn(Future.successful(None))
 
-        protectionService.retrieveHIPProtections(nino).futureValue shouldBe None
+        protectionService.retrieveConvertedProtections(nino).futureValue shouldBe None
       }
 
-      "transform response to HIP Protections Model when data is returned" in {
+      "transform response to Protections Model when data is returned" in {
 
         when(mockProtectionsStore.findProtectionsByNino(eqTo(nino)))
           .thenReturn(
@@ -104,16 +93,16 @@ class ProtectionServiceSpec
             )
           )
 
-        protectionService.retrieveHIPProtections(nino).futureValue shouldBe Some(
-          HIPProtectionsModel(
+        protectionService.retrieveConvertedProtections(nino).futureValue shouldBe Some(
+          ReadProtectionsResponse(
             psaCheckReference,
-            Seq(ProtectionRecordsList(ProtectionRecord(protection), None))
+            Seq(ProtectionRecordsList(ProtectionRecord.apply(protection), None))
           )
         )
       }
     }
 
-    "insertOrUpdateHipProtection is called" must {
+    "insertOrUpdateProtection is called" must {
 
       "insert a record if it does not exist" in {
 
@@ -127,7 +116,7 @@ class ProtectionServiceSpec
           .thenReturn(Future.successful((): Unit))
 
         protectionService
-          .insertOrUpdateHipProtection(hipProtection.copy(nino = nino))
+          .insertOrUpdateProtection(protection.copy(nino = nino))
           .futureValue shouldBe Results.Ok
 
         val mock = Mockito.inOrder(mockProtectionsStore)
@@ -155,7 +144,7 @@ class ProtectionServiceSpec
           .thenReturn(Future.successful((): Unit))
 
         protectionService
-          .insertOrUpdateHipProtection(hipProtection.copy(nino = nino, status = Withdrawn))
+          .insertOrUpdateProtection(protection.copy(nino = nino, status = Withdrawn))
           .futureValue shouldBe Results.Ok
 
         val mock = Mockito.inOrder(mockProtectionsStore)
@@ -169,14 +158,14 @@ class ProtectionServiceSpec
       }
     }
 
-    "findHipProtectionByNinoAndId is called" must {
+    "findProtectionByNinoAndId is called" must {
 
       "return None if no protection is present with a matching Nino" in {
 
         when(mockProtectionsStore.findProtectionsByNino(eqTo(nino)))
           .thenReturn(Future.successful(None))
 
-        protectionService.findHipProtectionByNinoAndId(nino, id).futureValue shouldBe None
+        protectionService.findProtectionByNinoAndId(nino, id).futureValue shouldBe None
 
         verify(mockProtectionsStore).findProtectionsByNino(nino)
       }
@@ -190,7 +179,7 @@ class ProtectionServiceSpec
             )
           )
 
-        protectionService.findHipProtectionByNinoAndId(nino, 1).futureValue shouldBe None
+        protectionService.findProtectionByNinoAndId(nino, 1).futureValue shouldBe None
 
         verify(mockProtectionsStore).findProtectionsByNino(nino)
       }
@@ -204,23 +193,23 @@ class ProtectionServiceSpec
             )
           )
 
-        protectionService.findHipProtectionByNinoAndId(nino, id).futureValue shouldBe Some(
-          hipProtection.copy(nino = nino)
+        protectionService.findProtectionByNinoAndId(nino, id).futureValue shouldBe Some(
+          protection.copy(nino = nino)
         )
 
         verify(mockProtectionsStore).findProtectionsByNino(nino)
       }
     }
 
-    "findAllHipProtectionsByNino is called" must {
+    "findAllProtectionsByNino is called" must {
 
       "return None if no protections are present with a matching Nino" in {
 
         when(mockProtectionsStore.findProtectionsByNino(eqTo(nino)))
           .thenReturn(Future.successful(None))
 
-        protectionService.findAllHipProtectionsByNino(nino).futureValue shouldBe List
-          .empty[HipProtection]
+        protectionService.findAllProtectionsByNino(nino).futureValue shouldBe List
+          .empty[Protection]
 
         verify(mockProtectionsStore).findProtectionsByNino(nino)
       }
@@ -234,8 +223,8 @@ class ProtectionServiceSpec
             )
           )
 
-        protectionService.findAllHipProtectionsByNino(nino).futureValue shouldBe List(
-          hipProtection.copy(nino = nino)
+        protectionService.findAllProtectionsByNino(nino).futureValue shouldBe List(
+          protection.copy(nino = nino)
         )
 
         verify(mockProtectionsStore).findProtectionsByNino(nino)

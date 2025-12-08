@@ -19,6 +19,7 @@ package uk.gov.hmrc.pla.stub.model
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json._
+import uk.gov.hmrc.pla.stub.model.hip.Protection
 
 class ProtectionsFormatSpec extends AnyWordSpec with Matchers {
 

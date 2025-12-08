@@ -36,12 +36,12 @@ class ReadProtectionsController @Inject() (
     with Logging {
 
   def readProtections(nino: String): Action[AnyContent] = Action.async { _ =>
-    protectionService.retrieveHIPProtections(nino).map {
+    protectionService.retrieveConvertedProtections(nino).map {
       case Some(protections) =>
         Ok(Json.toJson(protections))
       case None =>
         logger.info("No protections set for given Nino, returning empty protections list")
-        Ok(Json.toJson(HIPProtectionsModel(Protections(nino, Some("stubPSACheckRef"), List.empty))))
+        Ok(Json.toJson(ReadProtectionsResponse(Protections(nino, Some("stubPSACheckRef"), List.empty))))
     }
   }
 

@@ -68,7 +68,7 @@ class ReadProtectionsControllerSpec
 
       "protections are present in the cache for the given nino" in {
 
-        val protections: HIPProtectionsModel = HIPProtectionsModel(
+        val protections: ReadProtectionsResponse = ReadProtectionsResponse(
           "1234567890",
           Seq(
             ProtectionRecordsList(
@@ -101,7 +101,7 @@ class ReadProtectionsControllerSpec
 
         val nino = randomNino
 
-        when(mockPLAProtectionService.retrieveHIPProtections(eqTo(nino)))
+        when(mockPLAProtectionService.retrieveConvertedProtections(eqTo(nino)))
           .thenReturn(Future.successful(Some(protections)))
 
         val result = controller.readProtections(nino)(FakeRequest())
@@ -115,7 +115,7 @@ class ReadProtectionsControllerSpec
 
         val nino = randomNino
 
-        when(mockPLAProtectionService.retrieveHIPProtections(eqTo(nino)))
+        when(mockPLAProtectionService.retrieveConvertedProtections(eqTo(nino)))
           .thenReturn(Future.successful(None))
 
         val result = controller.readProtections(nino)(FakeRequest())
@@ -123,7 +123,7 @@ class ReadProtectionsControllerSpec
         status(result) shouldBe OK
 
         contentAsJson(result) shouldBe Json.toJson(
-          HIPProtectionsModel(Protections(nino, Some("stubPSACheckRef"), List.empty))
+          ReadProtectionsResponse(Protections(nino, Some("stubPSACheckRef"), List.empty))
         )
       }
     }

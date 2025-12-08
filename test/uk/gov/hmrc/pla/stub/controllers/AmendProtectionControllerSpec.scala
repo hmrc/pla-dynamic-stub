@@ -31,7 +31,7 @@ import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeou
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.domain.Generator
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType._
-import uk.gov.hmrc.pla.stub.model.hip.HipNotification._
+import uk.gov.hmrc.pla.stub.model.hip.Notification._
 import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.services.ProtectionService
 
@@ -110,9 +110,9 @@ class AmendProtectionControllerSpec
                   |}
     """.stripMargin)
 
-  val validHipAmendProtectionResponse: JsValue = validHipAmendProtectionResponseWith()
+  val validAmendProtectionResponse: JsValue = validAmendProtectionResponseWith()
 
-  def validHipAmendProtectionResponseWith(
+  def validAmendProtectionResponseWith(
       protectionType: AmendProtectionLifetimeAllowanceType = IndividualProtection2014,
       identifier: Long = 12960000000123L,
       sequenceNumber: Int = 2,
@@ -192,7 +192,7 @@ class AmendProtectionControllerSpec
           val sequence            = 1
           val protectionReference = "IP123456789012B"
 
-          val protection = HipProtection(
+          val protection = Protection(
             nino = nino,
             id = protectionId,
             sequence = sequence,
@@ -213,13 +213,13 @@ class AmendProtectionControllerSpec
             pensionDebitTotalAmount = Some(40_000)
           )
 
-          when(mockProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
+          when(mockProtectionService.findProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
             .thenReturn(Future.successful(Some(protection)))
 
-          when(mockProtectionService.findAllHipProtectionsByNino(eqTo(nino)))
+          when(mockProtectionService.findAllProtectionsByNino(eqTo(nino)))
             .thenReturn(Future.successful(List(protection)))
 
-          when(mockProtectionService.insertOrUpdateHipProtection(any())).thenReturn(Future.successful(Ok))
+          when(mockProtectionService.insertOrUpdateProtection(any())).thenReturn(Future.successful(Ok))
 
           val result = controller
             .amendProtection(nino, protectionId, 1)
@@ -235,7 +235,7 @@ class AmendProtectionControllerSpec
           val resultBody = contentAsJson(result).asInstanceOf[JsObject]
 
           resultBody.shouldBe(
-            validHipAmendProtectionResponseWith(
+            validAmendProtectionResponseWith(
               protectionType = protectionType,
               notificationIdentifier = notificationIdentifier
             )
@@ -272,7 +272,7 @@ class AmendProtectionControllerSpec
       val sequence     = 1
       val error        = "protection to amend not found"
 
-      when(mockProtectionService.findHipProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
+      when(mockProtectionService.findProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
         .thenReturn(Future.successful(None))
 
       val result = controller
@@ -317,8 +317,8 @@ class AmendProtectionControllerSpec
 
     "return true" when
       Seq(
-        HipNotification7,
-        HipNotification14
+        Notification7,
+        Notification14
       ).foreach { notification =>
         s"provided with notification ID ${notification.id}" in {
           controller.opensDormantFixedProtection2016(notification) shouldBe true
@@ -327,18 +327,18 @@ class AmendProtectionControllerSpec
 
     "return false" when
       Seq(
-        HipNotification1,
-        HipNotification2,
-        HipNotification3,
-        HipNotification4,
-        HipNotification5,
-        HipNotification6,
-        HipNotification8,
-        HipNotification9,
-        HipNotification10,
-        HipNotification11,
-        HipNotification12,
-        HipNotification13
+        Notification1,
+        Notification2,
+        Notification3,
+        Notification4,
+        Notification5,
+        Notification6,
+        Notification8,
+        Notification9,
+        Notification10,
+        Notification11,
+        Notification12,
+        Notification13
       ).foreach { notification =>
         s"provided with notification ID ${notification.id}" in {
           controller.opensDormantFixedProtection2016(notification) shouldBe false

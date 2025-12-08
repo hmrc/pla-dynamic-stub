@@ -17,6 +17,7 @@
 package uk.gov.hmrc.pla.stub.model
 
 import play.api.libs.json._
+import uk.gov.hmrc.pla.stub.model.hip.Protection
 
 /** Details of all protections for an individual, including a check reference for the PSA
   */

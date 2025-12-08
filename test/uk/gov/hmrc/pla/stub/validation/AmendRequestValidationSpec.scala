@@ -21,8 +21,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.pla.stub.model.hip.{
   AmendProtectionLifetimeAllowanceType,
   AmendProtectionRequestStatus,
-  HipProtection,
   LifetimeAllowanceProtectionRecord,
+  Protection,
   ProtectionStatus,
   ProtectionType
 }
@@ -53,7 +53,7 @@ class AmendRequestValidationSpec extends AnyWordSpec with Matchers {
     pensionDebitTotalAmount = Some(125_000)
   )
 
-  val testAmendmentTarget = HipProtection(
+  val testAmendmentTarget = Protection(
     nino = nino,
     id = protectionId,
     sequence = sequence,
