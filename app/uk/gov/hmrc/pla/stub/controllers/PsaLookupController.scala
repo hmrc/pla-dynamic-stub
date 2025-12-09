@@ -40,7 +40,8 @@ class PsaLookupController @Inject() (
   def psaLookupNew(ref: String, psaref: String): Action[JsValue] = Action(playBodyParsers.json) { _ =>
     val c1          = psaref.substring(3, 4).toShort.toChar
     val c2          = psaref.substring(5, 6).toShort.toChar
-    val nino        = (c1 + c2).+(psaref.substring(7, 12))
+    val ninoNumbers = psaref.substring(7, 12)
+    val nino        = s"$c1$c2$ninoNumbers"
     val protections = Generator.genProtections(nino).seeded(nino).get.protections
     val result      = protections.find(p => p.protectionReference.contains(ref))
     result match {

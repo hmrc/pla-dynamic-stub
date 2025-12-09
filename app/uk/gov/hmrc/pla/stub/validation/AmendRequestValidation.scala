@@ -16,11 +16,8 @@
 
 package uk.gov.hmrc.pla.stub.validation
 
-import AmendRequestValidationError._
 import uk.gov.hmrc.pla.stub.model.hip.{LifetimeAllowanceProtectionRecord, Protection}
-
-import java.time.{LocalDate, LocalTime}
-import java.time.format.{DateTimeFormatter, DateTimeParseException}
+import uk.gov.hmrc.pla.stub.validation.AmendRequestValidationError._
 
 object AmendRequestValidation {
 
@@ -42,17 +39,11 @@ object AmendRequestValidation {
     } else if (lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount < 0) {
       Left(PostADayBenefitCrystallisationEventAmountNotPositive)
     } else if (lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount < 0) {
-      Left(PreADayPensionInPaymentAmountNotPostive)
+      Left(PreADayPensionInPaymentAmountNotPositive)
     } else if (lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount < 0) {
       Left(UncrystallisedRightsAmountNotPositive)
     } else if (lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount.exists(_ < 0)) {
       Left(PensionDebitEnteredAmountNotPositive)
-    } else if (lifetimeAllowanceProtectionRecord.certificateDate.map(parseDate).contains(None)) {
-      Left(CertificateDateInvalid)
-    } else if (!lifetimeAllowanceProtectionRecord.certificateTime.forall(isTimeValid)) {
-      Left(CertificateTimeInvalid)
-    } else if (lifetimeAllowanceProtectionRecord.pensionDebitStartDate.map(parseDate).contains(None)) {
-      Left(PensionDebitStartDateInvalid)
     } else {
       Right(lifetimeAllowanceProtectionRecord)
     }
@@ -79,34 +70,5 @@ object AmendRequestValidation {
       lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount +
       lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount -
       lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount.getOrElse(0)
-
-  private val CertificateTimeLength: Int = 6
-  private val timeFormat                 = DateTimeFormatter.ofPattern("HHmmss")
-
-  private def isTimeValid(timeString: String): Boolean = {
-    def padCertificateTime(certificateTime: String): String = {
-      val paddedChars = (CertificateTimeLength - certificateTime.length).max(0)
-
-      val padding = "0".repeat(paddedChars)
-
-      s"$padding$certificateTime"
-    }
-
-    try {
-      LocalTime.parse(padCertificateTime(timeString), timeFormat)
-      true
-    } catch {
-      case _: DateTimeParseException => false
-    }
-  }
-
-  private val dateFormat = DateTimeFormatter.ISO_LOCAL_DATE
-
-  def parseDate(dateString: String): Option[LocalDate] =
-    try
-      Some(LocalDate.parse(dateString, dateFormat))
-    catch {
-      case _: DateTimeParseException => None
-    }
 
 }

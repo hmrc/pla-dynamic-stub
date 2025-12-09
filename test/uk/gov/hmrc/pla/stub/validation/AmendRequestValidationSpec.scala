@@ -18,6 +18,7 @@ package uk.gov.hmrc.pla.stub.validation
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 import uk.gov.hmrc.pla.stub.model.hip.{
   AmendProtectionLifetimeAllowanceType,
   AmendProtectionRequestStatus,
@@ -36,8 +37,8 @@ class AmendRequestValidationSpec extends AnyWordSpec with Matchers {
 
   val testRequest = LifetimeAllowanceProtectionRecord(
     `type` = AmendProtectionLifetimeAllowanceType.IndividualProtection2014,
-    certificateDate = Some("2025-10-24"),
-    certificateTime = Some("123330"),
+    certificateDate = Some(DateModel.of(2025, 10, 24)),
+    certificateTime = Some(TimeModel.of(12, 33, 30)),
     status = AmendProtectionRequestStatus.Open,
     protectionReference = Some("PSA123456789012B"),
     relevantAmount = 1_375_000,
@@ -49,7 +50,7 @@ class AmendRequestValidationSpec extends AnyWordSpec with Matchers {
     pensionDebitEnteredAmount = Some(1_000),
     notificationIdentifier = None,
     protectedAmount = Some(1_375_000),
-    pensionDebitStartDate = Some("2025-10-24"),
+    pensionDebitStartDate = Some(DateModel.of(2025, 10, 24)),
     pensionDebitTotalAmount = Some(125_000)
   )
 
@@ -64,13 +65,13 @@ class AmendRequestValidationSpec extends AnyWordSpec with Matchers {
     postADayBenefitCrystallisationEventAmount = 375_000,
     uncrystallisedRightsAmount = 375_000,
     nonUKRightsAmount = 375_000,
-    certificateDate = Some("2025-10-24"),
-    certificateTime = Some("123330"),
+    certificateDate = DateModel.of(2025, 10, 24),
+    certificateTime = TimeModel.of(12, 33, 30),
     protectionReference = Some("PSA123456789012B"),
     pensionDebitAmount = None,
     pensionDebitEnteredAmount = Some(1_000),
     protectedAmount = Some(1_375_000),
-    pensionDebitStartDate = Some("2025-10-24"),
+    pensionDebitStartDate = Some(DateModel.of(2025, 10, 24)),
     pensionDebitTotalAmount = Some(125_000)
   )
 
@@ -160,7 +161,7 @@ class AmendRequestValidationSpec extends AnyWordSpec with Matchers {
             preADayPensionInPaymentAmount = -1
           )
 
-          AmendRequestValidation.validateRequest(request) shouldBe Left(PreADayPensionInPaymentAmountNotPostive)
+          AmendRequestValidation.validateRequest(request) shouldBe Left(PreADayPensionInPaymentAmountNotPositive)
         }
       }
 
@@ -182,36 +183,6 @@ class AmendRequestValidationSpec extends AnyWordSpec with Matchers {
           )
 
           AmendRequestValidation.validateRequest(request) shouldBe Left(PensionDebitEnteredAmountNotPositive)
-        }
-      }
-
-      "contains CertificateDateInvalid" when {
-        "certificateDate is not valid date in YYYY-MM-DD" in {
-          val request = testRequest.copy(
-            certificateDate = Some("24/10/2025")
-          )
-
-          AmendRequestValidation.validateRequest(request) shouldBe Left(CertificateDateInvalid)
-        }
-      }
-
-      "contains CertificateTimeInvalid" when {
-        "certificateTime is not valid time in HHMMSS" in {
-          val request = testRequest.copy(
-            certificateTime = Some("12:33:30")
-          )
-
-          AmendRequestValidation.validateRequest(request) shouldBe Left(CertificateTimeInvalid)
-        }
-      }
-
-      "contains PensionDebitStartDateInvalid" when {
-        "pensionDebitStartDate is not valid date in YYYY-MM-DD" in {
-          val request = testRequest.copy(
-            pensionDebitStartDate = Some("24/10/2025")
-          )
-
-          AmendRequestValidation.validateRequest(request) shouldBe Left(PensionDebitStartDateInvalid)
         }
       }
     }

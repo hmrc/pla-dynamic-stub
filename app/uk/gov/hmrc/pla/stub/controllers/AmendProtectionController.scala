@@ -19,6 +19,7 @@ package uk.gov.hmrc.pla.stub.controllers
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
+import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionResponseStatus.Withdrawn
 import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.rules.AmendmentRules.{
@@ -128,8 +129,8 @@ class AmendProtectionController @Inject() (
     val adjustedPensionDebitTotalAmount =
       lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount.getOrElse(0) + adjustedEnteredAmount
 
-    val certificateDate = LocalDate.now(clock).format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
-    val certificateTime = LocalTime.now(clock).format(java.time.format.DateTimeFormatter.ofPattern("HHmmss"))
+    val certificateDate = DateModel(LocalDate.now(clock))
+    val certificateTime = TimeModel(LocalTime.now(clock).withNano(0))
 
     val maxProtectedAmount = calculateMaxProtectedAmount(lifetimeAllowanceProtectionRecord.`type`)
 
@@ -187,10 +188,8 @@ class AmendProtectionController @Inject() (
   ): Int =
     lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount
       .zip(lifetimeAllowanceProtectionRecord.pensionDebitStartDate)
-      .flatMap { case (enteredAmount, startDateString) =>
-        AmendRequestValidation
-          .parseDate(startDateString)
-          .map(startDate => calculateAdjustedEnteredAmount(enteredAmount, startDate))
+      .map { case (enteredAmount, startDate) =>
+        calculateAdjustedEnteredAmount(enteredAmount, startDate.date)
       }
       .getOrElse(0)
 
@@ -232,8 +231,8 @@ class AmendProtectionController @Inject() (
       `type` = current.`type`,
       protectionReference = current.protectionReference,
       status = notification.status.toProtectionStatus,
-      certificateDate = lifetimeAllowanceProtectionRecord.certificateDate,
-      certificateTime = lifetimeAllowanceProtectionRecord.certificateTime,
+      certificateDate = lifetimeAllowanceProtectionRecord.certificateDate.get,
+      certificateTime = lifetimeAllowanceProtectionRecord.certificateTime.get,
       relevantAmount = lifetimeAllowanceProtectionRecord.relevantAmount,
       protectedAmount = protectedAmount,
       preADayPensionInPaymentAmount = lifetimeAllowanceProtectionRecord.preADayPensionInPaymentAmount,
@@ -241,7 +240,10 @@ class AmendProtectionController @Inject() (
         lifetimeAllowanceProtectionRecord.postADayBenefitCrystallisationEventAmount,
       uncrystallisedRightsAmount = lifetimeAllowanceProtectionRecord.uncrystallisedRightsAmount,
       nonUKRightsAmount = lifetimeAllowanceProtectionRecord.nonUKRightsAmount,
-      pensionDebitTotalAmount = lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount
+      pensionDebitTotalAmount = lifetimeAllowanceProtectionRecord.pensionDebitTotalAmount,
+      lumpSumAmount = None,
+      lumpSumPercentage = None,
+      enhancementFactor = None
     )
   }
 

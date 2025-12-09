@@ -29,7 +29,7 @@ import play.api.mvc.Results
 import play.api.test.Injecting
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Withdrawn
 import uk.gov.hmrc.pla.stub.model.hip._
-import uk.gov.hmrc.pla.stub.model.Protections
+import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -64,6 +64,8 @@ class ProtectionServiceSpec
     sequence = 0,
     status = ProtectionStatus.Open,
     `type` = ProtectionType.IndividualProtection2014,
+    certificateDate = DateModel.of(2025, 12, 9),
+    certificateTime = TimeModel.of(10, 50, 25),
     relevantAmount = 0,
     preADayPensionInPaymentAmount = 0,
     postADayBenefitCrystallisationEventAmount = 0,

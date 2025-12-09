@@ -17,13 +17,14 @@
 package uk.gov.hmrc.pla.stub.model.hip
 
 import play.api.libs.json._
+import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 
 case class UpdatedLifetimeAllowanceProtectionRecord(
     identifier: Long,
     sequenceNumber: Int,
     `type`: AmendProtectionLifetimeAllowanceType,
-    certificateDate: Option[String],
-    certificateTime: Option[String],
+    certificateDate: Option[DateModel],
+    certificateTime: Option[TimeModel],
     status: AmendProtectionResponseStatus,
     protectionReference: Option[String],
     relevantAmount: Int,
@@ -35,7 +36,7 @@ case class UpdatedLifetimeAllowanceProtectionRecord(
     pensionDebitEnteredAmount: Option[Int],
     notificationIdentifier: Option[Int],
     protectedAmount: Option[Int],
-    pensionDebitStartDate: Option[String],
+    pensionDebitStartDate: Option[DateModel],
     pensionDebitTotalAmount: Option[Int]
 )
 

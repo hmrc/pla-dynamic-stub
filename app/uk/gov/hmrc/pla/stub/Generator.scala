@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.pla.stub
 
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatter._
 import cats.implicits._
 import org.scalacheck.Gen
 import org.scalacheck.cats.implicits._
 import uk.gov.hmrc.pla.stub.model.hip.{Protection, ProtectionStatus, ProtectionType}
-import uk.gov.hmrc.pla.stub.model.Protections
-import uk.gov.hmrc.smartstub.{AdvGen, _}
+import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 import uk.gov.hmrc.smartstub.Enumerable.instances.utrEnum
+import uk.gov.hmrc.smartstub.{AdvGen, _}
+
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter._
 
 object Generator {
 
@@ -58,12 +58,16 @@ object Generator {
   val pensionSchemeAdministratorCheckReferenceGen: Gen[String] =
     pattern"99999999Z".map("PSA" + _)
 
-  val genTime: Gen[LocalTime] = Gen.choose(0, 24 * 60 * 60).map { x =>
-    LocalTime.parse(
-      {
-        BigInt(1000000000L) * x
-      }.toString,
-      ofPattern("N")
+  val genDate: Gen[DateModel] = Gen.date(2014, 2017).map(DateModel(_))
+
+  val genTime: Gen[TimeModel] = Gen.choose(0, 24 * 60 * 60).map { x =>
+    TimeModel(
+      LocalTime.parse(
+        {
+          BigInt(1000000000L) * x
+        }.toString,
+        ofPattern("N")
+      )
     )
   }
 
@@ -71,6 +75,10 @@ object Generator {
     Gen
       .choose(1, 1000000000)
       .sometimes
+
+  val genPercentage: Gen[Int] = Gen.choose(0, 100)
+
+  val genFactor: Gen[Double] = Gen.choose[Double](0, 1)
 
   def genProtection(nino: String): Gen[Protection] =
     for {
@@ -91,14 +99,17 @@ object Generator {
       genMoney.map(_.getOrElse(0)),
       genMoney.map(_.getOrElse(0)),
       genMoney.map(_.getOrElse(0)),
-      Gen.date(2014, 2017).map(_.format(ISO_LOCAL_DATE)).sometimes,
-      genTime.map(_.format(DateTimeFormatter.ofPattern("HHmmss"))).sometimes,
+      genDate,
+      genTime,
       refGen.sometimes,
       genMoney,
       genMoney,
       genMoney,
-      Gen.date(2014, 2017).map(_.format(ISO_LOCAL_DATE)).sometimes,
-      genMoney
+      genDate.sometimes,
+      genMoney,
+      genMoney,
+      genFactor.sometimes,
+      genPercentage.sometimes
     )
       .mapN(Protection.apply)
 

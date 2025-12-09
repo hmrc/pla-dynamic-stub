@@ -11,9 +11,9 @@
 # stub-only housekeeping ops
 DELETE  /test-only/individuals/:nino/protections        @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtections(nino:String)
 DELETE  /test-only/individuals/:nino/protections/:pid   @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeProtection(nino:String,pid:Long)
-POST    /test-only/protections/insert                   @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.insertProtection
-DELETE  /test-only/protections/removeAll                @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeAllProtections
-DELETE  /test-only/protections/drop                     @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.dropProtectionsCollection
+POST    /test-only/protections/insert                   @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.insertProtection()
+DELETE  /test-only/protections/removeAll                @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.removeAllProtections()
+DELETE  /test-only/protections/drop                     @uk.gov.hmrc.pla.stub.controllers.testControllers.TestSetupController.dropProtectionsCollection()
 
 # Add all the application routes to the prod.routes file
 

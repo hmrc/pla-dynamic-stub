@@ -30,6 +30,7 @@ import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType._
 import uk.gov.hmrc.pla.stub.model.hip.Notification._
 import uk.gov.hmrc.pla.stub.model.hip._
@@ -203,14 +204,17 @@ class AmendProtectionControllerSpec
             postADayBenefitCrystallisationEventAmount = 2500,
             uncrystallisedRightsAmount = 75_500,
             nonUKRightsAmount = 0,
-            certificateDate = Some("2025-08-15"),
-            certificateTime = Some("123456"),
+            certificateDate = DateModel.of(2025, 8, 15),
+            certificateTime = TimeModel.of(12, 34, 56),
             protectionReference = Some(protectionReference),
             pensionDebitAmount = Some(25_000),
             pensionDebitEnteredAmount = Some(25_000),
             protectedAmount = Some(120_000),
-            pensionDebitStartDate = Some("2026-07-09"),
-            pensionDebitTotalAmount = Some(40_000)
+            pensionDebitStartDate = Some(DateModel.of(2025, 7, 9)),
+            pensionDebitTotalAmount = Some(40_000),
+            lumpSumAmount = None,
+            lumpSumPercentage = None,
+            enhancementFactor = None
           )
 
           when(mockProtectionService.findProtectionByNinoAndId(eqTo(nino), eqTo(protectionId)))
