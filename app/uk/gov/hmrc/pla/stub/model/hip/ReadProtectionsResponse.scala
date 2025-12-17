@@ -17,7 +17,7 @@
 package uk.gov.hmrc.pla.stub.model.hip
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.pla.stub.model.Protections
+import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 
 case class ReadProtectionsResponse(
     pensionSchemeAdministratorCheckReference: String,
@@ -56,8 +56,8 @@ case class ProtectionRecord(
     identifier: Long,
     sequenceNumber: Int,
     `type`: ProtectionType,
-    certificateDate: String,
-    certificateTime: String,
+    certificateDate: DateModel,
+    certificateTime: TimeModel,
     status: ProtectionStatus,
     protectionReference: Option[String],
     relevantAmount: Option[Int],
@@ -82,8 +82,8 @@ object ProtectionRecord {
       identifier = protection.id,
       sequenceNumber = protection.sequence,
       `type` = protection.`type`,
-      certificateDate = "2000-01-01",
-      certificateTime = "000000",
+      certificateDate = protection.certificateDate,
+      certificateTime = protection.certificateTime,
       status = protection.status,
       protectionReference = protection.protectionReference,
       relevantAmount = Some(protection.relevantAmount),
@@ -96,9 +96,9 @@ object ProtectionRecord {
       protectedAmount = protection.protectedAmount,
       pensionDebitStartDate = None,
       pensionDebitTotalAmount = protection.pensionDebitTotalAmount,
-      lumpSumAmount = None,
-      lumpSumPercentage = None,
-      enhancementFactor = None
+      lumpSumAmount = protection.lumpSumAmount,
+      lumpSumPercentage = protection.lumpSumPercentage,
+      enhancementFactor = protection.enhancementFactor
     )
 
   implicit val format: Format[ProtectionRecord] = Json.format[ProtectionRecord]

@@ -17,9 +17,7 @@
 package uk.gov.hmrc.pla.stub.model.hip
 
 import play.api.libs.json._
-
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 
 case class Protection(
     nino: String,
@@ -32,28 +30,20 @@ case class Protection(
     postADayBenefitCrystallisationEventAmount: Int,
     uncrystallisedRightsAmount: Int,
     nonUKRightsAmount: Int,
-    certificateDate: Option[String] = None,
-    certificateTime: Option[String] = None,
+    certificateDate: DateModel,
+    certificateTime: TimeModel,
     protectionReference: Option[String],
     pensionDebitAmount: Option[Int] = None,
     pensionDebitEnteredAmount: Option[Int] = None,
     protectedAmount: Option[Int] = None,
-    pensionDebitStartDate: Option[String] = None,
-    pensionDebitTotalAmount: Option[Int] = None
+    pensionDebitStartDate: Option[DateModel] = None,
+    pensionDebitTotalAmount: Option[Int] = None,
+    lumpSumAmount: Option[Int] = None,
+    enhancementFactor: Option[Double] = None,
+    lumpSumPercentage: Option[Int] = None
 ) {}
 
 object Protection {
-
-  implicit val localDateTimeReads: Reads[LocalDateTime] =
-    Reads[LocalDateTime](js => js.validate[String].map[LocalDateTime](dtString => LocalDateTime.parse(dtString)))
-
-  implicit val localDateTimeWrites: Writes[LocalDateTime] = new Writes[LocalDateTime] {
-    val formatter: DateTimeFormatter = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
-
-    def writes(ldt: LocalDateTime): JsValue = Json.toJson(ldt.format(formatter))
-  }
-
-  implicit val localDateTimeFormat: Format[LocalDateTime] = Format(localDateTimeReads, localDateTimeWrites)
 
   implicit lazy val protectionFormat: Format[Protection] = Json.format[Protection]
 

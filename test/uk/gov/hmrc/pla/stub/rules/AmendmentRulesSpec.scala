@@ -22,6 +22,7 @@ import uk.gov.hmrc.pla.stub.model.hip.Notification._
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Dormant
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType._
 import uk.gov.hmrc.pla.stub.model.hip.{Protection, ProtectionStatus, ProtectionType}
+import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 import uk.gov.hmrc.pla.stub.rules.AmendmentRules._
 import uk.gov.hmrc.pla.stub.testdata.RandomNinoGenerator
 
@@ -37,6 +38,8 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
     sequence = sequence,
     status = ProtectionStatus.Open,
     `type` = IndividualProtection2014,
+    certificateDate = DateModel.of(2025, 12, 9),
+    certificateTime = TimeModel.of(10, 49, 39),
     relevantAmount = 1_254_000,
     preADayPensionInPaymentAmount = 0,
     postADayBenefitCrystallisationEventAmount = 0,

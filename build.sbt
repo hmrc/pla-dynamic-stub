@@ -34,9 +34,11 @@ lazy val root = Project(appName, file("."))
   .settings(
     libraryDependencies ++= AppDependencies(),
     dependencyOverrides += "commons-codec" % "commons-codec" % "1.19.0",
-    parallelExecution in Test             := false,
-    fork in Test                          := false,
+    Test / parallelExecution              := false,
+    Test / fork                           := false,
     retrieveManaged                       := true,
-    evictionWarningOptions in update      := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-    scalacOptions += "-Wconf:cat=unused-imports&src=routes/.*:s"
+    scalacOptions ++= Seq(
+      "-Wconf:cat=unused-imports&src=routes/.*:s",
+      "-Wconf:cat=unused&src=routes/.*:s"
+    )
   )

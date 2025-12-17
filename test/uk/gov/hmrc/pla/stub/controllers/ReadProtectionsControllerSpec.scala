@@ -29,7 +29,7 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Injecting}
 import uk.gov.hmrc.domain.Generator
-import uk.gov.hmrc.pla.stub.model.Protections
+import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Open
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.IndividualProtection2016
 import uk.gov.hmrc.pla.stub.model.hip._
@@ -73,26 +73,26 @@ class ReadProtectionsControllerSpec
           Seq(
             ProtectionRecordsList(
               ProtectionRecord(
-                1,
-                2,
-                IndividualProtection2016,
-                "2025-01-10",
-                "135429",
-                Open,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None
+                identifier = 1,
+                sequenceNumber = 2,
+                `type` = IndividualProtection2016,
+                certificateDate = DateModel.of(2025, 1, 10),
+                certificateTime = TimeModel.of(13, 54, 29),
+                status = Open,
+                protectionReference = None,
+                relevantAmount = None,
+                preADayPensionInPaymentAmount = None,
+                postADayBenefitCrystallisationEventAmount = None,
+                uncrystallisedRightsAmount = None,
+                nonUKRightsAmount = None,
+                pensionDebitAmount = None,
+                pensionDebitEnteredAmount = None,
+                protectedAmount = None,
+                pensionDebitStartDate = None,
+                pensionDebitTotalAmount = None,
+                lumpSumAmount = None,
+                lumpSumPercentage = None,
+                enhancementFactor = None
               ),
               None
             )

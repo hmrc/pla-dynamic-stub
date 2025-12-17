@@ -64,7 +64,7 @@ object AmendRequestValidationError {
         "post A day benefit crystallisation event amount must be positive"
       )
 
-  case object PreADayPensionInPaymentAmountNotPostive
+  case object PreADayPensionInPaymentAmountNotPositive
       extends AmendRequestValidationError(
         BadRequest,
         "pre A day pension in payment amount must be positive"
@@ -80,24 +80,6 @@ object AmendRequestValidationError {
       extends AmendRequestValidationError(
         BadRequest,
         "pension debit entered amount must be positive"
-      )
-
-  case object CertificateDateInvalid
-      extends AmendRequestValidationError(
-        BadRequest,
-        "invalid certificate date"
-      )
-
-  case object CertificateTimeInvalid
-      extends AmendRequestValidationError(
-        BadRequest,
-        "invalid certificate time"
-      )
-
-  case object PensionDebitStartDateInvalid
-      extends AmendRequestValidationError(
-        BadRequest,
-        "invalid pension debit start date"
       )
 
   case object ProtectionNotFound

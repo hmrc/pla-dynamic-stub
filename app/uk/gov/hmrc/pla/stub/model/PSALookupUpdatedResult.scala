@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class PSALookupUpdatedResult(
     pensionSchemeAdministratorCheckReference: String,
@@ -26,5 +26,5 @@ case class PSALookupUpdatedResult(
 )
 
 object PSALookupUpdatedResult {
-  implicit val format = Json.format[PSALookupUpdatedResult]
+  implicit val format: OFormat[PSALookupUpdatedResult] = Json.format[PSALookupUpdatedResult]
 }
