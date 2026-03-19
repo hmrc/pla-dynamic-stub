@@ -6,14 +6,6 @@ This is a stub designed to be used with the [Pensions Lifetime Allowance](https:
 
 The stub is a Play/Scala application backed by a Mongo database for the test data, which is dynamically created (hence it is termed a dynamic stub, because it does not contain hardcoded, static test data). The test data can be set up either by making requests to the relevant apply or amend operations of the API, or directly loaded into the database using e.g. `mongoimport`. 
 
-The stub supports these PLA service API operations:
-
-- `GET /pensions-lifetime-allowance/individual/{nino}/protections` - get all pension lifetime allowance protections granted to the individual with the specified NINO
-- `GET /pensions-lifetime-allowance/individual/{nino}/protections/{protectionId}` - get a specific protection by NINO and protection ID
-- `POST /pension-lifetime-allowance/individual/{nino}/protection` - apply for a new protection for the individual with the specified NINO
-- `PUT /pensions-lifetime-allowance/individual/{nino}/protection/{protectionId}` - amend the specified existing protection
-- `GET  /pensions-lifetime-allowance/scheme-administrator/certificate-lookup?pensionSchemeAdministratorCheckReference={psaRef}&lifetimeAllowanceReference={ltaRef}` - verify that the provided LTA Reference is valid for that individual and return protection details
-
 HIP end points supported:
 
 - `GET /paye/lifetime-allowance/person/{nino}` - get all protections for a nino
