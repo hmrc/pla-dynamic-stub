@@ -32,6 +32,7 @@ import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 class ProtectionServiceSpec
@@ -43,9 +44,13 @@ class ProtectionServiceSpec
     with ScalaFutures
     with Injecting {
 
+  implicit val executionContext: ExecutionContext = inject[ExecutionContext]
+
+  override implicit val patienceConfig: PatienceConfig = PatienceConfig(scaled(1.seconds), scaled(100.milliseconds))
+
   private val mockProtectionsStore: MongoProtectionRepository = mock[MongoProtectionRepository]
 
-  private val protectionService = new ProtectionService(mockProtectionsStore, inject[ExecutionContext])
+  private val protectionService = new ProtectionService(mockProtectionsStore, executionContext)
 
   override def beforeEach(): Unit = {
     reset(mockProtectionsStore)
