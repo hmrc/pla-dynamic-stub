@@ -1,8 +1,6 @@
 import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 import sbt.Keys._
 import sbt._
-import uk.gov.hmrc._
-import DefaultBuildSettings._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 
 import scala.collection.Seq
@@ -11,7 +9,7 @@ lazy val playSettings: Seq[Setting[_]] = Seq.empty
 
 val appName = "pla-dynamic-stub"
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "2.13.16"
+ThisBuild / scalaVersion := "2.13.18"
 
 lazy val plugins: Seq[Plugins] = Seq.empty
 
@@ -33,7 +31,6 @@ lazy val root = Project(appName, file("."))
   .settings(defaultSettings(): _*)
   .settings(
     libraryDependencies ++= AppDependencies(),
-    dependencyOverrides += "commons-codec" % "commons-codec" % "1.19.0",
     Test / parallelExecution              := false,
     Test / fork                           := false,
     retrieveManaged                       := true,
