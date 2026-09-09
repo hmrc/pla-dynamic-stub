@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pla.stub.model
+package uk.gov.hmrc.pla.stub.testdata
 
-import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{
-  EnhancedProtection,
-  FixedProtection,
-  FixedProtection2014,
-  FixedProtection2016,
-  IndividualProtection2014,
-  IndividualProtection2016,
-  PrimaryProtection
-}
+import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.*
 import uk.gov.hmrc.pla.stub.model.hip.{Protection, ProtectionStatus}
+import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 
 import java.time.{LocalDate, LocalTime}
 
 object ProtectionTestData {
 
-  import Generator._
+  import TestDataGenerator.*
 
   val currentDate = DateModel(LocalDate.now)
   val currentTime = TimeModel(LocalTime.now.withNano(0))

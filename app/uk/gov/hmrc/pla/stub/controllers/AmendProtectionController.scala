@@ -18,15 +18,16 @@ package uk.gov.hmrc.pla.stub.controllers
 
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
-import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
+import play.api.mvc.*
+import uk.gov.hmrc.pla.stub.model.hip.*
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionResponseStatus.Withdrawn
-import uk.gov.hmrc.pla.stub.model.hip._
+import uk.gov.hmrc.pla.stub.model.hip.Notification.{Notification14, Notification7}
+import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
+import uk.gov.hmrc.pla.stub.rules.*
 import uk.gov.hmrc.pla.stub.rules.AmendmentRules.{
   IndividualProtection2014AmendmentRules,
   IndividualProtection2016AmendmentRules
 }
-import uk.gov.hmrc.pla.stub.rules._
 import uk.gov.hmrc.pla.stub.services.ProtectionService
 import uk.gov.hmrc.pla.stub.validation.AmendRequestValidation
 import uk.gov.hmrc.pla.stub.validation.AmendRequestValidationError.{JsonValidationFailed, ProtectionNotFound}
@@ -38,15 +39,14 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AmendProtectionController @Inject() (
-    val mcc: ControllerComponents,
-    val protectionService: ProtectionService,
-    playBodyParsers: PlayBodyParsers
-)(implicit val ec: ExecutionContext, clock: Clock)
-    extends BackendController(mcc)
+    controllerComponents: ControllerComponents,
+    protectionService: ProtectionService
+)(using executionContext: ExecutionContext, clock: Clock)
+    extends BackendController(controllerComponents)
     with Logging {
 
   def amendProtection(nino: String, protectionId: Long, sequence: Int): Action[JsValue] =
-    Action.async(playBodyParsers.json) { implicit request =>
+    Action.async(controllerComponents.parsers.json) { request =>
       request.body
         .validate[AmendProtectionRequest]
         .map(_.lifetimeAllowanceProtectionRecord)
@@ -165,14 +165,11 @@ class AmendProtectionController @Inject() (
         1_250_000
     }
 
-  private[controllers] def opensDormantFixedProtection2016(notification: Notification): Boolean = {
-    import Notification._
-
+  private[controllers] def opensDormantFixedProtection2016(notification: Notification): Boolean =
     notification match {
       case Notification7 | Notification14 => true
       case _                              => false
     }
-  }
 
   private def openDormantFixedProtection2016(
       notification: Notification,
@@ -189,7 +186,7 @@ class AmendProtectionController @Inject() (
     lifetimeAllowanceProtectionRecord.pensionDebitEnteredAmount
       .zip(lifetimeAllowanceProtectionRecord.pensionDebitStartDate)
       .map { case (enteredAmount, startDate) =>
-        calculateAdjustedEnteredAmount(enteredAmount, startDate.date)
+        calculateAdjustedEnteredAmount(enteredAmount, startDate.toLocalDate)
       }
       .getOrElse(0)
 

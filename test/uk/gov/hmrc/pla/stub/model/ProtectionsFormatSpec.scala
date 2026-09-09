@@ -18,12 +18,12 @@ package uk.gov.hmrc.pla.stub.model
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.pla.stub.model.hip.Protection
 
 class ProtectionsFormatSpec extends AnyWordSpec with Matchers {
 
-  import ProtectionTestData._
+  import uk.gov.hmrc.pla.stub.testdata.ProtectionTestData.*
 
   "FP2016 json read and write functions" when {
     "be an isomorphic pair" in {

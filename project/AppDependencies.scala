@@ -14,14 +14,14 @@ object AppDependencies {
   )
 
   trait TestDependencies {
-    lazy val scope: String = "test"
+    val scope: String = "test"
     val test: Seq[ModuleID]
   }
 
   object Test {
 
     def apply(): Seq[ModuleID] = new TestDependencies {
-      override lazy val test: Seq[ModuleID] = Seq(
+      override val test: Seq[ModuleID] = Seq(
         "uk.gov.hmrc"       %% "bootstrap-test-play-30" % bootstrapPlayVersion % scope,
         "uk.gov.hmrc"       %% "domain-test-play-30"    % "13.0.0"             % scope,
         "org.scalatestplus" %% "mockito-5-23"           % "3.2.20.0"           % scope,

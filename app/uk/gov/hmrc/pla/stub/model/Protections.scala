@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.pla.stub.model.hip.Protection
 
 /** Details of all protections for an individual, including a check reference for the PSA
@@ -28,6 +28,6 @@ case class Protections(
 )
 
 object Protections {
-  implicit val format: OFormat[Protections] = Json.format[Protections]
+  given format: OFormat[Protections] = Json.format[Protections]
 
 }

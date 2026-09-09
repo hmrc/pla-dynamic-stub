@@ -19,7 +19,7 @@ package uk.gov.hmrc.pla.stub.services
 import play.api.mvc.Result
 import play.api.mvc.Results.{NotFound, Ok}
 import uk.gov.hmrc.pla.stub.Generator.genPensionSchemeAdministratorCheckReference
-import uk.gov.hmrc.pla.stub.model._
+import uk.gov.hmrc.pla.stub.model.*
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.{Dormant, Open}
 import uk.gov.hmrc.pla.stub.model.hip.{Protection, ReadProtectionsResponse}
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
@@ -28,9 +28,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ProtectionService @Inject() (
-    val protectionsStore: MongoProtectionRepository,
-    implicit val ec: ExecutionContext
-) {
+    val protectionsStore: MongoProtectionRepository
+)(using ExecutionContext) {
 
   def saveProtections(protections: Protections): Future[Unit] =
     for {

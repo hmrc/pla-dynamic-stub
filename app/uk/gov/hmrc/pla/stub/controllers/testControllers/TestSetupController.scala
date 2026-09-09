@@ -17,28 +17,22 @@
 package uk.gov.hmrc.pla.stub.controllers.testControllers
 
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
-import uk.gov.hmrc.mongo.MongoComponent
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.pla.stub.model.{Error, Protections}
 import uk.gov.hmrc.pla.stub.services.ProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Success
 
 class TestSetupController @Inject() (
-    val mcc: play.api.mvc.MessagesControllerComponents,
-    val protectionService: ProtectionService,
-    implicit val ec: ExecutionContext,
-    playBodyParsers: PlayBodyParsers,
-    implicit val mongoComponent: MongoComponent
-) extends BackendController(mcc) {
+    controllerComponents: play.api.mvc.MessagesControllerComponents,
+    protectionService: ProtectionService
+)(using ExecutionContext)
+    extends BackendController(controllerComponents) {
 
-  /** Stub-only convenience operation to add a protection to test data
-    *
-    * @return
-    */
-  def insertProtection(): Action[JsValue] = Action.async(playBodyParsers.json) { implicit request =>
+  def insertProtection(): Action[JsValue] = Action.async(controllerComponents.parsers.json) { request =>
     val protectionJs = request.body.validate[Protections]
     protectionJs.fold(
       errors =>
@@ -46,48 +40,22 @@ class TestSetupController @Inject() (
       protections =>
         protectionService
           .saveProtections(protections)
-          .map(_ => Ok)(ec)
-          .recover { case exception => Results.InternalServerError(exception.toString) }
+          .map(_ => Ok)
+          .recover { case exception => InternalServerError(exception.toString) }
     )
   }
 
-  /** Stub-only convenience operation to tear down test data
-    *
-    * @return
-    */
-  def removeAllProtections(): Action[AnyContent] = Action.async { _ =>
-    protectionService.protectionsStore.removeProtectionsCollection()
-    Future.successful(Ok)
+  def removeAllProtections(): Action[AnyContent] =
+    Action.async(protectionService.protectionsStore.removeProtectionsCollection().transform(_ => Success(Ok)))
+
+  def removeProtections(nino: String): Action[AnyContent] =
+    Action.async(protectionService.protectionsStore.removeByNino(nino).transform(_ => Success(Ok)))
+
+  def removeProtection(nino: String, protectionId: Long): Action[AnyContent] = Action.async {
+    protectionService.removeProtectionByNinoAndProtectionId(nino, protectionId).transform(_ => Success(Ok))
   }
 
-  /** Stub-only convenience operation to tear down test data for a given NINO
-    *
-    * @param nino
-    * @return
-    */
-  def removeProtections(nino: String): Action[AnyContent] = Action.async { _ =>
-    protectionService.protectionsStore.removeByNino(nino)
-    Future.successful(Ok)
-  }
-
-  /** Stub-only convenience operation to tear down test data for a specified protection
-    *
-    * @param nino
-    * @param protectionId
-    * @return
-    */
-  def removeProtection(nino: String, protectionId: Long): Action[AnyContent] = Action.async { _ =>
-    protectionService.removeProtectionByNinoAndProtectionId(nino, protectionId)
-    Future.successful(Ok)
-  }
-
-  /** Stub-only convenience operation to tear down test data for a specified protection
-    *
-    * @return
-    */
-  def dropProtectionsCollection(): Action[AnyContent] = Action.async { _ =>
-    protectionService.protectionsStore.removeProtectionsCollection()
-    Future.successful(Ok)
-  }
+  def dropProtectionsCollection(): Action[AnyContent] =
+    Action.async(protectionService.protectionsStore.removeProtectionsCollection().transform(_ => Success(Ok)))
 
 }

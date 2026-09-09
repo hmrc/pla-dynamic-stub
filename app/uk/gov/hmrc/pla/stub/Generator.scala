@@ -19,11 +19,11 @@ package uk.gov.hmrc.pla.stub
 import org.scalacheck.Gen
 import uk.gov.hmrc.pla.stub.model.hip.{Protection, ProtectionStatus, ProtectionType}
 import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
-import uk.gov.hmrc.smartstub.Enumerable.instances.utrEnum
-import uk.gov.hmrc.smartstub.{AdvGen, _}
+import uk.gov.hmrc.smartstub.*
+import uk.gov.hmrc.smartstub.Enumerable.instances.ninoEnumNoSpaces
 
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter._
+import java.time.format.DateTimeFormatter.*
 
 object Generator {
 
@@ -73,9 +73,9 @@ object Generator {
 
   private val genVersion: Gen[Int] = Gen.choose(1, 5)
 
-  private val genStatus: Gen[ProtectionStatus] = Gen.oneOf(ProtectionStatus.values)
+  private val genStatus: Gen[ProtectionStatus] = Gen.oneOf(ProtectionStatus.values.toSeq)
 
-  private val genProtectionType: Gen[ProtectionType] = Gen.oneOf(ProtectionType.values)
+  private val genProtectionType: Gen[ProtectionType] = Gen.oneOf(ProtectionType.values.toSeq)
 
   private def genProtection(nino: String): Gen[Protection] =
     for {

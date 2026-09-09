@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 case class AmendProtectionRequest(
     lifetimeAllowanceProtectionRecord: LifetimeAllowanceProtectionRecord
 )
 
 object AmendProtectionRequest {
-  implicit val format: Format[AmendProtectionRequest] = Json.format[AmendProtectionRequest]
+  given Format[AmendProtectionRequest] = Json.format[AmendProtectionRequest]
 }

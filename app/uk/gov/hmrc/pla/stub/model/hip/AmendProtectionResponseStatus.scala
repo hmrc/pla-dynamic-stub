@@ -16,21 +16,14 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import uk.gov.hmrc.pla.stub.utils.{Enumerable, EnumerableInstance}
+import uk.gov.hmrc.pla.stub.utils.{JsonEnum, JsonEnumFormat}
 
-sealed abstract class AmendProtectionResponseStatus(value: String, val toProtectionStatus: ProtectionStatus)
-    extends EnumerableInstance(value)
+enum AmendProtectionResponseStatus(override val jsonString: String, val toProtectionStatus: ProtectionStatus)
+    extends JsonEnum {
 
-object AmendProtectionResponseStatus extends Enumerable.Implicits {
-
-  case object Open      extends AmendProtectionResponseStatus("OPEN", ProtectionStatus.Open)
-  case object Dormant   extends AmendProtectionResponseStatus("DORMANT", ProtectionStatus.Dormant)
-  case object Withdrawn extends AmendProtectionResponseStatus("WITHDRAWN", ProtectionStatus.Withdrawn)
-
-  private val allValues: Seq[AmendProtectionResponseStatus] =
-    Seq(Open, Dormant, Withdrawn)
-
-  implicit val toEnumerable: Enumerable[AmendProtectionResponseStatus] =
-    Enumerable(allValues.map(v => v.toString -> v): _*)
-
+  case Open      extends AmendProtectionResponseStatus("OPEN", ProtectionStatus.Open)
+  case Dormant   extends AmendProtectionResponseStatus("DORMANT", ProtectionStatus.Dormant)
+  case Withdrawn extends AmendProtectionResponseStatus("WITHDRAWN", ProtectionStatus.Withdrawn)
 }
+
+object AmendProtectionResponseStatus extends JsonEnumFormat[AmendProtectionResponseStatus]

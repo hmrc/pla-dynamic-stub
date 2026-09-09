@@ -18,30 +18,40 @@ package uk.gov.hmrc.pla.stub.controllers
 
 import play.api.Logging
 import play.api.libs.json.Json
-import play.api.mvc._
+import play.api.mvc.*
 import uk.gov.hmrc.pla.stub.model.Protections
-import uk.gov.hmrc.pla.stub.model.hip._
+import uk.gov.hmrc.pla.stub.model.hip.*
 import uk.gov.hmrc.pla.stub.services.ProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.smartstub.{Generator => _}
+import uk.gov.hmrc.smartstub.Generator as _
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class ReadProtectionsController @Inject() (
-    val mcc: ControllerComponents,
-    val protectionService: ProtectionService
-)(implicit val ec: ExecutionContext)
-    extends BackendController(mcc)
+    controllerComponents: ControllerComponents,
+    protectionService: ProtectionService
+)(using ExecutionContext)
+    extends BackendController(controllerComponents)
     with Logging {
 
-  def readProtections(nino: String): Action[AnyContent] = Action.async { _ =>
+  def readProtections(nino: String): Action[AnyContent] = Action.async {
     protectionService.retrieveConvertedProtections(nino).map {
       case Some(protections) =>
         Ok(Json.toJson(protections))
       case None =>
         logger.info("No protections set for given Nino, returning empty protections list")
-        Ok(Json.toJson(ReadProtectionsResponse(Protections(nino, Some("stubPSACheckRef"), List.empty))))
+        Ok(
+          Json.toJson(
+            ReadProtectionsResponse(
+              Protections(
+                nino = nino,
+                pensionSchemeAdministratorCheckReference = Some("stubPSACheckRef"),
+                protections = List.empty
+              )
+            )
+          )
+        )
     }
   }
 

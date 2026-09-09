@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.pla.stub.services
 
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito
 import org.mockito.Mockito.{reset, verify, when}
 import org.scalatest.BeforeAndAfterEach
@@ -24,11 +24,9 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.mvc.Results
-import play.api.test.Injecting
+import uk.gov.hmrc.pla.stub.model.hip.*
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Withdrawn
-import uk.gov.hmrc.pla.stub.model.hip._
 import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 import uk.gov.hmrc.pla.stub.repository.MongoProtectionRepository
 
@@ -39,18 +37,16 @@ class ProtectionServiceSpec
     extends AnyWordSpec
     with Matchers
     with MockitoSugar
-    with GuiceOneServerPerSuite
     with BeforeAndAfterEach
-    with ScalaFutures
-    with Injecting {
+    with ScalaFutures {
 
-  implicit val executionContext: ExecutionContext = inject[ExecutionContext]
+  val executionContext: ExecutionContext = ExecutionContext.global
 
-  override implicit val patienceConfig: PatienceConfig = PatienceConfig(scaled(1.seconds), scaled(100.milliseconds))
+  override given patienceConfig: PatienceConfig = PatienceConfig(scaled(1.seconds), scaled(100.milliseconds))
 
   private val mockProtectionsStore: MongoProtectionRepository = mock[MongoProtectionRepository]
 
-  private val protectionService = new ProtectionService(mockProtectionsStore, executionContext)
+  private val protectionService = new ProtectionService(mockProtectionsStore)(using executionContext)
 
   override def beforeEach(): Unit = {
     reset(mockProtectionsStore)

@@ -16,45 +16,38 @@
 
 package uk.gov.hmrc.pla.stub.controllers
 
-import org.mockito.ArgumentMatchers.{eq => eqTo}
+import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status.OK
 import play.api.libs.json.Json
-import play.api.mvc.MessagesControllerComponents
-import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
-import play.api.test.{FakeRequest, Injecting}
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status, stubControllerComponents}
 import uk.gov.hmrc.domain.NinoGenerator
-import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
+import uk.gov.hmrc.pla.stub.model.hip.*
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Open
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.IndividualProtection2016
-import uk.gov.hmrc.pla.stub.model.hip._
+import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 import uk.gov.hmrc.pla.stub.services.ProtectionService
 
-import java.util.Random
 import scala.concurrent.{ExecutionContext, Future}
 
-class ReadProtectionsControllerSpec
-    extends AnyWordSpec
-    with Matchers
-    with MockitoSugar
-    with GuiceOneServerPerSuite
-    with BeforeAndAfterEach
-    with Injecting {
+class ReadProtectionsControllerSpec extends AnyWordSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
+  private val controllerComponents                        = stubControllerComponents()
   private val mockPLAProtectionService: ProtectionService = mock[ProtectionService]
 
-  private lazy val controller: ReadProtectionsController = new ReadProtectionsController(
-    inject[MessagesControllerComponents],
-    mockPLAProtectionService
-  )(inject[ExecutionContext])
+  private val executionContext: ExecutionContext = ExecutionContext.global
 
-  val rand: Random                 = new Random()
-  val ninoGenerator: NinoGenerator = new NinoGenerator(rand)
+  private val controller: ReadProtectionsController = new ReadProtectionsController(
+    controllerComponents,
+    mockPLAProtectionService
+  )(using executionContext)
+
+  val ninoGenerator: NinoGenerator = new NinoGenerator()
   def randomNino: String           = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
 
   override def beforeEach(): Unit = {

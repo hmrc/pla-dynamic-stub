@@ -27,7 +27,7 @@ import uk.gov.hmrc.pla.stub.model.hip.{
   ProtectionStatus,
   ProtectionType
 }
-import uk.gov.hmrc.pla.stub.validation.AmendRequestValidationError._
+import uk.gov.hmrc.pla.stub.validation.AmendRequestValidationError.*
 
 class AmendRequestValidationSpec extends AnyWordSpec with Matchers {
 

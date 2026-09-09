@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pla.stub.model
+package uk.gov.hmrc.pla.stub.testdata
 
 import org.scalacheck.Gen
 import uk.gov.hmrc.domain.NinoGenerator
@@ -22,7 +22,7 @@ import uk.gov.hmrc.smartstub.*
 
 import java.util.Random
 
-object Generator {
+object TestDataGenerator {
 
   val rand          = new Random()
   val ninoGenerator = new NinoGenerator(rand)

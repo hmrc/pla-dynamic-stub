@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 
 case class ReadProtectionsResponse(
@@ -40,7 +40,7 @@ object ReadProtectionsResponse {
     )
   }
 
-  implicit val format: Format[ReadProtectionsResponse] = Json.format[ReadProtectionsResponse]
+  given OFormat[ReadProtectionsResponse] = Json.format[ReadProtectionsResponse]
 }
 
 case class ProtectionRecordsList(
@@ -49,7 +49,7 @@ case class ProtectionRecordsList(
 )
 
 object ProtectionRecordsList {
-  implicit val format: Format[ProtectionRecordsList] = Json.format[ProtectionRecordsList]
+  given OFormat[ProtectionRecordsList] = Json.format[ProtectionRecordsList]
 }
 
 case class ProtectionRecord(
@@ -101,5 +101,5 @@ object ProtectionRecord {
       enhancementFactor = protection.enhancementFactor
     )
 
-  implicit val format: Format[ProtectionRecord] = Json.format[ProtectionRecord]
+  given OFormat[ProtectionRecord] = Json.format[ProtectionRecord]
 }
