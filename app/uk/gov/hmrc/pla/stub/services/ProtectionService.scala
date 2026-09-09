@@ -18,7 +18,7 @@ package uk.gov.hmrc.pla.stub.services
 
 import play.api.mvc.Result
 import play.api.mvc.Results.{NotFound, Ok}
-import uk.gov.hmrc.pla.stub.Generator.pensionSchemeAdministratorCheckReferenceGen
+import uk.gov.hmrc.pla.stub.Generator.genPensionSchemeAdministratorCheckReference
 import uk.gov.hmrc.pla.stub.model._
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.{Dormant, Open}
 import uk.gov.hmrc.pla.stub.model.hip.{Protection, ReadProtectionsResponse}
@@ -58,7 +58,7 @@ class ProtectionService @Inject() (
 
   def insertOrUpdateProtection(protection: Protection): Future[Result] = {
     val protections                              = protectionsStore.findProtectionsByNino(protection.nino)
-    val pensionSchemeAdministratorCheckReference = pensionSchemeAdministratorCheckReferenceGen.sample
+    val pensionSchemeAdministratorCheckReference = genPensionSchemeAdministratorCheckReference.sample
 
     def ltaProtections(optProtections: Option[Protections]): Future[List[Protection]] = Future {
       optProtections match {

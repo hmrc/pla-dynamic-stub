@@ -28,7 +28,7 @@ import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers.{contentAsJson, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Injecting}
-import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.domain.NinoGenerator
 import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Open
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.IndividualProtection2016
@@ -53,9 +53,9 @@ class ReadProtectionsControllerSpec
     mockPLAProtectionService
   )(inject[ExecutionContext])
 
-  val rand: Random             = new Random()
-  val ninoGenerator: Generator = new Generator(rand)
-  def randomNino: String       = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
+  val rand: Random                 = new Random()
+  val ninoGenerator: NinoGenerator = new NinoGenerator(rand)
+  def randomNino: String           = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
 
   override def beforeEach(): Unit = {
     reset(mockPLAProtectionService)

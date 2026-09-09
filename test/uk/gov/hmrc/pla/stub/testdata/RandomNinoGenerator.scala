@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.pla.stub.testdata
 
-import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.domain.NinoGenerator
 
 import java.util.Random
 
 object RandomNinoGenerator {
 
-  private lazy val ninoGenerator: Generator = new Generator(new Random())
+  private lazy val ninoGenerator: NinoGenerator = new NinoGenerator(new Random())
 
   def generateNino: String = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
 

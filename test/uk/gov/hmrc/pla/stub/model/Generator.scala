@@ -16,36 +16,27 @@
 
 package uk.gov.hmrc.pla.stub.model
 
-import cats.implicits._
 import org.scalacheck.Gen
-import org.scalacheck.cats.implicits._
-import uk.gov.hmrc.smartstub._
+import uk.gov.hmrc.domain.NinoGenerator
+import uk.gov.hmrc.smartstub.*
 
 import java.util.Random
 
 object Generator {
-  import uk.gov.hmrc.domain.Generator
 
   val rand          = new Random()
-  val ninoGenerator = new Generator(rand)
+  val ninoGenerator = new NinoGenerator(rand)
 
   def randomNino: String       = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
   def randomProtectionID: Long = rand.nextLong
 
   /** "^[0-9]{4}[ABCDEFGHJKLMNPRSTXYZ]$^"
     */
-  def refGenForProtectionType(protectionType: String): Gen[String] = {
-
-    val refType = List(
-      pattern"9999".gen,
-      Gen.oneOf("ABCDEFGHJKLMNPRSTXYZ".toList)
-    ).sequence
-
-    refType.map {
-      protectionType +
-        _.mkString
-    }
-  }
+  private def refGenForProtectionType(protectionType: String): Gen[String] =
+    for {
+      number <- pattern"9999".gen
+      suffix <- Gen.oneOf("ABCDEFGHJKLMNPRSTXYZ".toList)
+    } yield s"$protectionType$number$suffix"
 
   def refGenFP16: Option[String]                     = refGenForProtectionType("FP16").seeded(1L)
   def refGenIP16: Option[String]                     = refGenForProtectionType("IP16").seeded(1L)

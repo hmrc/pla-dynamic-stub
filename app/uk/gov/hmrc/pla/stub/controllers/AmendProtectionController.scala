@@ -52,7 +52,7 @@ class AmendProtectionController @Inject() (
         .map(_.lifetimeAllowanceProtectionRecord)
         .asEither
         .left
-        .map(JsonValidationFailed)
+        .map(JsonValidationFailed(_))
         .flatMap(AmendRequestValidation.validateRequest) match {
         case Left(error) => Future(error.toResult)
         case Right(lifetimeAllowanceProtectionRecord) =>

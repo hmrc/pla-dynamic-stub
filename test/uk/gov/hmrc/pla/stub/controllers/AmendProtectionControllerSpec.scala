@@ -29,7 +29,7 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{MessagesControllerComponents, PlayBodyParsers}
 import play.api.test.Helpers.{contentAsJson, contentAsString, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Injecting}
-import uk.gov.hmrc.domain.Generator
+import uk.gov.hmrc.domain.NinoGenerator
 import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 import uk.gov.hmrc.pla.stub.model.hip.AmendProtectionLifetimeAllowanceType._
 import uk.gov.hmrc.pla.stub.model.hip.Notification._
@@ -59,9 +59,9 @@ class AmendProtectionControllerSpec
     inject[PlayBodyParsers]
   )(inject[ExecutionContext], fixedClock)
 
-  val rand: Random             = new Random()
-  val ninoGenerator: Generator = new Generator(rand)
-  def randomNino: String       = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
+  val rand: Random                 = new Random()
+  val ninoGenerator: NinoGenerator = new NinoGenerator(rand)
+  def randomNino: String           = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
 
   override def beforeEach(): Unit = {
     reset(mockProtectionService)
