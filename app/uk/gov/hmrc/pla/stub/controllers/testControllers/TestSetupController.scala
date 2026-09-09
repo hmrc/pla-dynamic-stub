@@ -17,7 +17,7 @@
 package uk.gov.hmrc.pla.stub.controllers.testControllers
 
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.pla.stub.model.{Error, Protections}
 import uk.gov.hmrc.pla.stub.services.ProtectionService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Success
 
 class TestSetupController @Inject() (
-    controllerComponents: play.api.mvc.MessagesControllerComponents,
+    controllerComponents: ControllerComponents,
     protectionService: ProtectionService
 )(using ExecutionContext)
     extends BackendController(controllerComponents) {
