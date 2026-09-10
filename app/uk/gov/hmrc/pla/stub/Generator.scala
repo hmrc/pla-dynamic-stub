@@ -16,51 +16,43 @@
 
 package uk.gov.hmrc.pla.stub
 
-import cats.implicits._
 import org.scalacheck.Gen
-import org.scalacheck.cats.implicits._
 import uk.gov.hmrc.pla.stub.model.hip.{Protection, ProtectionStatus, ProtectionType}
 import uk.gov.hmrc.pla.stub.model.{DateModel, Protections, TimeModel}
-import uk.gov.hmrc.smartstub.Enumerable.instances.utrEnum
-import uk.gov.hmrc.smartstub.{AdvGen, _}
+import uk.gov.hmrc.smartstub.*
+import uk.gov.hmrc.smartstub.Enumerable.instances.ninoEnumNoSpaces
 
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter._
+import java.time.format.DateTimeFormatter.*
 
 object Generator {
 
   /** "^[1-9A][0-9]{6}[ABCDEFHXJKLMNYPQRSTZW]|(IP14|IP16|FP16)[0-9]{10}[ABCDEFGHJKLMNPRSTXYZ]$^"
     */
-  val refGen: Gen[String] = {
-    val refOne = List(
-      Gen.oneOf("A" :: {
-        1 to 9
-      }.map {
-        _.toString
-      }.toList),
-      pattern"999999".gen,
-      Gen.oneOf("ABCDEFHXJKLMNYPQRSTZW".toList)
-    ).sequence
+  private val genProtectionReference: Gen[String] = {
+    val refOne: Gen[String] = for {
+      prefix <- Gen.oneOf("A123456789".toList)
+      number <- pattern"999999".gen
+      suffix <- Gen.oneOf("ABCDEFHXJKLMNYPQRSTZW".toList)
+    } yield s"$prefix$number$suffix"
 
-    val refTwo = List(
-      Gen.oneOf("IP14", "IP16", "FP16"),
-      pattern"9999999999".gen,
-      Gen.oneOf("ABCDEFGHJKLMNPRSTXYZ".toList)
-    ).sequence
+    val refTwo: Gen[String] = for {
+      prefix <- Gen.oneOf("IP14", "IP16", "FP16")
+      number <- pattern"9999999999".gen
+      suffix <- Gen.oneOf("ABCDEFGHJKLMNPRSTXYZ".toList)
+    } yield s"$prefix$number$suffix"
 
-    Gen.oneOf(refOne, refTwo).map {
-      _.mkString
-    }
+    Gen.oneOf(refOne, refTwo)
   }
 
   /** "^PSA[0-9]{8}[A-Z]?$^"
     */
-  val pensionSchemeAdministratorCheckReferenceGen: Gen[String] =
+  val genPensionSchemeAdministratorCheckReference: Gen[String] =
     pattern"99999999Z".map("PSA" + _)
 
-  val genDate: Gen[DateModel] = Gen.date(2014, 2017).map(DateModel(_))
+  private val genDate: Gen[DateModel] = Gen.date(2014, 2017).map(DateModel(_))
 
-  val genTime: Gen[TimeModel] = Gen.choose(0, 24 * 60 * 60).map { x =>
+  private val genTime: Gen[TimeModel] = Gen.choose(0, 24 * 60 * 60).map { x =>
     TimeModel(
       LocalTime.parse(
         {
@@ -71,54 +63,79 @@ object Generator {
     )
   }
 
-  val genMoney: Gen[Option[Int]] =
-    Gen
-      .choose(1, 1000000000)
-      .sometimes
+  private val genMoney: Gen[Int] = Gen.choose(1, 1000000000)
 
-  val genPercentage: Gen[Int] = Gen.choose(0, 100)
+  private val genPercentage: Gen[Int] = Gen.choose(0, 100)
 
-  val genFactor: Gen[Double] = Gen.choose[Double](0, 1)
+  private val genFactor: Gen[Double] = Gen.choose[Double](0, 1)
 
-  def genProtection(nino: String): Gen[Protection] =
+  private val genId: Gen[Int] = Gen.choose(1, 7)
+
+  private val genVersion: Gen[Int] = Gen.choose(1, 5)
+
+  private val genStatus: Gen[ProtectionStatus] = Gen.oneOf(ProtectionStatus.values.toSeq)
+
+  private val genProtectionType: Gen[ProtectionType] = Gen.oneOf(ProtectionType.values.toSeq)
+
+  private def genProtection(nino: String): Gen[Protection] =
     for {
-      id         <- Gen.choose(1, 7)
-      version    <- Gen.choose(1, 5)
+      id         <- genId
+      version    <- genVersion
       protection <- genProtection(nino, id, version)
     } yield protection
 
   private def genProtection(nino: String, id: Long, sequence: Int): Gen[Protection] =
-    (
-      Gen.const(nino),
-      Gen.const(id),
-      Gen.const(sequence),
-      Gen.oneOf(ProtectionStatus.values),
-      Gen.oneOf(ProtectionType.values),
-      genMoney.map(_.getOrElse(0)),
-      genMoney.map(_.getOrElse(0)),
-      genMoney.map(_.getOrElse(0)),
-      genMoney.map(_.getOrElse(0)),
-      genMoney.map(_.getOrElse(0)),
-      genDate,
-      genTime,
-      refGen.sometimes,
-      genMoney,
-      genMoney,
-      genMoney,
-      genDate.sometimes,
-      genMoney,
-      genMoney,
-      genFactor.sometimes,
-      genPercentage.sometimes
+    for {
+      status                                    <- genStatus
+      protectionType                            <- genProtectionType
+      relevantAmount                            <- genMoney
+      preADayPensionInPaymentAmount             <- genMoney
+      postADayBenefitCrystallisationEventAmount <- genMoney
+      uncrystallisedRightsAmount                <- genMoney
+      nonUKRightsAmount                         <- genMoney
+      certificateDate                           <- genDate
+      certificateTime                           <- genTime
+      protectionReference                       <- genProtectionReference.sometimes
+      pensionDebitAmount                        <- genMoney.sometimes
+      pensionDebitEnteredAmount                 <- genMoney.sometimes
+      protectedAmount                           <- genMoney.sometimes
+      pensionDebitStartDate                     <- genDate.sometimes
+      pensionDebitTotalAmount                   <- genMoney.sometimes
+      lumpSumAmount                             <- genMoney.sometimes
+      enhancementFactor                         <- genFactor.sometimes
+      lumpSumPercentage                         <- genPercentage.sometimes
+    } yield Protection(
+      nino = nino,
+      id = id,
+      sequence = sequence,
+      status = status,
+      `type` = protectionType,
+      relevantAmount = relevantAmount,
+      preADayPensionInPaymentAmount = preADayPensionInPaymentAmount,
+      postADayBenefitCrystallisationEventAmount = postADayBenefitCrystallisationEventAmount,
+      uncrystallisedRightsAmount = uncrystallisedRightsAmount,
+      nonUKRightsAmount = nonUKRightsAmount,
+      certificateDate = certificateDate,
+      certificateTime = certificateTime,
+      protectionReference = protectionReference,
+      pensionDebitAmount = pensionDebitAmount,
+      pensionDebitEnteredAmount = pensionDebitEnteredAmount,
+      protectedAmount = protectedAmount,
+      pensionDebitStartDate = pensionDebitStartDate,
+      pensionDebitTotalAmount = pensionDebitTotalAmount,
+      lumpSumAmount = lumpSumAmount,
+      enhancementFactor = enhancementFactor,
+      lumpSumPercentage = lumpSumPercentage
     )
-      .mapN(Protection.apply)
 
-  def genProtections(nino: String): Gen[Protections] = (
-    Gen.const(nino),
-    pensionSchemeAdministratorCheckReferenceGen.sometimes,
-    Gen.choose(2, 5).flatMap(n => Gen.listOfN(n, genProtection(nino)))
+  private def genProtections(nino: String): Gen[Protections] = for {
+    pensionSchemeAdministratorCheckReference <- genPensionSchemeAdministratorCheckReference.sometimes
+    protections                              <- Gen.choose(2, 5).flatMap(n => Gen.listOfN(n, genProtection(nino)))
+  } yield Protections(
+    nino = nino,
+    pensionSchemeAdministratorCheckReference = pensionSchemeAdministratorCheckReference,
+    protections = protections
   )
-    .mapN(Protections.apply)
 
   val protectionsStore: PersistentGen[String, Protections] = genProtections("").asMutable[String]
 

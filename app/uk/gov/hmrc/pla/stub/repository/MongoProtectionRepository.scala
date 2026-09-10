@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.pla.stub.repository
 
-import org.mongodb.scala.model.Filters._
-import org.mongodb.scala.model.Indexes._
+import org.mongodb.scala.model.Filters.*
+import org.mongodb.scala.model.Indexes.*
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -26,20 +26,11 @@ import uk.gov.hmrc.pla.stub.model.Protections
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait ProtectionRepository {
-  def findAllProtectionsByNino(nino: String): Future[List[Protections]]
-  def findProtectionsByNino(nino: String): Future[Option[Protections]]
-  def insertProtection(protections: Protections): Future[Unit]
-  def removeByNino(nino: String): Future[Unit]
-  def removeAllProtections(): Future[Unit]
-  def removeProtectionsCollection(): Future[Boolean]
-}
-
 @Singleton
 class MongoProtectionRepository @Inject() (
-    mongoComponent: MongoComponent,
-    implicit val ec: ExecutionContext
-) extends PlayMongoRepository[Protections](
+    mongoComponent: MongoComponent
+)(using ExecutionContext)
+    extends PlayMongoRepository[Protections](
       mongoComponent = mongoComponent,
       collectionName = "protections",
       domainFormat = Protections.format,
@@ -52,27 +43,26 @@ class MongoProtectionRepository @Inject() (
             .sparse(true)
         )
       )
-    )
-    with ProtectionRepository {
+    ) {
 
-  override def findAllProtectionsByNino(nino: String): Future[List[Protections]] =
+  def findAllProtectionsByNino(nino: String): Future[List[Protections]] =
     collection.find(equal("nino", nino)).toFuture().map(_.toList)
 
-  override def findProtectionsByNino(nino: String): Future[Option[Protections]] =
+  def findProtectionsByNino(nino: String): Future[Option[Protections]] =
     findAllProtectionsByNino(nino).map {
       _.headOption
     }
 
-  override def removeByNino(nino: String): Future[Unit] =
+  def removeByNino(nino: String): Future[Unit] =
     collection.deleteOne(equal("nino", nino)).toFuture().map { _ => }
 
-  override def removeAllProtections(): Future[Unit] =
+  def removeAllProtections(): Future[Unit] =
     collection.deleteMany(empty()).toFuture().map { _ => }
 
-  override def removeProtectionsCollection(): Future[Boolean] =
+  def removeProtectionsCollection(): Future[Boolean] =
     collection.drop().toFuture().map(_ => true)
 
-  override def insertProtection(protections: Protections): Future[Unit] =
+  def insertProtection(protections: Protections): Future[Unit] =
     collection.insertOne(protections).toFuture().map(_ => (): Unit)
 
 }

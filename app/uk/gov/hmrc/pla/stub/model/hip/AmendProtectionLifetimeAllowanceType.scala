@@ -16,46 +16,38 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import uk.gov.hmrc.pla.stub.utils.{Enumerable, EnumerableInstance}
+import uk.gov.hmrc.pla.stub.utils.{JsonEnum, JsonEnumFormat}
 
-sealed abstract class AmendProtectionLifetimeAllowanceType(val value: String, val toProtectionType: ProtectionType)
-    extends EnumerableInstance(value) {}
+enum AmendProtectionLifetimeAllowanceType(override val jsonString: String, val toProtectionType: ProtectionType)
+    extends JsonEnum {
 
-object AmendProtectionLifetimeAllowanceType extends Enumerable.Implicits {
-
-  case object IndividualProtection2014
+  case IndividualProtection2014
       extends AmendProtectionLifetimeAllowanceType(
         "INDIVIDUAL PROTECTION 2014",
         ProtectionType.IndividualProtection2014
       )
 
-  case object IndividualProtection2016
+  case IndividualProtection2016
       extends AmendProtectionLifetimeAllowanceType(
         "INDIVIDUAL PROTECTION 2016",
         ProtectionType.IndividualProtection2016
       )
 
-  case object IndividualProtection2014LTA
+  case IndividualProtection2014LTA
       extends AmendProtectionLifetimeAllowanceType(
         "INDIVIDUAL PROTECTION 2014 LTA",
         ProtectionType.IndividualProtection2014LTA
       )
 
-  case object IndividualProtection2016LTA
+  case IndividualProtection2016LTA
       extends AmendProtectionLifetimeAllowanceType(
         "INDIVIDUAL PROTECTION 2016 LTA",
         ProtectionType.IndividualProtection2016LTA
       )
 
-  val values: Seq[AmendProtectionLifetimeAllowanceType] = Seq(
-    IndividualProtection2014,
-    IndividualProtection2016,
-    IndividualProtection2014LTA,
-    IndividualProtection2016LTA
-  )
+}
 
-  implicit val toEnumerable: Enumerable[AmendProtectionLifetimeAllowanceType] =
-    Enumerable(values.map(v => v.toString -> v): _*)
+object AmendProtectionLifetimeAllowanceType extends JsonEnumFormat[AmendProtectionLifetimeAllowanceType] {
 
   def from(protectionType: ProtectionType): AmendProtectionLifetimeAllowanceType = protectionType match {
     case ProtectionType.IndividualProtection2014    => AmendProtectionLifetimeAllowanceType.IndividualProtection2014
@@ -64,7 +56,7 @@ object AmendProtectionLifetimeAllowanceType extends Enumerable.Implicits {
     case ProtectionType.IndividualProtection2016LTA => AmendProtectionLifetimeAllowanceType.IndividualProtection2016LTA
     case _ =>
       throw new IllegalArgumentException(
-        s"Cannot convert ProtectionType: ${protectionType.value} into AmendProtectionLifetimeAllowanceType. Possible protection types are: ${values.map(_.value).mkString("[", ", ", "]")}"
+        s"Cannot convert ProtectionType: ${protectionType.jsonString} into AmendProtectionLifetimeAllowanceType. Possible protection types are: ${values.map(_.jsonString).mkString("[", ", ", "]")}"
       )
   }
 

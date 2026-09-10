@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 
 case class AmendProtectionResponse(
     updatedLifetimeAllowanceProtectionRecord: UpdatedLifetimeAllowanceProtectionRecord
 )
 
 object AmendProtectionResponse {
-  implicit val format: Format[AmendProtectionResponse] = Json.format[AmendProtectionResponse]
+  given OFormat[AmendProtectionResponse] = Json.format[AmendProtectionResponse]
 
   def from(
       protection: Protection,

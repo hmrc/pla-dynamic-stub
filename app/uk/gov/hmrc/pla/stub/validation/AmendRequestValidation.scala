@@ -17,7 +17,7 @@
 package uk.gov.hmrc.pla.stub.validation
 
 import uk.gov.hmrc.pla.stub.model.hip.{LifetimeAllowanceProtectionRecord, Protection}
-import uk.gov.hmrc.pla.stub.validation.AmendRequestValidationError._
+import uk.gov.hmrc.pla.stub.validation.AmendRequestValidationError.*
 
 object AmendRequestValidation {
 

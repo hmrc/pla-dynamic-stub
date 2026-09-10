@@ -9,7 +9,7 @@ lazy val playSettings: Seq[Setting[_]] = Seq.empty
 
 val appName = "pla-dynamic-stub"
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.3.7"
 
 lazy val plugins: Seq[Plugins] = Seq.empty
 
@@ -31,11 +31,13 @@ lazy val root = Project(appName, file("."))
   .settings(defaultSettings(): _*)
   .settings(
     libraryDependencies ++= AppDependencies(),
-    Test / parallelExecution              := false,
-    Test / fork                           := false,
-    retrieveManaged                       := true,
+    Test / parallelExecution := false,
+    Test / fork              := false,
+    retrieveManaged          := true,
     scalacOptions ++= Seq(
-      "-Wconf:cat=unused-imports&src=routes/.*:s",
-      "-Wconf:cat=unused&src=routes/.*:s"
+      "-Wconf:msg=unused-imports&src=routes/.*:s",
+      "-Wconf:msg=unused&src=routes/.*:s",
+      "-Wconf:msg=Flag.*repeatedly:s",
+      "-Wconf:msg=Setting -Wunused set to all redundantly:s"
     )
   )

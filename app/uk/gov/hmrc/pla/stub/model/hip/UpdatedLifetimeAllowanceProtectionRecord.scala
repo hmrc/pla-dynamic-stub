@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 
 case class UpdatedLifetimeAllowanceProtectionRecord(
@@ -42,7 +42,6 @@ case class UpdatedLifetimeAllowanceProtectionRecord(
 
 object UpdatedLifetimeAllowanceProtectionRecord {
 
-  implicit val format: Format[UpdatedLifetimeAllowanceProtectionRecord] =
-    Json.format[UpdatedLifetimeAllowanceProtectionRecord]
+  given OFormat[UpdatedLifetimeAllowanceProtectionRecord] = Json.format[UpdatedLifetimeAllowanceProtectionRecord]
 
 }

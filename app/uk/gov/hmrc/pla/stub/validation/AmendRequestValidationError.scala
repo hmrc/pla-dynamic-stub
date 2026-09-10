@@ -20,87 +20,86 @@ import play.api.libs.json.{JsPath, Json, JsonValidationError}
 import play.api.mvc.Result
 import play.api.mvc.Results.{BadRequest, NotFound, Status, UnprocessableEntity}
 import uk.gov.hmrc.pla.stub.model.Error
+
 import scala.collection.Seq
 
-sealed abstract class AmendRequestValidationError(val status: Status, val message: String) {
+enum AmendRequestValidationError(val status: Status, val message: String) {
+
   def toResult: Result = status(Json.toJson(Error(message)))
-}
 
-object AmendRequestValidationError {
-
-  case class JsonValidationFailed(errors: Seq[(JsPath, Seq[JsonValidationError])])
+  case JsonValidationFailed(errors: Seq[(JsPath, Seq[JsonValidationError])])
       extends AmendRequestValidationError(
         BadRequest,
         "failed validation with errors: " + errors
       )
 
-  case class IncorrectRelevantAmount(relevantAmount: Int, calculatedRelevantAmount: Int)
+  case IncorrectRelevantAmount(relevantAmount: Int, calculatedRelevantAmount: Int)
       extends AmendRequestValidationError(
         UnprocessableEntity,
         s"The specified Relevant Amount $relevantAmount is not the sum of the specified breakdown amounts $calculatedRelevantAmount (non UK Rights + Post A Day BCE + Pre A Day Pensions In Payment + Uncrystallised Rights - Pension Debit Total Amount)"
       )
 
-  case object IncompletePensionDebit
+  case IncompletePensionDebit
       extends AmendRequestValidationError(
         UnprocessableEntity,
         "incomplete pension debits information - require either both, or neither of pension debit start date and pension debit entered amount"
       )
 
-  case object RelevantAmountNotPositive
+  case RelevantAmountNotPositive
       extends AmendRequestValidationError(
         BadRequest,
         "relevant amount must be positive"
       )
 
-  case object NonUKRightsAmountNotPositive
+  case NonUKRightsAmountNotPositive
       extends AmendRequestValidationError(
         BadRequest,
         "non UK rights amount must be positive"
       )
 
-  case object PostADayBenefitCrystallisationEventAmountNotPositive
+  case PostADayBenefitCrystallisationEventAmountNotPositive
       extends AmendRequestValidationError(
         BadRequest,
         "post A day benefit crystallisation event amount must be positive"
       )
 
-  case object PreADayPensionInPaymentAmountNotPositive
+  case PreADayPensionInPaymentAmountNotPositive
       extends AmendRequestValidationError(
         BadRequest,
         "pre A day pension in payment amount must be positive"
       )
 
-  case object UncrystallisedRightsAmountNotPositive
+  case UncrystallisedRightsAmountNotPositive
       extends AmendRequestValidationError(
         BadRequest,
         "uncrystallised rights amount must be positive"
       )
 
-  case object PensionDebitEnteredAmountNotPositive
+  case PensionDebitEnteredAmountNotPositive
       extends AmendRequestValidationError(
         BadRequest,
         "pension debit entered amount must be positive"
       )
 
-  case object ProtectionNotFound
+  case ProtectionNotFound
       extends AmendRequestValidationError(
         NotFound,
         "protection to amend not found"
       )
 
-  case object ProtectionTypeDoesNotMatch
+  case ProtectionTypeDoesNotMatch
       extends AmendRequestValidationError(
         BadRequest,
         "specified protection type does not match that of the protection to be amended"
       )
 
-  case object ProtectionSequenceDoesNotMatch
+  case ProtectionSequenceDoesNotMatch
       extends AmendRequestValidationError(
         BadRequest,
         "specified protection sequence does not match that of the protection to be amended"
       )
 
-  case object PensionDebitTotalAmountDoesNotMatch
+  case PensionDebitTotalAmountDoesNotMatch
       extends AmendRequestValidationError(
         BadRequest,
         "specified pension debit total amount does not match that of the protection to be amended"

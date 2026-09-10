@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pla.stub.testdata
+package uk.gov.hmrc.pla.stub.utils
 
-import uk.gov.hmrc.domain.Generator
-
-import java.util.Random
-
-object RandomNinoGenerator {
-
-  private lazy val ninoGenerator: Generator = new Generator(new Random())
-
-  def generateNino: String = ninoGenerator.nextNino.nino.replaceFirst("MA", "AA")
-
+trait JsonEnum {
+  val jsonString: String
 }

@@ -16,29 +16,16 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import uk.gov.hmrc.pla.stub.utils.{Enumerable, EnumerableInstance}
+import uk.gov.hmrc.pla.stub.utils.{JsonEnum, JsonEnumFormat}
 
-sealed abstract class ProtectionStatus(value: String) extends EnumerableInstance(value) {}
+enum ProtectionStatus(override val jsonString: String) extends JsonEnum {
 
-object ProtectionStatus extends Enumerable.Implicits {
-
-  case object Open         extends ProtectionStatus("OPEN")
-  case object Dormant      extends ProtectionStatus("DORMANT")
-  case object Withdrawn    extends ProtectionStatus("WITHDRAWN")
-  case object Expired      extends ProtectionStatus("EXPIRED")
-  case object Unsuccessful extends ProtectionStatus("UNSUCCESSFUL")
-  case object Rejected     extends ProtectionStatus("REJECTED")
-
-  val values: Seq[ProtectionStatus] = Seq(
-    Open,
-    Dormant,
-    Withdrawn,
-    Expired,
-    Unsuccessful,
-    Rejected
-  )
-
-  implicit val enumerable: Enumerable[ProtectionStatus] =
-    Enumerable(values.map(v => v.toString -> v): _*)
-
+  case Open         extends ProtectionStatus("OPEN")
+  case Dormant      extends ProtectionStatus("DORMANT")
+  case Withdrawn    extends ProtectionStatus("WITHDRAWN")
+  case Expired      extends ProtectionStatus("EXPIRED")
+  case Unsuccessful extends ProtectionStatus("UNSUCCESSFUL")
+  case Rejected     extends ProtectionStatus("REJECTED")
 }
+
+object ProtectionStatus extends JsonEnumFormat[ProtectionStatus]

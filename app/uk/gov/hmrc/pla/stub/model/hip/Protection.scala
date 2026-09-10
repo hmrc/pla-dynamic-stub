@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.pla.stub.model.hip
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
 
 case class Protection(
@@ -45,6 +45,6 @@ case class Protection(
 
 object Protection {
 
-  implicit lazy val protectionFormat: Format[Protection] = Json.format[Protection]
+  given Format: OFormat[Protection] = Json.format[Protection]
 
 }

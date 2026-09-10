@@ -18,17 +18,17 @@ package uk.gov.hmrc.pla.stub.rules
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.pla.stub.model.hip.Notification._
+import uk.gov.hmrc.pla.stub.model.hip.Notification.*
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionStatus.Dormant
-import uk.gov.hmrc.pla.stub.model.hip.ProtectionType._
+import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.*
 import uk.gov.hmrc.pla.stub.model.hip.{Protection, ProtectionStatus, ProtectionType}
 import uk.gov.hmrc.pla.stub.model.{DateModel, TimeModel}
-import uk.gov.hmrc.pla.stub.rules.AmendmentRules._
-import uk.gov.hmrc.pla.stub.testdata.RandomNinoGenerator
+import uk.gov.hmrc.pla.stub.rules.AmendmentRules.*
+import uk.gov.hmrc.pla.stub.testdata.TestDataGenerator
 
 class AmendmentRulesSpec extends AnyWordSpec with Matchers {
 
-  private val nino         = RandomNinoGenerator.generateNino
+  private val nino         = TestDataGenerator.randomNino
   private val protectionId = 1
   private val sequence     = 1
 
@@ -64,7 +64,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(FixedProtection2016, FixedProtection2016LTA).foreach { fixedProtection2016Type =>
-        s"the dormant protection type is ${fixedProtection2016Type.value}" should {
+        s"the dormant protection type is ${fixedProtection2016Type.jsonString}" should {
           "return Notification no. 7" in {
             val dormantProtection = protection.copy(`type` = fixedProtection2016Type, status = Dormant)
 
@@ -77,7 +77,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       ProtectionType.values.diff(Seq(FixedProtection2016, FixedProtection2016LTA)).foreach { protectionType =>
-        s"the open protection type is ${protectionType.value}" should {
+        s"the open protection type is ${protectionType.jsonString}" should {
           "return Notification no. 6" in {
             val openProtection = protection.copy(`type` = protectionType)
 
@@ -104,7 +104,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(EnhancedProtection, EnhancedProtectionLTA).foreach { enhancedProtectionType =>
-        s"the open protection type is ${enhancedProtectionType.value}" should {
+        s"the open protection type is ${enhancedProtectionType.jsonString}" should {
           "return Notification no. 2" in {
             val openProtection = protection.copy(`type` = enhancedProtectionType)
 
@@ -117,7 +117,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(FixedProtection, FixedProtectionLTA).foreach { fixedProtectionType =>
-        s"the open protection type is ${fixedProtectionType.value}" should {
+        s"the open protection type is ${fixedProtectionType.jsonString}" should {
           "return Notification no. 3" in {
             val openProtection = protection.copy(`type` = fixedProtectionType)
 
@@ -130,7 +130,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(FixedProtection2014, FixedProtection2014LTA).foreach { fixedProtection2014Type =>
-        s"the open protection type is ${fixedProtection2014Type.value}" should {
+        s"the open protection type is ${fixedProtection2014Type.jsonString}" should {
           "return Notification no. 4" in {
             val openProtection = protection.copy(`type` = fixedProtection2014Type)
 
@@ -143,7 +143,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(FixedProtection2016, FixedProtection2016LTA).foreach { fixedProtection2016Type =>
-        s"the dormant protection type is ${fixedProtection2016Type.value}" should {
+        s"the dormant protection type is ${fixedProtection2016Type.jsonString}" should {
           "return Notification no. 5" in {
             val dormantProtection = protection.copy(`type` = fixedProtection2016Type, status = Dormant)
 
@@ -169,7 +169,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
           )
         )
         .foreach { protectionType =>
-          s"the open protection type is ${protectionType.value}" should {
+          s"the open protection type is ${protectionType.jsonString}" should {
             "return Notification no. 1" in {
               val openProtection = protection.copy(`type` = protectionType)
 
@@ -199,7 +199,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(FixedProtection2016, FixedProtection2016LTA).foreach { fixedProtection2016Type =>
-        s"the dormant protection type is ${fixedProtection2016Type.value}" should {
+        s"the dormant protection type is ${fixedProtection2016Type.jsonString}" should {
           "return Notification no. 14" in {
             val openProtection    = protection.copy(`type` = IndividualProtection2016)
             val dormantProtection = protection.copy(`type` = fixedProtection2016Type, status = ProtectionStatus.Dormant)
@@ -213,7 +213,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       ProtectionType.values.diff(Seq(FixedProtection2016, FixedProtection2016LTA)).foreach { protectionType =>
-        s"the open protection type is ${protectionType.value}" should {
+        s"the open protection type is ${protectionType.jsonString}" should {
           "return Notification no. 13" in {
             val openProtection = protection.copy(`type` = protectionType)
 
@@ -240,7 +240,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(EnhancedProtection, EnhancedProtectionLTA).foreach { enhancedProtectionType =>
-        s"the open protection type is ${enhancedProtectionType.value}" should {
+        s"the open protection type is ${enhancedProtectionType.jsonString}" should {
           "return Notification no. 9" in {
             val openProtection = protection.copy(`type` = enhancedProtectionType)
 
@@ -253,7 +253,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(FixedProtection, FixedProtectionLTA).foreach { fixedProtectionType =>
-        s"the open protection type is ${fixedProtectionType.value}" should {
+        s"the open protection type is ${fixedProtectionType.jsonString}" should {
           "return Notification no. 10" in {
             val openProtection = protection.copy(`type` = fixedProtectionType)
 
@@ -266,7 +266,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(FixedProtection2014, FixedProtection2014LTA).foreach { fixedProtection2014Type =>
-        s"the open protection type is ${fixedProtection2014Type.value}" should {
+        s"the open protection type is ${fixedProtection2014Type.jsonString}" should {
           "return Notification no. 11" in {
             val openProtection = protection.copy(`type` = fixedProtection2014Type)
 
@@ -279,7 +279,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
       }
 
       Seq(FixedProtection2016, FixedProtection2016LTA).foreach { fixedProtection2016Type =>
-        s"the open protection type is ${fixedProtection2016Type.value}" should {
+        s"the open protection type is ${fixedProtection2016Type.jsonString}" should {
           "return Notification no. 12" in {
             val openProtection = protection.copy(`type` = fixedProtection2016Type)
 
@@ -305,7 +305,7 @@ class AmendmentRulesSpec extends AnyWordSpec with Matchers {
           )
         )
         .foreach { protectionType =>
-          s"the open protection type is ${protectionType.value}" should {
+          s"the open protection type is ${protectionType.jsonString}" should {
             "return Notification no. 8" in {
               val openProtection = protection.copy(`type` = protectionType)
 

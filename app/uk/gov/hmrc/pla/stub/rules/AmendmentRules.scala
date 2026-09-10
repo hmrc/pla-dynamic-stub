@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.pla.stub.rules
 
-import uk.gov.hmrc.pla.stub.model.hip.Notification._
+import uk.gov.hmrc.pla.stub.model.hip.Notification.*
 import uk.gov.hmrc.pla.stub.model.hip.ProtectionType.{
   EnhancedProtection,
   EnhancedProtectionLTA,
