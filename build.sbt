@@ -9,7 +9,7 @@ lazy val playSettings: Seq[Setting[_]] = Seq.empty
 
 val appName = "pla-dynamic-stub"
 ThisBuild / majorVersion := 0
-ThisBuild / scalaVersion := "3.3.7"
+ThisBuild / scalaVersion := "3.3.9"
 
 lazy val plugins: Seq[Plugins] = Seq.empty
 
